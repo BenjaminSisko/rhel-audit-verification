@@ -1,0 +1,3 @@
+record_id,au2_requirement,event_group,event_action,required_outcome,linux_evidence_hint,local_catalog,test_id,validation_state
+USB-ATTACH,Supplemental,USB device presence — not file transfer,USB attachment,success,Kernel New USB device found observation,USB,USB-ATTACH,Needs Validation
+USB-DETACH,Supplemental,USB device presence — not file transfer,USB disconnection,success,Kernel USB disconnect observation,USB,USB-DETACH,Needs Validation

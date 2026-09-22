@@ -1,0 +1,36 @@
+eval aulx_actions=mvappend(
+if(native_kind="kernel-usb",usb_action,null()),
+if(mvfind(audit_record_types,"^(USER_AUTH|USER_LOGIN)$")>=0 OR isnotnull(ssh_status) OR pam_state="opened","Sign-in",null()),
+if(mvfind(audit_record_types,"^(USER_LOGOUT|USER_END)$")>=0 OR pam_state="closed","Sign-out",null()),
+if(mvfind(syscall_name,"^(creat|mkdir|mkdirat)$")>=0,"Create",null()),
+if(mvfind(syscall_name,"^(open|openat|openat2|read|access|faccessat|faccessat2)$")>=0,"Read/access",null()),
+if(mvfind(syscall_name,"^(unlink|unlinkat|rmdir)$")>=0,"Delete",null()),
+if(mvfind(syscall_name,"^(write|truncate|ftruncate|rename|renameat|renameat2)$")>=0,"Modify",null()),
+if(mvfind(syscall_name,"^(chmod|fchmod|fchmodat|fchmodat2)$")>=0,"Change permission",null()),
+if(mvfind(syscall_name,"^(chown|lchown|fchown|fchownat)$")>=0,"Change ownership",null()),
+if(mvfind(audit_record_types,"^ADD_USER$")>=0,"Add user",null()),
+if(mvfind(audit_record_types,"^DEL_USER$")>=0,"Delete user",null()),
+if(mvfind(audit_record_types,"^(USER_CHAUTHTOK|CHUSER_ID)$")>=0,"Modify user",null()),
+if(mvfind(audit_record_types,"^USER_MGMT$")>=0 AND mvfind(operation,"^changing-(comment|expiration-date|home-dir|shell|uid|gid)(?:[ ]|$)")>=0,"Modify user",null()),
+if(mvfind(audit_record_types,"^ACCT_LOCK$")>=0 AND mvfind(operation,"^locked-password(?:[ ]|$)")>=0,"Lock user",null()),
+if(mvfind(audit_record_types,"^ADD_GROUP$")>=0,"Add group/role",null()),
+if(mvfind(audit_record_types,"^DEL_GROUP$")>=0,"Delete group/role",null()),
+if(mvfind(audit_record_types,"^CHGRP_ID$")>=0,"Modify group/role",null()),
+if(mvfind(audit_record_types,"^GRP_MGMT$")>=0 AND mvfind(operation,"^add-shadow-group(?:[ ]|$)")>=0,"Add group/role",null()),
+if(mvfind(audit_record_types,"^GRP_MGMT$")>=0 AND mvfind(operation,"^delete-(shadow-)?group(?:[ ]|$)")>=0,"Delete group/role",null()),
+if(mvfind(audit_record_types,"^GRP_MGMT$")>=0 AND mvfind(operation,"^(modify-group|changing-(shadow-)?group)(?:[ ]|$)")>=0,"Modify group/role",null()),
+if(mvfind(audit_record_types,"^CONFIG_CHANGE$")>=0,"Change security/audit policy",null()),
+if(mvfind(syscall_name,"^(execve|execveat)$")>=0 AND outcome="success" AND effective_uid="0" AND isnotnull(login_uid) AND login_uid!="0" AND login_uid!="4294967295","Administrative/root access",null()),
+if(mvfind(syscall_name,"^(execve|execveat)$")>=0,"Start application",null()),
+if(mvfind(audit_keys,"^au2_config_change$")>=0,"Change configuration",null()),
+if(mvfind(audit_keys,"^au2_security_log_access$")>=0,"Access audit/security logs",null()),
+if(mvfind(audit_record_types,"^SYSTEM_SHUTDOWN$")>=0,"Shutdown",null()),
+if(native_kind="application-json",json_action,null()))
+| eval aulx_actions=coalesce(aulx_actions,"Unmapped event")
+| mvexpand aulx_actions
+| rename aulx_actions AS event_action
+| lookup aulx_action_catalog.csv event_action OUTPUT au2_requirement event_group
+| lookup au2_linux_event_catalog.csv event_action required_outcome AS outcome OUTPUT record_id AS case_id test_id linux_evidence_hint
+| eval case_id=coalesce(case_id,"UNMAPPED"), mapping_state=if(case_id="UNMAPPED","Unmapped action/outcome — review required","Candidate mapping — source semantics require validation")
+| eval mapping_note=case(mvfind(audit_record_types,"^SYSTEM_BOOT$")>=0,"System boot observed; reboot cause and prior lifecycle sequence not established",mvfind(syscall_name,"^(setuid|setgid|setreuid|setresuid)$")>=0,"Identity-change syscall observed; privilege increase not established",mvfind(audit_keys,"^au2_(media_export|media_import|user_disable|user_lock|system_reboot|system_restart|system_shutdown|print_device|print_file)$")>=0,"Audit-rule label records collection intent, not completion of the named action",true(),null())
+| eval case_id=case(event_action="USB attachment" AND native_kind="kernel-usb","USB-ATTACH",event_action="USB disconnection" AND native_kind="kernel-usb","USB-DETACH",true(),case_id), au2_requirement=if(like(case_id,"USB-%"),"Supplemental",au2_requirement), event_group=if(like(case_id,"USB-%"),"USB device presence — not file transfer",event_group), mapping_state=if(like(case_id,"USB-%"),"Kernel device observation only; not media import/export evidence",mapping_state)

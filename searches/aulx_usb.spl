@@ -1,0 +1,15 @@
+spath path=_TRANSPORT output=lx_journal_transport
+| spath path=_BOOT_ID output=lx_journal_boot
+| spath path=_HOSTNAME output=lx_journal_host
+| spath path=MESSAGE output=lx_journal_message
+| eval lx_usb_transport=coalesce(lx_journal_transport,_TRANSPORT), lx_usb_message=if(sourcetype="linux:kernel:usb" AND (isnull(lx_usb_transport) OR lx_usb_transport="kernel"),coalesce(lx_journal_message,MESSAGE,_raw),null())
+| rex field=lx_usb_message "^usb (?<lx_usb_port>[0-9]+-[0-9]+(?:[.][0-9]+)*): (?<lx_usb_text>.*)$"
+| rex field=lx_usb_text "^new .* USB device number (?<lx_usb_number>[0-9]+) using (?<lx_usb_driver>[^ ]+)$"
+| rex field=lx_usb_text "^New USB device found, idVendor=(?<lx_usb_vendor>[0-9a-fA-F]+), idProduct=(?<lx_usb_product_id>[0-9a-fA-F]+)"
+| rex field=lx_usb_text "^Product: (?<lx_usb_product>.*)$"
+| rex field=lx_usb_text "^Manufacturer: (?<lx_usb_manufacturer>.*)$"
+| rex field=lx_usb_text "^USB disconnect, device number (?<lx_usb_disconnected>[0-9]+)$"
+| eval lx_usb_host=coalesce(lx_journal_host,_HOSTNAME,host), lx_usb_boot=coalesce(lx_journal_boot,_BOOT_ID,"boot-identity-not-recorded"), lx_usb_start=if(isnotnull(lx_usb_number),_time,null()), lx_usb_seen=if(isnotnull(lx_usb_number),lx_usb_number,null())
+| sort 0 _time
+| streamstats last(lx_usb_start) AS lx_usb_anchor last(lx_usb_seen) AS lx_usb_sequence BY lx_usb_host lx_usb_boot lx_usb_port
+| eval lx_usb_join=if(isnotnull(lx_usb_port) AND isnotnull(lx_usb_boot) AND isnull(lx_usb_disconnected) AND isnotnull(lx_usb_anchor) AND _time-lx_usb_anchor>=0 AND _time-lx_usb_anchor<=5,lx_usb_host."|usb|".lx_usb_boot."|".lx_usb_port."|".lx_usb_sequence."|".tostring(lx_usb_anchor),null()), lx_usb_action=case(isnotnull(lx_usb_vendor),"USB attachment",isnotnull(lx_usb_disconnected),"USB disconnection",true(),null())

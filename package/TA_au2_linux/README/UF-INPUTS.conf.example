@@ -1,0 +1,15 @@
+# REFERENCE ONLY — all monitors disabled. Do not deploy over existing inputs.
+# Review exact source paths, UF account permissions, duplication and index names.
+# Existing approved outputs.conf/TLS configuration is used separately.
+[monitor:///var/log/audit/audit.log]
+disabled = 1
+index = replace_with_approved_index
+sourcetype = linux:audit
+
+[monitor:///var/log/secure]
+disabled = 1
+index = replace_with_approved_index
+sourcetype = linux:secure
+
+# Application logging is source-specific. Use linux_app_audit only for the
+# normalized JSON schema in README.txt; do not label arbitrary logs as that type.

@@ -1,0 +1,10 @@
+.dashboard-body { background: #f1f4f7; }
+.dashboard-row .dashboard-panel { border: 1px solid #d7e0e9; border-radius: 10px; box-shadow: 0 2px 5px rgba(28, 47, 67, .06); }
+.dashboard-panel h2 { color: #153e5d; }
+.dashboard-panel .panel-title { font-weight: 600; border-bottom: 1px solid #e5eaf0; padding-bottom: 12px; }
+.audit-tile-status { min-height: 205px; padding: 0 8px 12px; color: #33475b; }
+.audit-tile-status p { margin: 8px 0; overflow-wrap: anywhere; line-height: 1.45; }
+.audit-tile-status strong { color: #163852; }
+.dashboard-panel[id^="tile_AU2_"] .table th,
+.dashboard-panel[id^="tile_AU2_"] .table td { font-size: 11px; overflow-wrap: anywhere; }
+@media print { .dashboard-panel { break-inside: avoid; box-shadow: none; } }

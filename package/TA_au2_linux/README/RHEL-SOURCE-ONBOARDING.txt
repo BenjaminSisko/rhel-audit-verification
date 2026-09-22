@@ -1,0 +1,85 @@
+RHEL source onboarding for verifiable weekly audit evidence
+===========================================================
+
+What the Splunk app can and cannot do
+-------------------------------------
+The .spl is the interpretation and review layer. A Universal Forwarder sends
+only the inputs configured on its RHEL host; it does not make auditd generate
+missing event families. The dashboard therefore fails closed: absent records
+or fields remain visible as gaps. Installing the app does not modify auditd,
+the forwarder, retention, or an application's logging configuration.
+
+A usable source requires all four layers:
+
+1. RHEL auditd/application logs generate the approved event types and content.
+2. A Universal Forwarder input reads the approved source without creating an
+   audit feedback loop or duplicating another collector.
+3. The receiver indexes the records with stable host/index/sourcetype values.
+4. This app normalizes, maps, samples, exports and records reviewer decisions.
+
+Source rule design
+------------------
+Do not enable every read/write syscall across a busy host. Select the actual
+application data/configuration paths and identities in the system's approved
+event catalog. Use path- or executable-scoped rules, include both success and
+failure where the kernel can distinguish them, and retain the login UID.
+Test rule volume before enforcing immutable mode. A cumulative audit lost
+counter above zero is a historical integrity warning; sample it again under
+load to determine whether loss is current, but never reset it to make a check
+green.
+
+When audit is immutable (-e 2), stage reviewed files under
+/etc/audit/rules.d, generate/check the compiled rules, and load them only in an
+approved reboot window. Preserve the old files and boot ID. After reboot verify
+auditctl -s, auditctl -l, the new boot ID, auditd/forwarder state, and current
+receipt in Splunk. A successful reboot does not prove a shutdown-failure case.
+
+Forwarder input design
+----------------------
+Never monitor /var/log/audit/audit.log through a path that is itself audited for
+read access: that can produce a read -> audit record -> read feedback loop. Use
+your supported direct input, audisp path, or a separately reviewed relay feed.
+If a relay copy is used, rotate it independently and bound its capacity. Keep
+auditd's protected primary log and the relay copy conceptually separate.
+
+Prove the relay under both quiet and representative peak conditions. Sample
+the kernel backlog/lost counters, auditd plugin-queue messages, relay-file
+timestamp and indexed receipt over the same bounded interval. On RHEL, an
+audisp-syslog -> journald -> imjournal -> rsyslog path can be rate-limited;
+the protected primary audit log may continue while the Splunk relay silently
+misses records. A current indexed timestamp does not by itself prove that the
+relay copy was continuous or lossless.
+
+Use exact sourcetypes expected by the app (for example linux:audit,
+linux:secure, linux:kernel:usb, and reviewed linux_app_audit JSON). Restrict a
+kernel USB input to the documented connection/disconnection pattern and exclude
+serial-number lines. USB presence is not media import/export evidence.
+
+Start and verify a journald input before the physical USB action. A first-run
+reader with no checkpoint may start at the current journal tail, so hardware
+enumerated earlier in the boot can be visible locally but absent from Splunk.
+Require a fresh connection/disconnection after the reader is active, compare
+boot ID and event time, and do not erase the checkpoint to manufacture replay.
+
+Application content and AU-3
+----------------------------
+The operating system cannot invent an application's business action, target,
+request ID, initiator/completer, remote context, or failure reason. Applications
+must emit those fields, or a reviewed source adapter must produce them from an
+authoritative application audit record. The normalized JSON example in
+README.txt is the supported contract. Do not infer missing semantics from an
+executable name or merely successful process start.
+
+Validation and weekly use
+-------------------------
+For each applicable action/outcome, perform an approved benign source action.
+Match source event ID/time to the indexed record, inspect the original record,
+confirm identity/action/outcome/object/application fields, and retain a review
+receipt only after human semantic review. Keep unsupported or unsafe failure
+tests as named gaps. Export a fixed weekly interval with aulx_review.py and
+retain its original records, manifest and hashes in approved evidence storage.
+Hashes detect later change; they do not prove the source never lost an event.
+
+The repository deployment/rhel/ reference pack contains sample rules and
+rotation policy. Those files are not installed by this app archive because
+search-head installation must never silently reconfigure endpoints.

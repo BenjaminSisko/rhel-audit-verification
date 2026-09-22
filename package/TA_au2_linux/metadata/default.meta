@@ -1,0 +1,15 @@
+[]
+access = read : [ * ], write : [ admin ]
+export = none
+
+[views/au2_linux_overview]
+access = read : [ * ], write : [ admin ]
+export = none
+
+[macros]
+access = read : [ * ], write : [ admin ]
+export = none
+
+[lookups/au2_linux_event_catalog.csv]
+access = read : [ * ], write : [ admin ]
+export = none

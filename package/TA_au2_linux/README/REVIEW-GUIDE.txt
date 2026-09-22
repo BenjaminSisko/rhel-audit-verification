@@ -1,0 +1,150 @@
+RHEL Audit Review Kit 1.4.4 — Universal Forwarder workflow
+========================================================
+
+Scope and prerequisites
+-----------------------
+This is a manual review kit, not a scheduled service or compliance certification.
+RHEL/application owners generate logs; existing Universal Forwarders collect
+configured inputs; Splunk indexes/retains them; this app interprets and exports
+the supported evidence. It does not configure audit rules, retention, roles,
+listeners, forwarding destinations or arbitrary application logging.
+Test deployment: Splunk Enterprise 10.4.3, RHEL8 x86_64 audit/auth source.
+Other source versions, architectures, applications and production scale need
+acceptance testing. Supplemental kernel USB records do not identify a person.
+
+1. Check what the Universal Forwarder actually collects
+-----------------------------------------------------
+On each approved RHEL host, an administrator can inspect (read-only):
+  /opt/splunkforwarder/bin/splunk btool inputs list --debug
+  /opt/splunkforwarder/bin/splunk btool outputs list --debug
+  systemctl is-active SplunkForwarder
+  sudo auditctl -s
+  sudo auditctl -l
+Do not publish output containing credentials or sensitive routing details.
+Verify audit/authentication logs and each required application's audit log are
+generated, readable by the existing forwarder account, and assigned the intended
+index, sourcetype and original host. Do not ingest the same audit trail through
+both a direct monitor and a copied/relayed file. UF-INPUTS.conf.example is a
+disabled reference only; review against existing inputs before applying it.
+Do not change permissions, policy or immutable audit rules just to make a tile
+green. Source audit rules and source-side application adapters are separate,
+approved configuration work. Read RHEL-SOURCE-ONBOARDING.txt before deploying
+those controls. A running forwarder is not proof of delivery.
+
+2. Install on the search head and select the scope
+------------------------------------------------
+Back up app/local configuration and operational lookups. Install the .spl.
+Set [aulx_source] in local/macros.conf to the approved RHEL indexes and hosts.
+Use the existing source macro syntax in README.txt. Generic discovery is not
+an authoritative OS inventory. Source lookup keys use the indexed host value;
+do not substitute a collector address or assume a hostname proves RHEL.
+
+3. Configure expected feeds without editing packaged defaults
+------------------------------------------------------------
+Create a separately named CSV lookup file, for example site_expected_sources.csv,
+with the header in lookups/aulx_expected_sources.csv. Required columns:
+  event_host,index,sourcetype,owner,max_silence_seconds,enabled
+Use exact indexed host/index/sourcetype values, no wildcards; one row per feed.
+enabled is 1 or 0. Owner is required. max_silence_seconds is a positive number
+chosen by the source owner for that feed's expected activity. A quiet security
+source is not necessarily broken; investigate before deciding. Separate health
+telemetry is preferable to inventing artificial security events as heartbeats.
+Override only the lookup binding in local/transforms.conf:
+  [aulx_expected_sources]
+  filename = site_expected_sources.csv
+  case_sensitive_match = true
+Keep this operational CSV out of the distributed app archive and back it up.
+Use Splunk's approved lookup-management method and permissions. The release
+contains only an empty template. Empty inventory = unknown coverage, not pass.
+Open Review readiness to compare expected and observed feeds. This release
+does not yet model approved application-by-event applicability per host.
+
+4. Validate identities and event meaning
+--------------------------------------
+Tile samples show the source-reported event user, recorded login UID and process
+user. Full event detail preserves audit login user, process user, effective user
+and target/session account separately. Names come
+from the source's native enriched audit suffix, not the Splunk host's passwd
+file or a hardcoded UID lookup. Numeric fallback is preserved. Historical UID
+reuse and container/user-namespace mappings require source-level review.
+Authentication account names describe the attempted account, not an identified
+human behind a failed login. Unset login IDs are not turned into root users.
+PAM session accounts do not by themselves establish the original login user.
+Use identity_basis in event detail to understand the attribution boundary.
+Generate approved benign actions on the source, match the audit event ID and
+time in Splunk, inspect original records, and validate each applicable success
+and failure. Synthetic fixtures are software tests, never source proof.
+The 57-case starter catalog and stricter content profile require local review;
+an absent field is not automatically a universal AU-3 violation.
+
+5. Export a fixed review period
+------------------------------
+Run bin/aulx_review.py with Python3 from an approved management machine that
+can reach the existing Splunk management API. Do not expose a new port solely
+for this helper. A local run on the search head is also supported. Use a
+read/search account with approved access to the scoped indexes, lookups and
+app configuration; no admin account is required by the export design.
+Provide SPLUNK_TOKEN, or SPLUNK_USERNAME and SPLUNK_PASSWORD, through your
+approved secret mechanism. Never pass secrets in command-line arguments or
+write them into the kit. HTTPS certificate validation is on by default; use
+--ca-file for your enterprise CA. --loopback-insecure is restricted to literal
+127.0.0.1/::1 diagnostics and is not the production recommendation.
+
+Example, replace the endpoint/dates/output path with approved values:
+  python3 bin/aulx_review.py export \
+    --url https://splunk.example.invalid:8089 \
+    --start 2026-09-14T00:00:00Z --end 2026-09-21T00:00:00Z \
+    --output /approved/evidence/rhel-week-2026-09-14
+
+Time-zone offsets are required. Start is inclusive; end is exclusive. End must
+be no later than the ingest cutoff (default: preceding complete second when
+the command starts). Use --ingest-cutoff for an explicit cutoff. Later arrivals
+require a separately named new edition. At most eight days per package; default
+100000 rows per result set, maximum explicit limit1000000. The tool fails on
+warnings, early finalization, limits, missing pages, configuration changes or
+record-fingerprint reconciliation failures. Never treat FAILED.json as an
+empty successful review. Split large periods into documented subperiods and
+review cross-boundary audit correlation; do not quietly raise limits forever.
+
+Outputs (private directory0700/files0600 by default):
+  report.html                 printable human overview, explicit review pending
+  source-records.ndjson        indexed original bodies plus source references
+  normalized-events.ndjson     all exported category rows, not a five-row sample
+  event-details.csv            readable identity/context table; formula-safe CSV
+  source-coverage.json/.csv    expected, missing, stale, unexpected feeds
+  case-summary.json/.csv       global case counts, not fleet-wide coverage proof
+  expected-inventory.json, case-catalog.json, lookup-snapshot.json
+  configuration.json          effective app macros/lookup bindings and version
+  search-jobs.json             exact searches, time bounds, counts and job IDs
+  manifest.json, SHA256SUMS    provenance and file change detection
+  review-template.json        unsigned worksheet, never auto-completed
+
+Source originals are sensitive. Store only in approved restricted evidence
+storage; do not commit them to source control, email them or publish them in
+a general wiki. JSON preserves exact exported values. CSV protects spreadsheet
+readers against formula-like text, so JSON/source records remain authoritative.
+Splunk job IDs can expire; this package retains actual exported source records.
+Hashes detect subsequent changes, not source authenticity or unrecorded events.
+Record presence does not prove timestamps, continuity, retention or backup.
+
+6. Perform and record the review
+-------------------------------
+Inspect coverage first, then activity/content gaps and supporting originals.
+Review expected versus unexpected privileged actions, account changes,
+authentication failures, audit-policy changes and other locally required
+activity. This is an evidence workspace, not a validated anomaly-detection
+ruleset. Document findings, owners, follow-up tickets and limitations. No tool
+should decide that an activity was authorized solely because it was successful.
+Copy review-template.json outside the evidence package. Complete reviewer,
+completed_at (with timezone), summary, four explicit review acknowledgments,
+findings, and disposition reviewed-no-findings or reviewed-with-findings.
+Then run:
+  python3 bin/aulx_review.py record-review \
+    --bundle /approved/evidence/rhel-week-2026-09-14 \
+    --review-file /approved/reviews/completed-review.json
+The command verifies evidence checksums and writes a separate review-completion
+record referencing the original manifest hash. It will not overwrite an existing
+review or modify the original report. This is a user-entered review record, not
+a digital signature, independent assessment or automatic control acceptance.
+No recurring automation is installed. Schedule only after owner approval of
+scope, timing, account, destination, capacity and failure-notification handling.

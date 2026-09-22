@@ -1,0 +1,58 @@
+record_id,au2_requirement,event_group,event_action,required_outcome,linux_evidence_hint,local_catalog,test_id,validation_state
+AU2-01-01-S,AU-2.a.1,Authentication and session events,Sign-in,success,"Linux PAM/auditd, session logs, and application authentication",AU2-01,AT-01,Needs Validation
+AU2-01-01-F,AU-2.a.1,Authentication and session events,Sign-in,failure,"Linux PAM/auditd, session logs, and application authentication",AU2-01,AT-01,Needs Validation
+AU2-01-02-S,AU-2.a.1,Authentication and session events,Sign-out,success,"Linux PAM/auditd, session logs, and application authentication",AU2-01,AT-01,Needs Validation
+AU2-02-01-S,AU-2.a.2,Object access and file operations,Create,success,OS audit records and application access audit; FIM alone cannot prove denied reads,"AU2-02, AU2-08, AU2-09",AT-07,Needs Validation
+AU2-02-01-F,AU-2.a.2,Object access and file operations,Create,failure,OS audit records and application access audit; FIM alone cannot prove denied reads,"AU2-02, AU2-08, AU2-09",AT-07,Needs Validation
+AU2-02-02-S,AU-2.a.2,Object access and file operations,Read/access,success,OS audit records and application access audit; FIM alone cannot prove denied reads,"AU2-02, AU2-08, AU2-09",AT-07,Needs Validation
+AU2-02-02-F,AU-2.a.2,Object access and file operations,Read/access,failure,OS audit records and application access audit; FIM alone cannot prove denied reads,"AU2-02, AU2-08, AU2-09",AT-07,Needs Validation
+AU2-02-03-S,AU-2.a.2,Object access and file operations,Delete,success,OS audit records and application access audit; FIM alone cannot prove denied reads,"AU2-02, AU2-08, AU2-09",AT-07,Needs Validation
+AU2-02-03-F,AU-2.a.2,Object access and file operations,Delete,failure,OS audit records and application access audit; FIM alone cannot prove denied reads,"AU2-02, AU2-08, AU2-09",AT-07,Needs Validation
+AU2-02-04-S,AU-2.a.2,Object access and file operations,Modify,success,OS audit records and application access audit; FIM alone cannot prove denied reads,"AU2-02, AU2-08, AU2-09",AT-07,Needs Validation
+AU2-02-04-F,AU-2.a.2,Object access and file operations,Modify,failure,OS audit records and application access audit; FIM alone cannot prove denied reads,"AU2-02, AU2-08, AU2-09",AT-07,Needs Validation
+AU2-02-05-S,AU-2.a.2,Object access and file operations,Change permission,success,OS audit records and application access audit; FIM alone cannot prove denied reads,"AU2-02, AU2-08, AU2-09",AT-07,Needs Validation
+AU2-02-05-F,AU-2.a.2,Object access and file operations,Change permission,failure,OS audit records and application access audit; FIM alone cannot prove denied reads,"AU2-02, AU2-08, AU2-09",AT-07,Needs Validation
+AU2-02-06-S,AU-2.a.2,Object access and file operations,Change ownership,success,OS audit records and application access audit; FIM alone cannot prove denied reads,"AU2-02, AU2-08, AU2-09",AT-07,Needs Validation
+AU2-02-06-F,AU-2.a.2,Object access and file operations,Change ownership,failure,OS audit records and application access audit; FIM alone cannot prove denied reads,"AU2-02, AU2-08, AU2-09",AT-07,Needs Validation
+AU2-03-01-S,AU-2.a.3,Removable-media export,Export/write/download to media,success,Endpoint device/media audit; test files only,"AU2-09, AU2-14",Additional test needed,Needs Validation
+AU2-03-01-F,AU-2.a.3,Removable-media export,Export/write/download to media,failure,Endpoint device/media audit; test files only,"AU2-09, AU2-14",Additional test needed,Needs Validation
+AU2-04-01-S,AU-2.a.4,Removable-media import,Import/upload from media,success,Endpoint device/media audit; test files only,"AU2-09, AU2-14",Additional test needed,Needs Validation
+AU2-04-01-F,AU-2.a.4,Removable-media import,Import/upload from media,failure,Endpoint device/media audit; test files only,"AU2-09, AU2-14",Additional test needed,Needs Validation
+AU2-05-01-S,AU-2.a.5,"Account, group, and role management",Add user,success,Identity-provider audit plus OS account management,AU2-03,AT-03,Needs Validation
+AU2-05-01-F,AU-2.a.5,"Account, group, and role management",Add user,failure,Identity-provider audit plus OS account management,AU2-03,AT-03,Needs Validation
+AU2-05-02-S,AU-2.a.5,"Account, group, and role management",Delete user,success,Identity-provider audit plus OS account management,AU2-03,AT-03,Needs Validation
+AU2-05-02-F,AU-2.a.5,"Account, group, and role management",Delete user,failure,Identity-provider audit plus OS account management,AU2-03,AT-03,Needs Validation
+AU2-05-03-S,AU-2.a.5,"Account, group, and role management",Modify user,success,Identity-provider audit plus OS account management,AU2-03,AT-03,Needs Validation
+AU2-05-03-F,AU-2.a.5,"Account, group, and role management",Modify user,failure,Identity-provider audit plus OS account management,AU2-03,AT-03,Needs Validation
+AU2-05-04-S,AU-2.a.5,"Account, group, and role management",Disable user,success,Identity-provider audit plus OS account management,AU2-03,AT-03,Needs Validation
+AU2-05-04-F,AU-2.a.5,"Account, group, and role management",Disable user,failure,Identity-provider audit plus OS account management,AU2-03,AT-03,Needs Validation
+AU2-05-05-S,AU-2.a.5,"Account, group, and role management",Lock user,success,Identity-provider audit plus OS account management,AU2-03,AT-03,Needs Validation
+AU2-05-05-F,AU-2.a.5,"Account, group, and role management",Lock user,failure,Identity-provider audit plus OS account management,AU2-03,AT-03,Needs Validation
+AU2-05-06-S,AU-2.a.5,"Account, group, and role management",Add group/role,success,Identity-provider audit plus OS account management,AU2-03,AT-03,Needs Validation
+AU2-05-06-F,AU-2.a.5,"Account, group, and role management",Add group/role,failure,Identity-provider audit plus OS account management,AU2-03,AT-03,Needs Validation
+AU2-05-07-S,AU-2.a.5,"Account, group, and role management",Delete group/role,success,Identity-provider audit plus OS account management,AU2-03,AT-03,Needs Validation
+AU2-05-07-F,AU-2.a.5,"Account, group, and role management",Delete group/role,failure,Identity-provider audit plus OS account management,AU2-03,AT-03,Needs Validation
+AU2-05-08-S,AU-2.a.5,"Account, group, and role management",Modify group/role,success,Identity-provider audit plus OS account management,AU2-03,AT-03,Needs Validation
+AU2-05-08-F,AU-2.a.5,"Account, group, and role management",Modify group/role,failure,Identity-provider audit plus OS account management,AU2-03,AT-03,Needs Validation
+AU2-06-01-S,AU-2.a.6,Security policy and configuration changes,Change security/audit policy,success,OS and service administration audit,"AU2-04, AU2-06, AU2-07","AT-02, AT-04",Needs Validation
+AU2-06-01-F,AU-2.a.6,Security policy and configuration changes,Change security/audit policy,failure,OS and service administration audit,"AU2-04, AU2-06, AU2-07","AT-02, AT-04",Needs Validation
+AU2-06-02-S,AU-2.a.6,Security policy and configuration changes,Change configuration,success,OS and service administration audit,"AU2-04, AU2-06, AU2-07","AT-02, AT-04",Needs Validation
+AU2-06-02-F,AU-2.a.6,Security policy and configuration changes,Change configuration,failure,OS and service administration audit,"AU2-04, AU2-06, AU2-07","AT-02, AT-04",Needs Validation
+AU2-07-01-S,AU-2.a.7,Administrative and root access,Administrative/root access,success,OS privileged session audit,"AU2-01, AU2-04","AT-01, AT-02",Needs Validation
+AU2-07-01-F,AU-2.a.7,Administrative and root access,Administrative/root access,failure,OS privileged session audit,"AU2-01, AU2-04","AT-01, AT-02",Needs Validation
+AU2-08-01-S,AU-2.a.8,Privilege or role elevation,Elevate privilege/role,success,sudo/su and application RBAC audit,"AU2-03, AU2-04","AT-02, AT-03",Needs Validation
+AU2-08-01-F,AU-2.a.8,Privilege or role elevation,Elevate privilege/role,failure,sudo/su and application RBAC audit,"AU2-03, AU2-04","AT-02, AT-03",Needs Validation
+AU2-09-01-S,AU-2.a.9,Audit and security log access,Access audit/security logs,success,Audit-store access records; not just log writes,"AU2-07, AU2-09, AU2-16",AT-10,Needs Validation
+AU2-09-01-F,AU-2.a.9,Audit and security log access,Access audit/security logs,failure,Audit-store access records; not just log writes,"AU2-07, AU2-09, AU2-16",AT-10,Needs Validation
+AU2-10-01-S,AU-2.a.10,System restart and shutdown,Reboot,success,OS lifecycle audit; simulate failure safely in an approved test environment,AU2-11,Additional test needed,Needs Validation
+AU2-10-01-F,AU-2.a.10,System restart and shutdown,Reboot,failure,OS lifecycle audit; simulate failure safely in an approved test environment,AU2-11,Additional test needed,Needs Validation
+AU2-10-02-S,AU-2.a.10,System restart and shutdown,Restart,success,OS lifecycle audit; simulate failure safely in an approved test environment,AU2-11,Additional test needed,Needs Validation
+AU2-10-02-F,AU-2.a.10,System restart and shutdown,Restart,failure,OS lifecycle audit; simulate failure safely in an approved test environment,AU2-11,Additional test needed,Needs Validation
+AU2-10-03-S,AU-2.a.10,System restart and shutdown,Shutdown,success,OS lifecycle audit; simulate failure safely in an approved test environment,AU2-11,Additional test needed,Needs Validation
+AU2-10-03-F,AU-2.a.10,System restart and shutdown,Shutdown,failure,OS lifecycle audit; simulate failure safely in an approved test environment,AU2-11,Additional test needed,Needs Validation
+AU2-11-01-S,AU-2.a.11,Printing to a physical device,Print to device,success,Print service audit; applicability and alternative evidence require review,Mapping gap,Additional test needed,Needs Validation
+AU2-11-01-F,AU-2.a.11,Printing to a physical device,Print to device,failure,Print service audit; applicability and alternative evidence require review,Mapping gap,Additional test needed,Needs Validation
+AU2-12-01-S,AU-2.a.12,Printing to a file,Print to file,success,Print/PDF service audit; document bodies excluded,Mapping gap,Additional test needed,Needs Validation
+AU2-12-01-F,AU-2.a.12,Printing to a file,Print to file,failure,Print/PDF service audit; document bodies excluded,Mapping gap,Additional test needed,Needs Validation
+AU2-13-01-S,AU-2.a.13,Application start,Start application,success,Process/application audit with approved application scope; redact arguments,"AU2-04, AU2-05, AU2-11",Additional test needed,Needs Validation
+AU2-13-01-F,AU-2.a.13,Application start,Start application,failure,Process/application audit with approved application scope; redact arguments,"AU2-04, AU2-05, AU2-11",Additional test needed,Needs Validation

@@ -1,0 +1,10 @@
+`aulx_source`
+| eval event_host=host
+| stats count AS events max(_time) AS last_event max(_indextime) AS last_ingest values(source) AS source BY event_host index sourcetype
+| eval expected=0
+| append [ | inputlookup aulx_expected_sources | where enabled="1" | eval expected=1 ]
+| stats sum(events) AS events max(expected) AS expected max(last_event) AS last_event max(last_ingest) AS last_ingest values(source) AS source values(owner) AS owner min(max_silence_seconds) AS max_silence_seconds BY event_host index sourcetype
+| addinfo
+| eval events=coalesce(events,0), reference_time=if(info_max_time>now(),now(),info_max_time), age_at_period_end=reference_time-last_event
+| eval status=case(expected=0,"Observed — not in expected inventory",isnull(max_silence_seconds) OR max_silence_seconds<=0,"Invalid freshness threshold",events=0,"No records in selected event-time window",age_at_period_end>max_silence_seconds,"Stale at end of selected window",true(),"Records present — content/continuity still require review")
+| table event_host index sourcetype expected owner events status last_event last_ingest age_at_period_end max_silence_seconds source

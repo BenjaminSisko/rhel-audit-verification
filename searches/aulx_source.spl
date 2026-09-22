@@ -1,0 +1,1 @@
+search (index=* NOT index=_*) (sourcetype="linux:*" OR sourcetype=linux_secure OR sourcetype=auditd OR sourcetype="linux_audit*" OR sourcetype=syslog OR sourcetype=journald OR sourcetype=wazuh* OR sourcetype=ossec* OR sourcetype="json:wazuh_alert" OR sourcetype=linux_app_audit)

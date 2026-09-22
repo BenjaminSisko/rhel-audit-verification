@@ -1,0 +1,30 @@
+event_action,au2_requirement,event_group
+Sign-in,AU-2.a.1,Authentication and session events
+Sign-out,AU-2.a.1,Authentication and session events
+Create,AU-2.a.2,Object access and file operations
+Read/access,AU-2.a.2,Object access and file operations
+Delete,AU-2.a.2,Object access and file operations
+Modify,AU-2.a.2,Object access and file operations
+Change permission,AU-2.a.2,Object access and file operations
+Change ownership,AU-2.a.2,Object access and file operations
+Export/write/download to media,AU-2.a.3,Removable-media export
+Import/upload from media,AU-2.a.4,Removable-media import
+Add user,AU-2.a.5,"Account, group, and role management"
+Delete user,AU-2.a.5,"Account, group, and role management"
+Modify user,AU-2.a.5,"Account, group, and role management"
+Disable user,AU-2.a.5,"Account, group, and role management"
+Lock user,AU-2.a.5,"Account, group, and role management"
+Add group/role,AU-2.a.5,"Account, group, and role management"
+Delete group/role,AU-2.a.5,"Account, group, and role management"
+Modify group/role,AU-2.a.5,"Account, group, and role management"
+Change security/audit policy,AU-2.a.6,Security policy and configuration changes
+Change configuration,AU-2.a.6,Security policy and configuration changes
+Administrative/root access,AU-2.a.7,Administrative and root access
+Elevate privilege/role,AU-2.a.8,Privilege or role elevation
+Access audit/security logs,AU-2.a.9,Audit and security log access
+Reboot,AU-2.a.10,System restart and shutdown
+Restart,AU-2.a.10,System restart and shutdown
+Shutdown,AU-2.a.10,System restart and shutdown
+Print to device,AU-2.a.11,Printing to a physical device
+Print to file,AU-2.a.12,Printing to a file
+Start application,AU-2.a.13,Application start

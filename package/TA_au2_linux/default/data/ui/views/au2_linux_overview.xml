@@ -1,0 +1,191 @@
+<form version="1.1">
+  <label>AU-2 Linux Audit Events</label>
+  <description>Linux event visibility for the 13 AU-2 groups and 57 required action/outcome cases. Observations are evidence leads, not automatic control passes.</description>
+  <search id="au2_summary">
+    <query>| `au2_linux_events`
+| eval linux_evidence_hint=coalesce(linux_evidence_hint,"Needs source-specific mapping"), test_id=coalesce(test_id,"Additional test needed"), validation_state="Needs Validation"
+| bin _time span=15m
+| stats count AS event_count latest(event_summary) AS sample_summary values(source) AS source values(sourcetype) AS sourcetype latest(linux_evidence_hint) AS linux_evidence_hint latest(test_id) AS test_id latest(validation_state) AS validation_state BY _time event_host au2_requirement au2_group au2_action event_outcome au2_case_id local_catalog
+| eval record_kind="observed"
+| append [
+    | inputlookup au2_linux_event_catalog.csv
+    | rename event_group AS au2_group event_action AS au2_action required_outcome AS event_outcome record_id AS au2_case_id
+    | eval _time=now(), event_count=0, event_host="Expected matrix", record_kind="expected", source="", sourcetype="", sample_summary=""
+  ]</query>
+    <earliest>$time_tok.earliest$</earliest>
+    <latest>$time_tok.latest$</latest>
+  </search>
+  <fieldset submitButton="true" autoRun="true">
+    <input type="time" token="time_tok" searchWhenChanged="false">
+      <label>Time range</label>
+      <default>
+        <earliest>-24h@h</earliest>
+        <latest>now</latest>
+      </default>
+    </input>
+    <input type="dropdown" token="requirement_tok" searchWhenChanged="false">
+      <label>AU-2 group</label>
+      <choice value="*">All 13 groups</choice>
+      <choice value="AU-2.a.1">AU-2.a.1 — Sign-in/sign-out</choice>
+      <choice value="AU-2.a.2">AU-2.a.2 — Object operations</choice>
+      <choice value="AU-2.a.3">AU-2.a.3 — Export to media</choice>
+      <choice value="AU-2.a.4">AU-2.a.4 — Import from media</choice>
+      <choice value="AU-2.a.5">AU-2.a.5 — Account and role management</choice>
+      <choice value="AU-2.a.6">AU-2.a.6 — Policy/configuration</choice>
+      <choice value="AU-2.a.7">AU-2.a.7 — Administrative access</choice>
+      <choice value="AU-2.a.8">AU-2.a.8 — Privilege elevation</choice>
+      <choice value="AU-2.a.9">AU-2.a.9 — Audit-log access</choice>
+      <choice value="AU-2.a.10">AU-2.a.10 — Restart/shutdown</choice>
+      <choice value="AU-2.a.11">AU-2.a.11 — Print to device</choice>
+      <choice value="AU-2.a.12">AU-2.a.12 — Print to file</choice>
+      <choice value="AU-2.a.13">AU-2.a.13 — Application start</choice>
+      <default>*</default>
+    </input>
+    <input type="dropdown" token="outcome_tok" searchWhenChanged="false">
+      <label>Outcome</label>
+      <choice value="*">All outcomes</choice>
+      <choice value="success">Success</choice>
+      <choice value="failure">Failure</choice>
+      <choice value="unknown">Unknown</choice>
+      <default>*</default>
+    </input>
+    <input type="dropdown" token="host_tok" searchWhenChanged="false">
+      <label>Linux host</label>
+      <choice value="*">All hosts</choice>
+      <default>*</default>
+      <search base="au2_summary">
+        <query>search record_kind="observed" | stats sum(event_count) AS events BY event_host | sort 0 event_host</query>
+      </search>
+      <fieldForLabel>event_host</fieldForLabel>
+      <fieldForValue>event_host</fieldForValue>
+    </input>
+  </fieldset>
+  <row>
+    <panel>
+      <html>
+        <h2>Evidence boundary</h2>
+        <p>
+          <strong>Observed</strong> means the search found a matching Linux event in the selected window. It does not prove fleet-wide collection, required retention, AU-3 content completeness, review, or assessor acceptance. Missing results can indicate either a real logging gap or a source/field mapping gap. Raw command arguments and event bodies are not displayed.</p>
+        <p>The matrix stays visible even when no event exists, so a quiet data source cannot make an AU-2 requirement disappear.</p>
+      </html>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <single>
+        <title>Matching event records</title>
+        <search base="au2_summary">
+          <query>search record_kind="observed" au2_requirement=$requirement_tok|s$ event_outcome=$outcome_tok|s$ | where $host_tok|s$="*" OR event_host=$host_tok|s$ | stats sum(event_count) AS value | eval value=coalesce(value,0)</query>
+        </search>
+        <option name="drilldown">none</option>
+      </single>
+    </panel>
+    <panel>
+      <single>
+        <title>Linux hosts observed</title>
+        <search base="au2_summary">
+          <query>search record_kind="observed" au2_requirement=$requirement_tok|s$ event_outcome=$outcome_tok|s$ | where $host_tok|s$="*" OR event_host=$host_tok|s$ | stats dc(event_host) AS value | eval value=coalesce(value,0)</query>
+        </search>
+        <option name="drilldown">none</option>
+      </single>
+    </panel>
+    <panel>
+      <single>
+        <title>Required cases with an observed lead</title>
+        <search base="au2_summary">
+          <query>search au2_requirement=$requirement_tok|s$ event_outcome=$outcome_tok|s$ | where record_kind="expected" OR $host_tok|s$="*" OR event_host=$host_tok|s$ | stats sum(eval(if(record_kind="observed",event_count,0))) AS observed_events max(eval(if(record_kind="expected",1,0))) AS expected_case BY au2_case_id | stats count(eval(expected_case=1 AND observed_events&gt;0)) AS observed_cases count(eval(expected_case=1)) AS expected_cases | eval value=observed_cases." / ".expected_cases</query>
+        </search>
+        <option name="drilldown">none</option>
+      </single>
+    </panel>
+    <panel>
+      <single>
+        <title>Failed events observed</title>
+        <search base="au2_summary">
+          <query>search record_kind="observed" au2_requirement=$requirement_tok|s$ event_outcome="failure" | where $host_tok|s$="*" OR event_host=$host_tok|s$ | stats sum(event_count) AS value | eval value=coalesce(value,0)</query>
+        </search>
+        <option name="drilldown">none</option>
+      </single>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <chart>
+        <title>Activity over time by outcome</title>
+        <search base="au2_summary">
+          <query>search record_kind="observed" au2_requirement=$requirement_tok|s$ event_outcome=$outcome_tok|s$ | where $host_tok|s$="*" OR event_host=$host_tok|s$ | timechart span=15m sum(event_count) AS events BY event_outcome useother=f usenull=f</query>
+        </search>
+        <option name="charting.chart">line</option>
+        <option name="charting.legend.placement">bottom</option>
+        <option name="drilldown">none</option>
+      </chart>
+    </panel>
+    <panel>
+      <chart>
+        <title>Events by AU-2 group</title>
+        <search base="au2_summary">
+          <query>search record_kind="observed" au2_requirement=$requirement_tok|s$ event_outcome=$outcome_tok|s$ | where $host_tok|s$="*" OR event_host=$host_tok|s$ | stats sum(event_count) AS events BY au2_requirement | eval sort_order=tonumber(replace(au2_requirement,"AU-2.a.","")) | sort 0 sort_order | fields - sort_order</query>
+        </search>
+        <option name="charting.chart">column</option>
+        <option name="charting.legend.placement">none</option>
+        <option name="drilldown">none</option>
+      </chart>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <table>
+        <title>Complete AU-2 action/outcome matrix — all 57 required cases</title>
+        <search base="au2_summary">
+          <query>search au2_requirement=$requirement_tok|s$ event_outcome=$outcome_tok|s$ | where record_kind="expected" OR $host_tok|s$="*" OR event_host=$host_tok|s$ | stats sum(eval(if(record_kind="observed",event_count,0))) AS observed_events max(eval(if(record_kind="expected",1,0))) AS expected_case values(eval(if(record_kind="observed",event_host,null()))) AS observed_hosts latest(au2_group) AS event_group latest(local_catalog) AS local_catalog latest(test_id) AS test_id latest(linux_evidence_hint) AS linux_evidence_hint BY au2_case_id au2_requirement au2_action event_outcome | where expected_case=1 | eval evidence_state=if(observed_events&gt;0,"Observed lead — validation required","No matching event — Needs Validation"), sort_order=tonumber(replace(au2_requirement,"AU-2.a.","")) | sort 0 sort_order au2_action event_outcome | table au2_requirement event_group au2_action event_outcome observed_events observed_hosts evidence_state local_catalog test_id linux_evidence_hint</query>
+        </search>
+        <option name="count">25</option>
+        <option name="drilldown">none</option>
+        <option name="wrap">true</option>
+      </table>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <chart>
+        <title>Top Linux hosts by matching events</title>
+        <search base="au2_summary">
+          <query>search record_kind="observed" au2_requirement=$requirement_tok|s$ event_outcome=$outcome_tok|s$ | where $host_tok|s$="*" OR event_host=$host_tok|s$ | stats sum(event_count) AS events BY event_host | sort 10 - events</query>
+        </search>
+        <option name="charting.chart">bar</option>
+        <option name="charting.legend.placement">none</option>
+        <option name="drilldown">none</option>
+      </chart>
+    </panel>
+    <panel>
+      <table>
+        <title>Sources and sourcetypes contributing evidence</title>
+        <search base="au2_summary">
+          <query>search record_kind="observed" au2_requirement=$requirement_tok|s$ event_outcome=$outcome_tok|s$ | where $host_tok|s$="*" OR event_host=$host_tok|s$ | stats sum(event_count) AS events latest(_time) AS latest_event values(source) AS sources BY sourcetype | convert ctime(latest_event) | sort 0 - events</query>
+        </search>
+        <option name="count">20</option>
+        <option name="drilldown">none</option>
+        <option name="wrap">true</option>
+      </table>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <table>
+        <title>Matching Linux event detail — sanitized fields, newest first</title>
+        <search>
+          <query>| `au2_linux_events`
+| search au2_requirement=$requirement_tok|s$ event_outcome=$outcome_tok|s$
+| where $host_tok|s$="*" OR event_host=$host_tok|s$
+| sort 0 - _time
+| table _time event_host event_source_ip au2_requirement au2_group au2_action event_outcome event_actor event_process event_object audit_type audit_key audit_syscall source sourcetype event_summary</query>
+          <earliest>$time_tok.earliest$</earliest>
+          <latest>$time_tok.latest$</latest>
+        </search>
+        <option name="count">50</option>
+        <option name="drilldown">none</option>
+        <option name="wrap">true</option>
+      </table>
+    </panel>
+  </row>
+</form>

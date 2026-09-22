@@ -1,0 +1,52 @@
+Optional USB kernel source collection — RHEL / native Splunk journal input
+=======================================================================
+This is a reviewed deployment recipe, not automatically active configuration.
+Use your existing approved Universal Forwarder, destination and index. Verify
+your supported UF/RHEL/systemd combination, journal access and capacity first.
+Do not replace existing outputs.conf or duplicate a journal input already used.
+
+Example inputs.conf stanza (disabled until site review):
+
+[journald://rhel_usb_kernel]
+disabled = 1
+index = YOUR_APPROVED_INDEX
+sourcetype = linux:kernel:usb
+interval = 30
+journalctl-filter = _TRANSPORT=kernel
+journalctl-grep = ^usb [0-9]+-[0-9]+(?:\.[0-9]+)*: (?:new .* USB device number|New USB device found|Product:|Manufacturer:|USB disconnect)
+journalctl-include-fields = _HOSTNAME,_TRANSPORT,_BOOT_ID,SYSLOG_IDENTIFIER,PRIORITY
+journalctl-exclude-fields = __MONOTONIC_TIMESTAMP,__SOURCE_REALTIME_TIMESTAMP
+journalctl-quiet = true
+
+Set an accurate host identity using your normal UF deployment policy. Permit
+the approved input in the search-head aulx_source macro. The generic package
+already discovers linux:* sourcetypes in readable indexes. Keep TLS and index
+authorization in the site's existing forwarding configuration; lab loopback
+transport is not a workplace TLS recommendation.
+
+The journal input owns its cursor/checkpoint. Do not delete/edit the checkpoint
+to force a test. Startup history behavior must be tested for the installed
+version; the lab first start did not replay the owner's earlier insertion.
+Use a fresh authorized unplug/replug test. Preserve original event time and
+compare it to local journal time and _indextime. Restart/persistence and replay
+duplicates are separate acceptance tests; enabled service is not reboot proof.
+
+Collect only the selected kernel USB records on the Splunk receiver host.
+Do not broadly monitor audit.log or all journal records without an independent
+self-ingestion/volume review. UF's own internal diagnostic monitors remain
+normal Splunk defaults; they are outside the AU-2 source macro.
+
+Validation: inspect btool inputs/outputs, service/process status, exact socket,
+and journal-reader arguments. Make an authorized physical insertion without
+mounting or copying. Confirm actual indexed kernel records, one attachment
+candidate, up to five recent samples and honest AU-3 gaps. Repeat disconnect.
+Inspect the indexed representation as well: version 1.4.1 accepts structured
+journal JSON and plain `usb ...` kernel messages only under the exact
+linux:kernel:usb source contract. A passed parser fixture is not a physical
+receipt; confirm the actual indexed record maps through `aulx_events`.
+If local journal events exist but Splunk does not, inspect journal permissions,
+filter, reader/checkpoint, UF queue/output, receiver/index, time range and macro.
+Never resolve a logging gap by removing USB-storage, audit or SELinux controls.
+
+Source documentation (also verify your installed inputs.conf.spec):
+https://help.splunk.com/en/splunk-cloud-platform/get-started/get-data-in/10.3.2512/get-other-kinds-of-data-in/get-data-with-the-journald-input
