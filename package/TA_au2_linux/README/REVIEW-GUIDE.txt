@@ -1,4 +1,11 @@
-RHEL Audit Review Kit 1.4.7 — Universal Forwarder workflow
+RHEL Audit Review Kit 1.4.8 — Universal Forwarder workflow
+
+USB overlapping-session fields are contextual, not actor attribution. The
+export checks that their three supporting native audit events are preserved
+and writes usb-session-provenance.json. Review missing session boundaries,
+boot continuity and source trust separately. A reference-closure pass is not
+a semantic or control acceptance. Restart and Reboot can reference the same
+event; use unique event keys rather than summing category rows.
 ========================================================
 
 Scope and prerequisites

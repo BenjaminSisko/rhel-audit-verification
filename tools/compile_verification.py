@@ -14,7 +14,7 @@ parts = [original, marker]
 for path in sorted((project / "searches").glob("aulx_*.spl")):
     spl = " ".join(line.strip() for line in path.read_text().splitlines())
     parts.append(f"[{path.stem}]\ndefinition = {spl}\niseval = 0")
-parts.append("[aulx_events]\ndefinition = `aulx_source` | `aulx_extract` | `aulx_correlate` | `aulx_session_context` | `aulx_classify` | `aulx_content`\niseval = 0")
+parts.append("[aulx_events]\ndefinition = `aulx_source` | `aulx_extract` | `aulx_correlate` | `aulx_session_context` | `aulx_usb_session_context` | `aulx_classify` | `aulx_content`\niseval = 0")
 macro_path.write_text("\n\n".join(parts) + "\n")
 with (app / "lookups/au2_linux_event_catalog.csv").open() as stream:
     catalog = list(csv.DictReader(stream))
@@ -61,6 +61,7 @@ ET.SubElement(recent, "query").text = """| `aulx_events`
 | table case_id sample_rank event_time ingest_time event_host application event_action outcome actor login_user login_uid process_user process_uid effective_user effective_uid target_account identity_basis initiator completer source_ip terminal remote_access audit_session remote_access session_remote_access session_source_ip session_context_status session_context_basis session_context_fingerprints session_context_record_fingerprints object process_id privilege reason operation correlation_id event_fingerprint raw_records audit_record_types audit_keys syscall_name architecture usb_port usb_vendor usb_product_id usb_product usb_manufacturer usb_driver correlation_state missing_fields content_status verification_status index source sourcetype clock_status protection_status"""
 ET.SubElement(recent, "earliest").text = "$time_tok.earliest$"
 ET.SubElement(recent, "latest").text = "$time_tok.latest$"
+recent.find("query").text += " canonical_event_action category_alias usb_session_count usb_session_users usb_session_details usb_session_status usb_session_basis usb_session_evidence"
 root.insert(list(root).index(root.find("fieldset")), recent)
 detail = next(table for table in root.findall(".//table") if table.findtext("title", "").startswith("Event evidence"))
 detail_search = detail.find("search")
@@ -93,6 +94,8 @@ for group_index, (requirement, cases) in enumerate(grouped.items(), 1):
             token = "tile_" + key.replace("-", "_")
             panel = ET.SubElement(row, "panel", id=token)
             ET.SubElement(panel, "title").text = f"{case['event_action']} · " + ("OBSERVED" if requirement == "Supplemental" else case['required_outcome'].upper())
+            if case['event_action'] == 'Restart':
+                panel.find('title').text += ' · OS Reboot alias (same events)'
             single = ET.SubElement(panel, "single")
             search = ET.SubElement(single, "search", base="rhel_summary")
             query = ('search case_id=' + json.dumps(key) + ' | where record_kind="expected" OR (($host_tok|s$="*" OR event_host=$host_tok|s$) AND ($app_tok|s$="*" OR application=$app_tok|s$))'
@@ -130,7 +133,7 @@ for group_index, (requirement, cases) in enumerate(grouped.items(), 1):
             for name, value in (("count", "5"), ("wrap", "true"), ("drilldown", "none"), ("rowNumbers", "false")):
                 ET.SubElement(table, "option", name=name).text = value
             if requirement == "Supplemental":
-                sample_search.find("query").text = sample_search.find("query").text.replace(' | table Time User Process Host Application Session_origin Session_source', ' | rename object AS Device | table Time User Host Application Device')
+                sample_search.find("query").text = sample_search.find("query").text.replace(' | table Time User Process Host Application Session_origin Session_source', ' | rename object AS Device usb_session_details AS Overlapping_SSH_sessions usb_session_status AS Session_context | table Time User Host Application Device Overlapping_SSH_sessions Session_context')
         root.insert(insert_at, row)
         insert_at += 1
 ET.indent(root, space="  ")

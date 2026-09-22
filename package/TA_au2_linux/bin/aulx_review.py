@@ -21,10 +21,10 @@ import time
 import urllib.error
 import urllib.parse
 import urllib.request
-from aulx_provenance import verify_session_provenance
+from aulx_provenance import verify_session_provenance, verify_usb_session_provenance
 
 APP = "TA_au2_linux"
-VERSION = "1.4.7"
+VERSION = "1.4.8"
 RAW_FIELDS = "_time _indextime event_time ingest_time host index source sourcetype _raw _bkt _cd splunk_server record_fingerprint event_key"
 EVENT_FIELDS = "event_key event_fingerprint record_fingerprint event_time ingest_time event_host application case_id event_action outcome actor login_user login_uid process_user process_uid effective_user effective_uid target_account identity_basis initiator completer object source_ip terminal privilege process_id correlation_id reason raw_records native_kind index source sourcetype missing_fields au3_complete au3_1_complete app_context_complete field_check_complete verification_status receipt_id source_evidence_ref correlation_state clock_status protection_status audit_session remote_access session_remote_access session_source_ip session_context_status session_context_basis session_context_fingerprints session_context_record_fingerprints"
 
@@ -234,7 +234,7 @@ def export(client, start, end, cutoff, destination, limit, timeout, label):
         lookup_snapshot = {k: client.search(k, q, start, end, limit, timeout) for k,q in lookup_queries.items()}
         prefix = '| `aulx_source` | where _indextime<=' + str(cutoff) + ' AND _time>='+str(start)+' AND _time<'+str(end)+' | `aulx_extract`'
         raw = client.search("source_records", prefix + ' | table ' + RAW_FIELDS, start, end, limit, timeout)
-        events = client.search("normalized_events", prefix + ' | `aulx_correlate` | `aulx_session_context` | `aulx_classify` | `aulx_content` | table ' + EVENT_FIELDS, start, end, limit, timeout)
+        events = client.search("normalized_events", prefix + ' | `aulx_correlate` | `aulx_session_context` | `aulx_usb_session_context` | `aulx_classify` | `aulx_content` | table ' + EVENT_FIELDS + ' canonical_event_action category_alias usb_session_count usb_session_users usb_session_details usb_session_status usb_session_basis usb_session_evidence', start, end, limit, timeout)
         if config != client.configuration():
             raise ValueError("App/macro configuration changed during export")
         if inventory != client.search("inventory_recheck", "| inputlookup aulx_expected_sources", start, end, limit, timeout):
@@ -255,6 +255,8 @@ def export(client, start, end, cutoff, destination, limit, timeout, label):
         if set(fingerprints) != represented:
             raise ValueError("Source/normalized record reconciliation failed")
         session_proof = verify_session_provenance(raw, events)
+        usb_session_proof = verify_usb_session_provenance(raw, events)
+        write_json(destination/"usb-session-provenance.json", usb_session_proof)
         feeds = coverage(raw, inventory, end)
         write_json(destination/"session-provenance.json", session_proof)
         cases = case_summary(events, catalog)

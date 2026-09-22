@@ -1,5 +1,6 @@
 eval aulx_actions=mvappend(
 if(native_kind="kernel-usb",usb_action,null()),
+if(native_kind="application-json" AND json_action="Reboot" AND mvfind(object,"^operating-system:")>=0,"Restart",null()),
 if(mvfind(audit_record_types,"^(USER_AUTH|USER_LOGIN)$")>=0 OR isnotnull(ssh_status) OR pam_state="opened","Sign-in",null()),
 if(mvfind(audit_record_types,"^(USER_LOGOUT|USER_END)$")>=0 OR pam_state="closed","Sign-out",null()),
 if(mvfind(syscall_name,"^(creat|mkdir|mkdirat)$")>=0,"Create",null()),
@@ -30,6 +31,7 @@ if(native_kind="application-json",json_action,null()))
 | eval aulx_actions=coalesce(aulx_actions,"Unmapped event")
 | mvexpand aulx_actions
 | rename aulx_actions AS event_action
+| eval canonical_event_action=if(event_action="Restart","Reboot",event_action), category_alias=if(event_action="Restart" AND json_action="Reboot","OS Restart aliases Reboot; same event, not an additional operation",null())
 | lookup aulx_action_catalog.csv event_action OUTPUT au2_requirement event_group
 | lookup au2_linux_event_catalog.csv event_action required_outcome AS outcome OUTPUT record_id AS case_id test_id linux_evidence_hint
 | eval case_id=coalesce(case_id,"UNMAPPED"), mapping_state=if(case_id="UNMAPPED","Unmapped action/outcome — review required","Candidate mapping — source semantics require validation")

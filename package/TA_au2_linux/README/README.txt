@@ -1,4 +1,11 @@
-RHEL Audit Verification 1.4.7
+RHEL Audit Verification 1.4.8
+
+Version1.4.8 adds USB overlapping closed-SSH-session context with preserved
+supporting references. It never replaces the physical actor or satisfies
+missing AU-3 identity fields. Local-console/open-session coverage is not
+claimed. OS Restart aliases Reboot for explicit OS-target JSON records:
+same event identity, not another operation. Audit input examples now include
+numbered rotations while retaining CRC/checkpoint identity.
 
 Version1.4.7 preserves the source-reported RHEL authentication target from
 acct or a valid numeric id and its enriched ID name. USER_LOGIN uses that

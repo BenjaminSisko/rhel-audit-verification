@@ -50,3 +50,11 @@ Never resolve a logging gap by removing USB-storage, audit or SELinux controls.
 
 Source documentation (also verify your installed inputs.conf.spec):
 https://help.splunk.com/en/splunk-cloud-platform/get-started/get-data-in/10.3.2512/get-other-kinds-of-data-in/get-data-with-the-journald-input
+VERSION 1.4.8 SESSION CONTEXT
+The main verification dashboard shows overlapping closed SSH sessions when
+same-host LOGIN plus successful sshd USER_LOGIN/USER_LOGOUT records exist in
+the selected window. Multiple sessions remain multiple candidates. No match
+means insufficient qualifying evidence, not that nobody was logged in.
+Current/open and local-console sessions are not inferred by this adapter.
+Actor and other direct identity fields stay unrecorded for kernel messages.
+This context does not establish who physically attached or disconnected USB.

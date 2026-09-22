@@ -133,7 +133,9 @@ Do not blindly copy source-based CRC salt onto rotating logs: renaming may
 cause re-ingestion. Design and test rotation/outage recovery for both JSONL and
 native audit logs while preserving checkpoints. No production rotation or
 retention policy is provided by this library. Fresh-record receipt alone is
-not proof of continuity; the reference native-audit rotation gap remains open.
+not proof of continuity. The reference native-audit rotation gap was repaired
+and exact transition records recovered; this does not establish production
+rotation or outage resilience for every source.
 
 ## Verify and remove
 

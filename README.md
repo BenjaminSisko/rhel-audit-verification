@@ -11,7 +11,7 @@ by existing Universal Forwarders. It organizes supported records into event
 categories, displays source-reported identities and application context, and
 helps an analyst identify missing evidence before completing a weekly review.
 
-**Release status: validation in progress.** Version 1.4.7 is a tested software
+**Release status: validation in progress.** Version 1.4.8 is a tested software
 build, not a fully accepted end-to-end audit solution. A reference source had
 historical loss; later controlled RHEL 10 windows reconciled source to index.
 Those bounded checks do not establish lossless operation or full event coverage.
@@ -69,18 +69,27 @@ x86_64 audit/auth records. Full RHEL 9/10 source coverage, other architectures, 
 applications, distributed deployments and production scale remain unvalidated.
 Source loss, missing cases and incomplete fields remain release gates.
 
-The current reference plan has technical evidence for **52 of57 required
-cases**:49 explicitly wrapped operations, one two-phase reboot test and two
-exact native login/logout events. These are not52 automatically covered native
-event types. Five checks remain: successful shutdown, restart success/failure
-and USB attachment/disconnection content. Shutdown exposed a missed rotated
-audit file; it remains pending until native records are reconciled. See the
+The reference plan has **57 required cases evaluated:55 supported category
+checks and2 confirmed USB-content gaps**. The55 include49 explicitly wrapped
+operations, two two-phase lifecycle checks, two exact native login/logout
+events and two OS Restart aliases of Reboot. Aliases reuse the same evidence;
+they are not additional operations. These are not55 automatically covered
+native event types. The rotated-audit collection repair recovered the exact
+Shutdown records. USB presence is captured, but physical identity is absent. See the
 [full matrix](VALIDATION-MATRIX.csv) and [validation details](VALIDATION.md).
 
 USB kernel observations establish device presence, not the physical person's
 identity, access authorization or a file transfer. Failed-login account names
 identify the attempted account, not necessarily the person making the attempt.
 Unknown identities remain unknown; field presence alone is not semantic proof.
+
+Version1.4.8 shows overlapping closed SSH sessions alongside USB observations
+when complete same-host session anchors are in the selected window. It does
+not infer open/local-console sessions or identify the person at the connector.
+No qualifying session means insufficient evidence, not that nobody was logged
+in. Exported context includes supporting references and a reference-closure
+check. OS Restart tiles explicitly say they alias Reboot; use unique event keys
+when totaling activity across categories.
 
 No Splunk AppInspect certification, independent assessment, automatic compliance
 pass or affiliation with Splunk or Red Hat is claimed.
@@ -92,9 +101,10 @@ With Python 3 and Bash available, run from its root:
 
 ```sh
 bash tools/build_app.sh
-python3 tools/validate_app.py package/TA_au2_linux --archive dist/TA_au2_linux-1.4.7.spl
+python3 tools/validate_app.py package/TA_au2_linux --archive dist/TA_au2_linux-1.4.8.spl
 python3 tools/test_review.py
 python3 tools/test_operation_audit.py
+python3 tools/test_usb_provenance.py
 ```
 
 These are software checks, not controlled source-event tests. This bundle

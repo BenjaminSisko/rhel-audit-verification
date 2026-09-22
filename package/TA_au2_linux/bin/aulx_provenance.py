@@ -4,6 +4,7 @@ This proves reference closure only, not source authenticity, boot continuity,
 semantic acceptance, or that an action itself used a network connection.
 """
 import hashlib
+import json
 import re
 from collections import defaultdict
 
@@ -73,3 +74,51 @@ def verify_session_provenance(raw, events):
         checked += 1
     return {"derived_category_rows_checked": checked, "status": "REFERENCE_CLOSURE_PASS",
             "semantic_acceptance": False, "boot_continuity_verified": False}
+
+
+def verify_usb_session_provenance(raw, events):
+    """Reference closure for contextual sessions, never physical attribution."""
+    groups = defaultdict(set)
+    for record in raw:
+        key = record.get('event_key')
+        if key:
+            groups[key].update(checked_refs(record.get('record_fingerprint'), 'source fingerprint'))
+    by_fingerprint = defaultdict(list)
+    for key, refs in groups.items():
+        by_fingerprint[digest(refs)].append((key, refs))
+    checked = 0
+    for event in events:
+        evidence = values(event.get('usb_session_evidence'))
+        if not evidence:
+            if int(event.get('usb_session_count') or 0) != 0:
+                raise ValueError('USB session count without evidence')
+            continue
+        if event.get('native_kind') != 'kernel-usb':
+            raise ValueError('USB context on a non-USB event')
+        if len(evidence) != int(event.get('usb_session_count', -1)):
+            raise ValueError('USB session count mismatch')
+        host = event.get('event_host')
+        if not isinstance(host, str) or not host:
+            raise ValueError('USB host missing or ambiguous')
+        refs = checked_refs(event.get('record_fingerprint'), 'USB target references')
+        if groups.get(event.get('event_key')) != refs or event.get('event_fingerprint') != digest(refs):
+            raise ValueError('USB target evidence missing')
+        for encoded in evidence:
+            context = json.loads(encoded)
+            if not float(context['start']) <= float(event['event_time']) < float(context['end']):
+                raise ValueError('USB timestamp outside declared session interval')
+            support = checked_refs(context['event_proofs'].split(','), 'USB session event references')
+            if len(support) != 3:
+                raise ValueError('Expected three USB session anchors')
+            expected = set()
+            for fingerprint in support:
+                matches = by_fingerprint.get(fingerprint, [])
+                if len(matches) != 1 or not matches[0][0].startswith(host+'|audit|'):
+                    raise ValueError('USB session support missing, ambiguous or another host')
+                expected.update(matches[0][1])
+            if checked_refs(context['record_proofs'].split(','), 'USB session records') != expected:
+                raise ValueError('USB session record closure mismatch')
+            checked += 1
+    return {'contextual_sessions_checked': checked, 'status': 'REFERENCE_CLOSURE_PASS',
+            'physical_actor_verified': False, 'semantic_acceptance': False,
+            'boot_continuity_verified': False}

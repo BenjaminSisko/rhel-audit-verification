@@ -1,105 +1,92 @@
 ---
 type: documentation
-status: release-candidate-not-fully-validated
+status: release-candidate-known-content-gaps
 last_verified: 2026-09-22
 ---
 
-# Validation status — 1.4.7 release candidate
+# Validation status — 1.4.8 release candidate
 
-This is an installation and review toolkit, not a completed compliance
-attestation or a claim that default forwarded logs cover all required events.
+This is a tested installation and review toolkit, not a compliance attestation
+or a promise that default forwarded logs cover every required event.
 
-## Current per-case evidence
+## Case results
 
-The reference plan contains59 cases:57 baseline action/outcome cases plus two
-USB-presence cases. The owner excluded the two physical-print outcomes,
-leaving57 required. That exclusion does not automatically apply to another site.
+The reference plan has 59 cases: 57 baseline action/outcome cases plus 2 USB
+presence cases. The reference owner excludes 2 physical-print outcomes, leaving
+57 required. Another organization must decide its own applicability.
 
-**52/57 required cases have technical evidence; five remain incomplete.**
-The52 consist of49 explicitly wrapped commands, one explicitly observed
-two-phase reboot, and two exact native login/logout events. Source/index
-hashes, normalized content and operation-specific checks support those cases.
-They are not52 automatically supported native event types and are not
-independent control acceptance.
+**All 57 required cases have been evaluated: 55 supported category checks,
+2 confirmed USB-content gaps, 0 untested.** The 55 comprise 49 explicitly wrapped
+operation cases, 2 two-phase lifecycle cases, 2 exact native login/logout cases,
+and 2 OS Restart aliases of already verified Reboot evidence. These are not 55
+distinct real operations or 55 automatic native event adapters. Alias rows
+keep the original event identity so cross-category totals can deduplicate them.
 
-[VALIDATION-MATRIX.csv](VALIDATION-MATRIX.csv) contains all59 cases, reference
-applicability, technical status, evidence scope and acceptance state. It
-replaces the historical candidate-count snapshot in the previous release.
-No users, hosts, raw records or private evidence identifiers are published.
+[VALIDATION-MATRIX.csv](VALIDATION-MATRIX.csv) shows every case and its actual
+scope. No private users, hosts, raw logs or evidence identifiers are published.
 No independent acceptance receipts have been issued.
 
-Remaining required cases:
+## Confirmed USB gaps — do not mark these as content passes
 
-- Successful shutdown: actual guest shutdown/off/recovery and helper receipt
-  passed, but the supporting native records were in audit.log.1, outside the
-  exact-file Universal Forwarder monitor. Native reconciliation failed; the
-  collection repair is pending approval/testing, so this case is not credited.
-- Restart success and failure: the required distinction from Reboot needs
-  the reference owner's definition; do not double-count one test.
-- USB attachment and disconnection content: source/index device-presence
-  evidence exists, but physical human identity is not provided by kernel
-  observations. Any operator testimony must be separate from log-derived fields.
+Physical attachment and disconnection were confirmed against the reference
+owner's unplug/replug, source times/port and indexed event fingerprints.
+The kernel records identify the device observation, not the human at the port.
+The configured strict profile therefore still reports missing actor,
+initiator/completer, terminal, access context and privilege.
 
-## Verified software and bounded integration
+Version 1.4.8 adds separate overlapping closed-SSH-session context. It uses
+same-host successful LOGIN/sshd USER_LOGIN/USER_LOGOUT anchors with matching
+session identity and rejects observed lifecycle boundaries. Multiple sessions
+remain multiple candidates. No match is not proof that no users were logged
+in. The physical test window had no qualifying complete closed-session set.
+Open sessions and local-console sessions are not covered by this adapter.
+Changing the selected time window can change available contextual evidence.
 
-- Installed app1.4.7 on Splunk Enterprise10.4.3; source integration has used
-  RHEL8.10 and RHEL10.2 x86_64 audit/auth records.
-- Static package/archive checks,111 candidate and111 deployed semantic checks,
-  and33 offline exporter/review tests passed. Fixtures were not indexed.
-- Source-reported authentication target identity is now distinct from login
-  and process identities; one native login/logout pair matched exact source
-  hashes and all configured content fields.
-- Eleven offline optional-recorder contract tests passed. The recorder was
-  exercised on the reference guest for explicit file, account, configuration,
-  media/PDF, privilege and authentication operations.
-- Actual unprivileged reboot/shutdown requests were denied and left the boot
-  unchanged. Successful reboot used a two-phase observation and separately
-  reconciled both underlying native transition records in Splunk.
-- Earlier bounded source windows reconciled2797 native records,11086 records
-  for media operations and2451 for PDF operations. These are record counts,
-  not operation counts or proof of continuous lossless delivery.
-- A bounded live export preserved950 original records and367 unique correlated
-  events; all16 payload checksums matched and284 derived category rows had
-  complete supporting references.
-- Session integration passed51 correlation fixtures and eight real-event
-  checks. Derived SSH-session context remains separate from direct fields.
+Context never fills direct identity fields or changes their AU-3 pass/fail
+status. An operator statement, controlled media workflow or additional
+endpoint telemetry would be separately attributed evidence, not a retroactive
+kernel-record field. Adding such collection needs site design/authorization.
 
-## What is not established
+## Verified software and integration
 
-The optional recorder is included as a library, not enabled by installing the
-app. It covers only explicitly integrated calls. The environment-specific
-validation harness and lifecycle controller are deliberately not distributed.
-Native exec/open records alone do not prove successful media transfer, PDF
-creation, application startup completion or privilege use.
+- App 1.4.8 installed on Splunk Enterprise 10.4.3; 22 packaged files matched the
+  archive, 5 site-specific files and existing shared/private scopes preserved.
+- 111 candidate and 111 installed semantic checks; 11 new context fixtures before
+  and after install; fixtures are search-only and never indexed.
+- 33 offline exporter/review tests plus 7 USB-provenance checks. The 11 existing
+  optional-recorder tests cover its separate source-library contract.
+- Real OS Restart success/failure labels reuse the exact verified Reboot
+  success/denial fingerprints and content, with 2 distinct events across 4 rows.
+  A service restart is not an OS restart.
+- Both native Shutdown/Boot records were recovered after the approved
+  audit-rotation input repair; their raw hashes and timestamps match source.
+  A 2-minute post-repair sample had 9,221 rows/9,221 unique hashes. This is not a
+  guarantee of all-time deduplication or lossless delivery.
+- Earlier bounded windows reconciled 2,797 native records, 11,086 media-test
+  records and 2,451 PDF-test records. Record counts are not operation counts.
+- A prior bounded export preserved 950 original records and 367 unique events;
+  derived session references were closed. The full weekly-volume exercise is
+  owner-excluded, but the exporter and weekly-review workflow are included.
+- A fresh 1.4.8 bounded export completed with 562 original records and
+  157 unique correlated events. This five-second regression is not a weekly
+  exercise, full fleet audit or human review.
 
-Automatic arbitrary-application coverage, full RHEL9/10 coverage, other
+## Remaining deployment and acceptance boundaries
+
+Other-role execution and final browser rendering are not independently
+verified. Tests use authenticated administrator API access, including shared
+app namespace checks; shared definitions do not themselves prove analyst
+permissions. No account, role or index permission was changed for these tests.
+
+Automatic arbitrary-application coverage, full RHEL 9/10 coverage, other
 architectures, distributed deployments and production scale are unvalidated.
-The recorder requires Python3.9 or later and was exercised on RHEL10.2.
-Test other interpreter/OS combinations before deployment.
+Integration used RHEL 8.10 and RHEL 10.2 x86_64 native records. The optional
+Python 3.9+ recorder is a library for explicitly integrated calls; installing
+the Splunk app does not activate it or instrument applications.
 
-Reference tests used administrator search scope. Other-role/shared-macro
-behavior and final upgraded browser rendering remain pending; the reference
-browser session expired. A healthy service or fresh record does not establish
-complete ingestion. The rotation gap is an explicit counterexample.
-
-The owner removed the full weekly-volume exercise from the completion gate;
-the manual exporter, reviewer worksheet and weekly workflow remain included.
-Size and validate each deployment's workload. Site TLS, source protection,
-retention, backups, demonstrated restore and time synchronization are separate
-operational responsibilities, not proven by field presence.
-
-Session correlation requires an unambiguous closed SSH session and supporting
-record references. Known boot/shutdown boundaries are rejected; missing native
-records can conceal a boundary. Review continuity before accepting derived
-context. Session origin does not prove that every operation used the network.
-
-## Interpretation
-
-AU-2 selects the event types to log; AU-3 concerns record content. The catalog
-and stricter additional-context profile require local applicability review.
-Field presence, correct meaning, pipeline continuity and acceptance are
-separate decisions. Attempted account names do not establish a physical
-person's identity. Unknowns stay unknown.
-
-No Splunk AppInspect certification, independent assessment, automatic compliance
-pass or vendor affiliation is claimed.
+Missing session or lifecycle records can conceal boundaries. Exported
+reference closure proves supporting indexed records were preserved, not that
+the source is authentic or complete. Retention, source protection, TLS,
+backups/restore, time synchronization and assessment acceptance remain
+separate responsibilities. No AppInspect certification, vendor affiliation,
+automatic compliance pass or independent assessment is claimed.

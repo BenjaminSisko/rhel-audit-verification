@@ -4,7 +4,7 @@ status: release-candidate
 last_verified: 2026-09-22
 ---
 
-# Start here — RHEL Audit Verification 1.4.7
+# Start here — RHEL Audit Verification 1.4.8
 
 **Installable now; complete control validation is not claimed.**
 This app works with logs already indexed from Universal Forwarders. It does
@@ -13,7 +13,7 @@ not turn on missing RHEL audit rules or create application audit records.
 1. Unzip the handoff bundle. In its dist folder run
    `sha256sum -c SHA256SUMS` on Linux or `shasum -a 256 -c SHA256SUMS` on macOS.
 2. In Splunk Web: **Apps → Manage Apps → Install app from file**. Select
-   **dist/TA_au2_linux-1.4.7.spl**. Back up an older app and site lookups before
+   **dist/TA_au2_linux-1.4.8.spl**. Back up an older app and site lookups before
    selecting an upgrade. Follow your site's reload/restart process if requested.
 3. Set the **aulx_source** search macro to your real RHEL index and sourcetypes.
    See [INSTALLATION.md](INSTALLATION.md) for the local/macros.conf example.
@@ -34,7 +34,7 @@ verified events and must not be used as control-validation proof.
 
 ## What is in the handoff
 
-- dist/TA_au2_linux-1.4.7.spl: install this in Splunk, not on the forwarder.
+- dist/TA_au2_linux-1.4.8.spl: install this in Splunk, not on the forwarder.
 - package/: the complete portable app source and packaged source-onboarding,
   USB, input-example and review instructions.
 - searches/: readable search logic.

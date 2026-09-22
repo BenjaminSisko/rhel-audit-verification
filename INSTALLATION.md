@@ -6,7 +6,7 @@ last_verified: 2026-09-22
 
 # Installation and first verification
 
-This guide describes the tested 1.4.7 release candidate. Review VALIDATION.md
+This guide describes the tested 1.4.8 release candidate. Review VALIDATION.md
 before operational reliance. The `.spl` installs on the search head,
 not on the Universal Forwarder. Distributed deployments need separate testing.
 
@@ -33,12 +33,15 @@ reference test found that an exact audit.log monitor missed shutdown/boot
 records renamed into audit.log.1 while the forwarder was offline. Evaluate
 an approved directory monitor restricted to numbered audit rotations, replacing
 overlapping inputs rather than adding duplicates. Preserve CRC identity and
-checkpoints; do not reset them to make a test pass. The reference rotation
-repair is pending approval/testing, not claimed deployed or proven.
+checkpoints; do not reset them to make a test pass. The approved reference
+repair recovered both exact native transition records. A bounded2-minute
+sample had9,221rows/9,221unique hashes; this does not prove all-time lossless
+or duplicate-free delivery. The disabled example now includes numbered
+rotations. Test your deployment independently before enabling it.
 
 ## 2. Install the release
 
-Use `dist/TA_au2_linux-1.4.7.spl` and `dist/SHA256SUMS` from this bundle.
+Use `dist/TA_au2_linux-1.4.8.spl` and `dist/SHA256SUMS` from this bundle.
 Verify the archive's SHA-256 against that manifest. Back up any existing app,
 `local/` configuration and operational lookups before an upgrade.
 

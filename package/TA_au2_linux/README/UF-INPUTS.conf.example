@@ -1,7 +1,12 @@
 # REFERENCE ONLY — all monitors disabled. Do not deploy over existing inputs.
 # Review exact source paths, UF account permissions, duplication and index names.
 # Existing approved outputs.conf/TLS configuration is used separately.
-[monitor:///var/log/audit/audit.log]
+[monitor:///var/log/audit]
+# Include numbered audit rotations; replace an exact-file stanza, do not add
+# an overlapping second input. Keep existing checkpoints. Do not add SOURCE
+# crcSalt to rolling audit logs: filenames change when the same data rotates.
+whitelist = ^/var/log/audit/audit[.]log(?:[.][0-9]+)?$
+recursive = false
 disabled = 1
 index = replace_with_approved_index
 sourcetype = linux:audit
