@@ -6,7 +6,7 @@ last_verified: 2026-09-22
 
 # Installation and first verification
 
-This guide describes the tested 1.4.4 release candidate. Review VALIDATION.md
+This guide describes the tested 1.4.6 release candidate. Review VALIDATION.md
 before operational reliance. The `.spl` installs on the search head,
 not on the Universal Forwarder. Distributed deployments need separate testing.
 
@@ -30,7 +30,7 @@ records. Immutable audit policy changes can require an approved reboot.
 
 ## 2. Install the release
 
-Use `dist/TA_au2_linux-1.4.4.spl` and `dist/SHA256SUMS` from this bundle.
+Use `dist/TA_au2_linux-1.4.6.spl` and `dist/SHA256SUMS` from this bundle.
 Verify the archive's SHA-256 against that manifest. Back up any existing app,
 `local/` configuration and operational lookups before an upgrade.
 

@@ -1,14 +1,18 @@
 #!/usr/bin/env python3
 """Offline regression tests. All records are fixtures, never source evidence."""
 import importlib.util
+import copy
+import hashlib
 import json
 from pathlib import Path
 import tempfile
 import time
+import sys
 import unittest
 from unittest.mock import patch
 
 path = Path(__file__).resolve().parents[1]/"package/TA_au2_linux/bin/aulx_review.py"
+sys.path.insert(0, str(path.parent))
 spec = importlib.util.spec_from_file_location("review", path)
 review = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(review)
@@ -48,6 +52,70 @@ class ReviewTests(unittest.TestCase):
 
     def export(self):
         return review.export(self.client, 100, 200, 220, self.root/"bundle", 100, 10, "TEST FIXTURE — NOT EVIDENCE")
+
+    def add_session_fixture(self):
+        raw_template, event_template = self.client.rows[0], self.client.events[0]
+        self.client.rows, self.client.events = [], []
+        for key in ("target", "anchor", "start", "end"):
+            ref = hashlib.sha256(key.encode()).hexdigest()
+            event_key = "fixture.invalid|audit|" + key
+            self.client.rows.append({**raw_template, "event_key": event_key, "record_fingerprint": ref})
+            self.client.events.append({**event_template, "event_key": event_key,
+                                      "record_fingerprint": [ref], "event_fingerprint": review.sha(ref.encode())})
+        target = self.client.events[0]
+        target.update(session_remote_access="remote", session_source_ip="192.0.2.10",
+                      session_context_basis="TEST FIXTURE ONLY",
+                      session_context_fingerprints=[e["event_fingerprint"] for e in self.client.events[1:]],
+                      session_context_record_fingerprints=[e["record_fingerprint"][0] for e in self.client.events[1:]])
+
+    def test_session_export_preserves_support_and_remains_unaccepted(self):
+        self.add_session_fixture()
+        before = copy.deepcopy(self.client.events)
+        meta = self.export()
+        proof = json.loads((self.root/"bundle/session-provenance.json").read_text())
+        self.assertEqual(proof["derived_category_rows_checked"], 1)
+        self.assertFalse(proof["semantic_acceptance"])
+        self.assertFalse(proof["boot_continuity_verified"])
+        self.assertEqual(before, self.client.events)
+        self.assertIn("session-provenance.json", meta["files"])
+        self.assertIn("`aulx_session_context`", next(j["search"] for j in self.client.jobs if j["label"]=="normalized_events"))
+        for field in ("session_source_ip", "session_remote_access", "remote_access",
+                      "session_context_fingerprints", "session_context_record_fingerprints"):
+            self.assertIn(field, review.EVENT_FIELDS.split())
+
+    def test_missing_session_support_fails_even_when_targets_reconcile(self):
+        self.add_session_fixture()
+        self.client.rows.pop()
+        self.client.events.pop()
+        with self.assertRaisesRegex(ValueError, "Supporting event missing"):
+            self.export()
+        self.assertTrue((self.root/"bundle/FAILED.json").exists())
+        self.assertFalse((self.root/"bundle/manifest.json").exists())
+
+    def test_missing_session_field_fails_export(self):
+        self.add_session_fixture()
+        del self.client.events[0]["session_context_record_fingerprints"]
+        with self.assertRaisesRegex(ValueError, "Incomplete session provenance"):
+            self.export()
+
+    def test_forged_session_target_hash_fails_export(self):
+        self.add_session_fixture()
+        self.client.events[0]["event_fingerprint"] = "0"*64
+        with self.assertRaisesRegex(ValueError, "Target evidence"):
+            self.export()
+
+    def test_cross_host_session_support_fails_export(self):
+        self.add_session_fixture()
+        self.client.rows[-1]["event_key"]="other.invalid|audit|end"
+        self.client.events[-1]["event_key"]="other.invalid|audit|end"
+        with self.assertRaisesRegex(ValueError, "another host"):
+            self.export()
+
+    def test_no_session_evidence_is_not_a_context_pass(self):
+        self.export()
+        proof = json.loads((self.root/"bundle/session-provenance.json").read_text())
+        self.assertEqual(proof["status"], "NO_DERIVED_CONTEXT")
+        self.assertEqual(proof["derived_category_rows_checked"], 0)
 
     def test_export_preserves_sources_and_unsigned_review(self):
         meta = self.export()

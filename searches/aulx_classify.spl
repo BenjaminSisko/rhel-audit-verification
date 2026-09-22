@@ -21,9 +21,10 @@ if(mvfind(audit_record_types,"^GRP_MGMT$")>=0 AND mvfind(operation,"^delete-(sha
 if(mvfind(audit_record_types,"^GRP_MGMT$")>=0 AND mvfind(operation,"^(modify-group|changing-(shadow-)?group)(?:[ ]|$)")>=0,"Modify group/role",null()),
 if(mvfind(audit_record_types,"^CONFIG_CHANGE$")>=0,"Change security/audit policy",null()),
 if(mvfind(syscall_name,"^(execve|execveat)$")>=0 AND outcome="success" AND effective_uid="0" AND isnotnull(login_uid) AND login_uid!="0" AND login_uid!="4294967295","Administrative/root access",null()),
+if(native_kind="auditd" AND mvfind(audit_record_types,"^USER_CMD$")>=0 AND application="/usr/bin/sudo" AND outcome="failure" AND mvcount(process_uid)=1 AND match(process_uid,"^[0-9]+$") AND process_uid!="0" AND process_uid!="4294967295","Administrative/root access",null()),
 if(mvfind(syscall_name,"^(execve|execveat)$")>=0,"Start application",null()),
 if(mvfind(audit_keys,"^au2_config_change$")>=0,"Change configuration",null()),
-if(mvfind(audit_keys,"^au2_security_log_access$")>=0,"Access audit/security logs",null()),
+if(native_kind="auditd" AND mvfind(syscall_name,"^(open|openat|openat2|read|access|faccessat|faccessat2)$")>=0 AND (mvfind(object,"^/var/log/(secure|audit/audit[.]log)$")>=0 OR (isnotnull(object) AND mvfind(audit_keys,"^au2_security_log_access$")>=0)),"Access audit/security logs",null()),
 if(mvfind(audit_record_types,"^SYSTEM_SHUTDOWN$")>=0,"Shutdown",null()),
 if(native_kind="application-json",json_action,null()))
 | eval aulx_actions=coalesce(aulx_actions,"Unmapped event")

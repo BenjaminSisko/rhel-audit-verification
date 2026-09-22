@@ -1,4 +1,4 @@
-RHEL Audit Review Kit 1.4.4 — Universal Forwarder workflow
+RHEL Audit Review Kit 1.4.6 — Universal Forwarder workflow
 ========================================================
 
 Scope and prerequisites
@@ -77,6 +77,17 @@ and failure. Synthetic fixtures are software tests, never source proof.
 The 57-case starter catalog and stricter content profile require local review;
 an absent field is not automatically a universal AU-3 violation.
 
+Version1.4.5 preserves audit session IDs and displays Session_origin and
+Session_source separately from directly recorded remote_access/source_ip.
+Correlation requires a unique closed SSH login session, matching host, login
+UID, process and terminal, and no observed boot/shutdown inside its interval.
+RHEL8 sshd and RHEL10 sshd-session exact executable paths are supported.
+Missing or clipped session records yield "Not established", never guessed values.
+Session origin is not proof that the individual operation used the network.
+Missing lifecycle records can conceal a boot boundary; boot continuity still
+requires review. Correlated context does not automatically clear strict
+content gaps or create an accepted receipt.
+
 5. Export a fixed review period
 ------------------------------
 Run bin/aulx_review.py with Python3 from an approved management machine that
@@ -110,6 +121,7 @@ Outputs (private directory0700/files0600 by default):
   report.html                 printable human overview, explicit review pending
   source-records.ndjson        indexed original bodies plus source references
   normalized-events.ndjson     all exported category rows, not a five-row sample
+  session-provenance.json      support-reference closure, not semantic acceptance
   event-details.csv            readable identity/context table; formula-safe CSV
   source-coverage.json/.csv    expected, missing, stale, unexpected feeds
   case-summary.json/.csv       global case counts, not fleet-wide coverage proof
@@ -126,6 +138,11 @@ readers against formula-like text, so JSON/source records remain authoritative.
 Splunk job IDs can expire; this package retains actual exported source records.
 Hashes detect subsequent changes, not source authenticity or unrecorded events.
 Record presence does not prove timestamps, continuity, retention or backup.
+All records supporting derived session fields must exist in the same export.
+Missing, ambiguous, cross-host or mismatched support references fail export.
+No derived fields means NO_DERIVED_CONTEXT, not a passed session verification.
+Keep both bin/aulx_review.py and bin/aulx_provenance.py together when running
+the exporter outside the installed app.
 
 6. Perform and record the review
 -------------------------------

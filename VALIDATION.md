@@ -4,22 +4,36 @@ status: release-candidate-not-fully-validated
 last_verified: 2026-09-22
 ---
 
-# Validation status — 1.4.4 release candidate
+# Validation status — 1.4.6 release candidate
 
 This is a usable installation and review toolkit, **not a completed compliance
 attestation or a claim that every required source event has been validated**.
 
 ## Verified software and bounded integration
 
-- Installed and tested in Splunk Enterprise10.4.3 with RHEL8.10 x86_64 sources.
-- Static package checks and the33-member install archive passed.
--89 candidate and89 deployed semantic checks passed without indexing fixtures.
--14 deployed native/identity fixtures and27 offline exporter tests passed.
-- Four controlled file events were compared with16 primary audit records;
-  normalized transport/body hashes matched the preserved indexed evidence.
-- A bounded one-minute real export preserved10052source records and2741
-  correlated events; all payload/manifest checksums passed. Human review was
-  not fabricated, and this was not a full weekly-volume benchmark.
+- Installed and tested in Splunk Enterprise 10.4.3; bounded integration uses
+  RHEL 8.10 and RHEL 10.2 x86_64 audit/auth records.
+- Static package checks and the 34-member install archive passed.
+- 103 candidate and 103 deployed semantic checks passed without indexing fixtures.
+- 33 offline exporter/review tests passed. The session integration passed 51
+  deployed correlation fixtures and eight source-reconciled real-event checks.
+- A controlled RHEL 10 action window reconciled all 2,797 native audit records
+  to indexed records after documented transport/enrichment normalization.
+- Four further RHEL 10 operations have 21 matched target/support records and
+  separately reported SSH-session origin. Direct event fields remain unchanged.
+- A bounded live session export preserved 950 source records and 367 unique
+  correlated events. All 16 payload checksums matched; 284 derived category
+  rows had complete supporting references. Human acceptance was not fabricated.
+- Two native failures now map correctly: denied access to a known security-log
+  target and failed non-root sudo USER_CMD. Exact source-event fingerprints,
+  identities and outcomes matched before and after the classification change.
+- Four disposable virtual-media copy actions and two actual PDF-generation
+  actions produced the expected source results. Their bounded windows reconciled
+  11,086 and 2,451 records respectively. These are record counts, not operation
+  counts. Application-completion mapping and full content acceptance remain open.
+- An approved isolated RHEL guest reboot and separate shutdown/start were
+  performed, with postboot forwarding recovery. Native lifecycle records exist;
+  per-case lifecycle mapping, failed-operation tests and content remain incomplete.
 - Real USB disconnect/reconnect records were captured. Presence does not prove
   a physical person's identity, usable storage, authorization or file transfer.
 
@@ -30,22 +44,39 @@ two USB-presence cases. Its owner excluded the two physical-print outcomes,
 leaving57required checks. That exclusion is specific to the reference test
 plan and is not automatically valid at another organization.
 
-In the fixed bounded validation window,34/57required cases had candidates,
-23had no matching candidates, and **zero had full-content or accepted
-verification status**. Candidate counts include background activity.
-VALIDATION-MATRIX.csv lists every case without personal or host information.
+The CSV contains a clearly labelled **historical 1.4.4 fixed-window snapshot**:
+34/57 required checks had candidates and 23 had none. Those counts are not a
+fresh census of the 1.4.6 deployment and include background activity. Later
+bounded work above is separate evidence, not retroactive revision of that window.
+**No full end-to-end acceptance receipt has been issued.**
+VALIDATION-MATRIX.csv retains every case without personal or host information,
+with an explicit snapshot version, interval and unresolved verification state.
 
-Outstanding gates include remaining native event adapters and real success/
-failure tests, source application context, lifecycle/security-policy tests on
-an approved safe target, approved media-transfer tests, successful print-to-file
-evidence, wider RHEL9/10 and architecture compatibility, distributed/production
-scale and a full weekly review at the intended volume. Site-specific TLS,
-retention and backup/restore must also be validated.
+Outstanding work includes remaining native adapters and real success/failure
+tests, complete application/session context, lifecycle/security-policy semantics,
+and mapping media/PDF completion into reviewable application evidence. Native
+open/exec records alone do not prove completed transfers or PDF output. An
+optional source-side operation logger is proposed but is **not included or
+deployed** by this release. It would not cover arbitrary bypassing applications.
 
-Remote session context was found for the four file tests. Experimental
-correlation remains outside this release; it does not silently fill direct
-event fields or create acceptance. The latest experimental boot-boundary test
-did not pass its search-state gate and is intentionally not included.
+Wider RHEL/architecture compatibility, distributed deployments and production
+scale are not established. The reference owner removed a full weekly-volume
+exercise from this project's completion scope; the exporter and weekly workflow
+remain included and require workload sizing at each deployment. Site-specific
+TLS, retention, backups and demonstrated restore also remain deployment duties.
+
+Bounded session correlation is included starting with 1.4.5. It requires an
+unambiguous closed SSH session and preserves supporting event/record references.
+Observed boot/shutdown boundaries are rejected, but absent lifecycle records can
+conceal a boundary; boot continuity still requires review. Session origin is not
+proof that the individual operation used the network and does not silently fill
+direct fields or create acceptance. Final browser rendering after the upgrade
+has not been reverified because the reference browser session expired.
+
+Known exact RHEL log paths and reviewed collection keys require an actual access
+syscall/target for the security-log category. A label on exec is insufficient.
+Failed sudo USER_CMD maps denied administrative access only under the documented
+native/non-root guard; authorization success is not completed elevation.
 
 ## Interpretation rules
 

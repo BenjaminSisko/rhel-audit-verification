@@ -14,7 +14,7 @@ parts = [original, marker]
 for path in sorted((project / "searches").glob("aulx_*.spl")):
     spl = " ".join(line.strip() for line in path.read_text().splitlines())
     parts.append(f"[{path.stem}]\ndefinition = {spl}\niseval = 0")
-parts.append("[aulx_events]\ndefinition = `aulx_source` | `aulx_extract` | `aulx_correlate` | `aulx_classify` | `aulx_content`\niseval = 0")
+parts.append("[aulx_events]\ndefinition = `aulx_source` | `aulx_extract` | `aulx_correlate` | `aulx_session_context` | `aulx_classify` | `aulx_content`\niseval = 0")
 macro_path.write_text("\n\n".join(parts) + "\n")
 with (app / "lookups/au2_linux_event_catalog.csv").open() as stream:
     catalog = list(csv.DictReader(stream))
@@ -58,7 +58,7 @@ ET.SubElement(recent, "query").text = """| `aulx_events`
 | sort 0 - event_time event_fingerprint
 | streamstats count AS sample_rank BY case_id event_host application
 | where sample_rank<=5
-| table case_id sample_rank event_time ingest_time event_host application event_action outcome actor login_user login_uid process_user process_uid effective_user effective_uid target_account identity_basis initiator completer source_ip terminal remote_access object process_id privilege reason operation correlation_id event_fingerprint raw_records audit_record_types audit_keys syscall_name architecture usb_port usb_vendor usb_product_id usb_product usb_manufacturer usb_driver correlation_state missing_fields content_status verification_status index source sourcetype clock_status protection_status"""
+| table case_id sample_rank event_time ingest_time event_host application event_action outcome actor login_user login_uid process_user process_uid effective_user effective_uid target_account identity_basis initiator completer source_ip terminal remote_access audit_session remote_access session_remote_access session_source_ip session_context_status session_context_basis session_context_fingerprints session_context_record_fingerprints object process_id privilege reason operation correlation_id event_fingerprint raw_records audit_record_types audit_keys syscall_name architecture usb_port usb_vendor usb_product_id usb_product usb_manufacturer usb_driver correlation_state missing_fields content_status verification_status index source sourcetype clock_status protection_status"""
 ET.SubElement(recent, "earliest").text = "$time_tok.earliest$"
 ET.SubElement(recent, "latest").text = "$time_tok.latest$"
 root.insert(list(root).index(root.find("fieldset")), recent)
@@ -83,7 +83,7 @@ for group_index, (requirement, cases) in enumerate(grouped.items(), 1):
     html = ET.SubElement(ET.SubElement(header_row, "panel"), "html")
     ET.SubElement(html, "h2").text = f"{requirement} · {cases[0]['event_group']}"
     ET.SubElement(html, "p").text = ("Supplemental device observations, excluded from the 57-case AU-2 coverage score. Attachment means the kernel found a device, not that storage was usable or a file was transferred. Physical user identity is not recorded by these messages; missing AU-3 content stays visible. USB context joins only the same boot/port/device sequence within five seconds and the selected window."
-        if requirement == "Supplemental" else "Each tile is one required action/outcome. Missing evidence remains visible.")
+        if requirement == "Supplemental" else "Each tile is one required action/outcome. Session origin/source are correlated login context, not direct event fields or proof of a network operation. Boot continuity requires review; missing evidence remains visible.")
     root.insert(insert_at, header_row)
     insert_at += 1
     for offset in range(0, len(cases), 3):
@@ -125,11 +125,12 @@ for group_index, (requirement, cases) in enumerate(grouped.items(), 1):
                 + ' | eval Time=strftime(event_time,"%Y-%m-%d %H:%M:%S %Z"), User=coalesce(mvjoin(actor,", "),"User not recorded"), Login=coalesce(mvjoin(login_user,", "),"Not recorded"), Login_UID=coalesce(mvjoin(login_uid,", "),"Not recorded"), Process=coalesce(mvjoin(process_user,", "),"Not recorded"), Effective=coalesce(mvjoin(effective_user,", "),"Not recorded"), Account=coalesce(mvjoin(target_account,", "),"Not recorded")'
                 + ' | rename event_host AS Host application AS Application'
                 + ' | eval User=User.if(Login!="Not recorded" AND NOT in(Login_UID,"4294967295","-1","Not recorded")," (login UID ".Login_UID.")","")'
-                + ' | table Time User Process Host Application')
+                + ' | eval Session_origin=coalesce(session_remote_access,"Not established"), Session_source=coalesce(session_source_ip,"Not established")'
+                + ' | table Time User Process Host Application Session_origin Session_source')
             for name, value in (("count", "5"), ("wrap", "true"), ("drilldown", "none"), ("rowNumbers", "false")):
                 ET.SubElement(table, "option", name=name).text = value
             if requirement == "Supplemental":
-                sample_search.find("query").text = sample_search.find("query").text.replace(' | table Time User Process Host Application', ' | rename object AS Device | table Time User Host Application Device')
+                sample_search.find("query").text = sample_search.find("query").text.replace(' | table Time User Process Host Application Session_origin Session_source', ' | rename object AS Device | table Time User Host Application Device')
         root.insert(insert_at, row)
         insert_at += 1
 ET.indent(root, space="  ")

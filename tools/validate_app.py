@@ -100,6 +100,7 @@ def validate(root: pathlib.Path) -> list[str]:
         root / "lookups/aulx_expected_sources.csv",
         root / "default/data/ui/views/rhel_review_readiness.xml",
         root / "bin/aulx_review.py",
+        root / "bin/aulx_provenance.py",
         root / "README/REVIEW-GUIDE.txt",
         root / "README/RHEL-SOURCE-ONBOARDING.txt",
     ]
@@ -115,7 +116,7 @@ def validate(root: pathlib.Path) -> list[str]:
         fail("app.conf package id must match the app directory")
 
     macros = parse_conf(root / "default/macros.conf")
-    for macro in ("aulx_source", "aulx_extract", "aulx_correlate", "aulx_classify", "aulx_content", "aulx_events"):
+    for macro in ("aulx_source", "aulx_extract", "aulx_correlate", "aulx_session_context", "aulx_classify", "aulx_content", "aulx_events"):
         if not macros.has_option(macro, "definition"):
             fail(f"missing portable verification macro: {macro}")
     source = macros["aulx_source"]["definition"]

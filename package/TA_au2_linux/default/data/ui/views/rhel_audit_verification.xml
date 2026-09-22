@@ -313,7 +313,7 @@
 | sort 0 - event_time event_fingerprint
 | streamstats count AS sample_rank BY case_id event_host application
 | where sample_rank&lt;=5
-| table case_id sample_rank event_time ingest_time event_host application event_action outcome actor login_user login_uid process_user process_uid effective_user effective_uid target_account identity_basis initiator completer source_ip terminal remote_access object process_id privilege reason operation correlation_id event_fingerprint raw_records audit_record_types audit_keys syscall_name architecture usb_port usb_vendor usb_product_id usb_product usb_manufacturer usb_driver correlation_state missing_fields content_status verification_status index source sourcetype clock_status protection_status</query>
+| table case_id sample_rank event_time ingest_time event_host application event_action outcome actor login_user login_uid process_user process_uid effective_user effective_uid target_account identity_basis initiator completer source_ip terminal remote_access audit_session remote_access session_remote_access session_source_ip session_context_status session_context_basis session_context_fingerprints session_context_record_fingerprints object process_id privilege reason operation correlation_id event_fingerprint raw_records audit_record_types audit_keys syscall_name architecture usb_port usb_vendor usb_product_id usb_product usb_manufacturer usb_driver correlation_state missing_fields content_status verification_status index source sourcetype clock_status protection_status</query>
     <earliest>$time_tok.earliest$</earliest>
     <latest>$time_tok.latest$</latest>
   </search>
@@ -421,7 +421,7 @@
       <table>
         <title>Latest 5 matching events • newest first</title>
         <search base="rhel_recent">
-          <query>search case_id="USB-ATTACH" | where ($host_tok|s$="*" OR event_host=$host_tok|s$) AND ($app_tok|s$="*" OR application=$app_tok|s$) | sort 5 - event_time event_fingerprint | eval Time=strftime(event_time,"%Y-%m-%d %H:%M:%S %Z"), User=coalesce(mvjoin(actor,", "),"User not recorded"), Login=coalesce(mvjoin(login_user,", "),"Not recorded"), Login_UID=coalesce(mvjoin(login_uid,", "),"Not recorded"), Process=coalesce(mvjoin(process_user,", "),"Not recorded"), Effective=coalesce(mvjoin(effective_user,", "),"Not recorded"), Account=coalesce(mvjoin(target_account,", "),"Not recorded") | rename event_host AS Host application AS Application | eval User=User.if(Login!="Not recorded" AND NOT in(Login_UID,"4294967295","-1","Not recorded")," (login UID ".Login_UID.")","") | rename object AS Device | table Time User Host Application Device</query>
+          <query>search case_id="USB-ATTACH" | where ($host_tok|s$="*" OR event_host=$host_tok|s$) AND ($app_tok|s$="*" OR application=$app_tok|s$) | sort 5 - event_time event_fingerprint | eval Time=strftime(event_time,"%Y-%m-%d %H:%M:%S %Z"), User=coalesce(mvjoin(actor,", "),"User not recorded"), Login=coalesce(mvjoin(login_user,", "),"Not recorded"), Login_UID=coalesce(mvjoin(login_uid,", "),"Not recorded"), Process=coalesce(mvjoin(process_user,", "),"Not recorded"), Effective=coalesce(mvjoin(effective_user,", "),"Not recorded"), Account=coalesce(mvjoin(target_account,", "),"Not recorded") | rename event_host AS Host application AS Application | eval User=User.if(Login!="Not recorded" AND NOT in(Login_UID,"4294967295","-1","Not recorded")," (login UID ".Login_UID.")","") | eval Session_origin=coalesce(session_remote_access,"Not established"), Session_source=coalesce(session_source_ip,"Not established") | rename object AS Device | table Time User Host Application Device</query>
         </search>
         <option name="count">5</option>
         <option name="wrap">true</option>
@@ -464,7 +464,7 @@
       <table>
         <title>Latest 5 matching events • newest first</title>
         <search base="rhel_recent">
-          <query>search case_id="USB-DETACH" | where ($host_tok|s$="*" OR event_host=$host_tok|s$) AND ($app_tok|s$="*" OR application=$app_tok|s$) | sort 5 - event_time event_fingerprint | eval Time=strftime(event_time,"%Y-%m-%d %H:%M:%S %Z"), User=coalesce(mvjoin(actor,", "),"User not recorded"), Login=coalesce(mvjoin(login_user,", "),"Not recorded"), Login_UID=coalesce(mvjoin(login_uid,", "),"Not recorded"), Process=coalesce(mvjoin(process_user,", "),"Not recorded"), Effective=coalesce(mvjoin(effective_user,", "),"Not recorded"), Account=coalesce(mvjoin(target_account,", "),"Not recorded") | rename event_host AS Host application AS Application | eval User=User.if(Login!="Not recorded" AND NOT in(Login_UID,"4294967295","-1","Not recorded")," (login UID ".Login_UID.")","") | rename object AS Device | table Time User Host Application Device</query>
+          <query>search case_id="USB-DETACH" | where ($host_tok|s$="*" OR event_host=$host_tok|s$) AND ($app_tok|s$="*" OR application=$app_tok|s$) | sort 5 - event_time event_fingerprint | eval Time=strftime(event_time,"%Y-%m-%d %H:%M:%S %Z"), User=coalesce(mvjoin(actor,", "),"User not recorded"), Login=coalesce(mvjoin(login_user,", "),"Not recorded"), Login_UID=coalesce(mvjoin(login_uid,", "),"Not recorded"), Process=coalesce(mvjoin(process_user,", "),"Not recorded"), Effective=coalesce(mvjoin(effective_user,", "),"Not recorded"), Account=coalesce(mvjoin(target_account,", "),"Not recorded") | rename event_host AS Host application AS Application | eval User=User.if(Login!="Not recorded" AND NOT in(Login_UID,"4294967295","-1","Not recorded")," (login UID ".Login_UID.")","") | eval Session_origin=coalesce(session_remote_access,"Not established"), Session_source=coalesce(session_source_ip,"Not established") | rename object AS Device | table Time User Host Application Device</query>
         </search>
         <option name="count">5</option>
         <option name="wrap">true</option>
@@ -491,7 +491,7 @@
     <panel>
       <html>
         <h2>AU-2.a.1 · Authentication and session events</h2>
-        <p>Each tile is one required action/outcome. Missing evidence remains visible.</p>
+        <p>Each tile is one required action/outcome. Session origin/source are correlated login context, not direct event fields or proof of a network operation. Boot continuity requires review; missing evidence remains visible.</p>
       </html>
     </panel>
   </row>
@@ -517,7 +517,7 @@
       <table>
         <title>Latest 5 matching events • newest first</title>
         <search base="rhel_recent">
-          <query>search case_id="AU2-01-01-S" | where ($host_tok|s$="*" OR event_host=$host_tok|s$) AND ($app_tok|s$="*" OR application=$app_tok|s$) | sort 5 - event_time event_fingerprint | eval Time=strftime(event_time,"%Y-%m-%d %H:%M:%S %Z"), User=coalesce(mvjoin(actor,", "),"User not recorded"), Login=coalesce(mvjoin(login_user,", "),"Not recorded"), Login_UID=coalesce(mvjoin(login_uid,", "),"Not recorded"), Process=coalesce(mvjoin(process_user,", "),"Not recorded"), Effective=coalesce(mvjoin(effective_user,", "),"Not recorded"), Account=coalesce(mvjoin(target_account,", "),"Not recorded") | rename event_host AS Host application AS Application | eval User=User.if(Login!="Not recorded" AND NOT in(Login_UID,"4294967295","-1","Not recorded")," (login UID ".Login_UID.")","") | table Time User Process Host Application</query>
+          <query>search case_id="AU2-01-01-S" | where ($host_tok|s$="*" OR event_host=$host_tok|s$) AND ($app_tok|s$="*" OR application=$app_tok|s$) | sort 5 - event_time event_fingerprint | eval Time=strftime(event_time,"%Y-%m-%d %H:%M:%S %Z"), User=coalesce(mvjoin(actor,", "),"User not recorded"), Login=coalesce(mvjoin(login_user,", "),"Not recorded"), Login_UID=coalesce(mvjoin(login_uid,", "),"Not recorded"), Process=coalesce(mvjoin(process_user,", "),"Not recorded"), Effective=coalesce(mvjoin(effective_user,", "),"Not recorded"), Account=coalesce(mvjoin(target_account,", "),"Not recorded") | rename event_host AS Host application AS Application | eval User=User.if(Login!="Not recorded" AND NOT in(Login_UID,"4294967295","-1","Not recorded")," (login UID ".Login_UID.")","") | eval Session_origin=coalesce(session_remote_access,"Not established"), Session_source=coalesce(session_source_ip,"Not established") | table Time User Process Host Application Session_origin Session_source</query>
         </search>
         <option name="count">5</option>
         <option name="wrap">true</option>
@@ -560,7 +560,7 @@
       <table>
         <title>Latest 5 matching events • newest first</title>
         <search base="rhel_recent">
-          <query>search case_id="AU2-01-01-F" | where ($host_tok|s$="*" OR event_host=$host_tok|s$) AND ($app_tok|s$="*" OR application=$app_tok|s$) | sort 5 - event_time event_fingerprint | eval Time=strftime(event_time,"%Y-%m-%d %H:%M:%S %Z"), User=coalesce(mvjoin(actor,", "),"User not recorded"), Login=coalesce(mvjoin(login_user,", "),"Not recorded"), Login_UID=coalesce(mvjoin(login_uid,", "),"Not recorded"), Process=coalesce(mvjoin(process_user,", "),"Not recorded"), Effective=coalesce(mvjoin(effective_user,", "),"Not recorded"), Account=coalesce(mvjoin(target_account,", "),"Not recorded") | rename event_host AS Host application AS Application | eval User=User.if(Login!="Not recorded" AND NOT in(Login_UID,"4294967295","-1","Not recorded")," (login UID ".Login_UID.")","") | table Time User Process Host Application</query>
+          <query>search case_id="AU2-01-01-F" | where ($host_tok|s$="*" OR event_host=$host_tok|s$) AND ($app_tok|s$="*" OR application=$app_tok|s$) | sort 5 - event_time event_fingerprint | eval Time=strftime(event_time,"%Y-%m-%d %H:%M:%S %Z"), User=coalesce(mvjoin(actor,", "),"User not recorded"), Login=coalesce(mvjoin(login_user,", "),"Not recorded"), Login_UID=coalesce(mvjoin(login_uid,", "),"Not recorded"), Process=coalesce(mvjoin(process_user,", "),"Not recorded"), Effective=coalesce(mvjoin(effective_user,", "),"Not recorded"), Account=coalesce(mvjoin(target_account,", "),"Not recorded") | rename event_host AS Host application AS Application | eval User=User.if(Login!="Not recorded" AND NOT in(Login_UID,"4294967295","-1","Not recorded")," (login UID ".Login_UID.")","") | eval Session_origin=coalesce(session_remote_access,"Not established"), Session_source=coalesce(session_source_ip,"Not established") | table Time User Process Host Application Session_origin Session_source</query>
         </search>
         <option name="count">5</option>
         <option name="wrap">true</option>
@@ -603,7 +603,7 @@
       <table>
         <title>Latest 5 matching events • newest first</title>
         <search base="rhel_recent">
-          <query>search case_id="AU2-01-02-S" | where ($host_tok|s$="*" OR event_host=$host_tok|s$) AND ($app_tok|s$="*" OR application=$app_tok|s$) | sort 5 - event_time event_fingerprint | eval Time=strftime(event_time,"%Y-%m-%d %H:%M:%S %Z"), User=coalesce(mvjoin(actor,", "),"User not recorded"), Login=coalesce(mvjoin(login_user,", "),"Not recorded"), Login_UID=coalesce(mvjoin(login_uid,", "),"Not recorded"), Process=coalesce(mvjoin(process_user,", "),"Not recorded"), Effective=coalesce(mvjoin(effective_user,", "),"Not recorded"), Account=coalesce(mvjoin(target_account,", "),"Not recorded") | rename event_host AS Host application AS Application | eval User=User.if(Login!="Not recorded" AND NOT in(Login_UID,"4294967295","-1","Not recorded")," (login UID ".Login_UID.")","") | table Time User Process Host Application</query>
+          <query>search case_id="AU2-01-02-S" | where ($host_tok|s$="*" OR event_host=$host_tok|s$) AND ($app_tok|s$="*" OR application=$app_tok|s$) | sort 5 - event_time event_fingerprint | eval Time=strftime(event_time,"%Y-%m-%d %H:%M:%S %Z"), User=coalesce(mvjoin(actor,", "),"User not recorded"), Login=coalesce(mvjoin(login_user,", "),"Not recorded"), Login_UID=coalesce(mvjoin(login_uid,", "),"Not recorded"), Process=coalesce(mvjoin(process_user,", "),"Not recorded"), Effective=coalesce(mvjoin(effective_user,", "),"Not recorded"), Account=coalesce(mvjoin(target_account,", "),"Not recorded") | rename event_host AS Host application AS Application | eval User=User.if(Login!="Not recorded" AND NOT in(Login_UID,"4294967295","-1","Not recorded")," (login UID ".Login_UID.")","") | eval Session_origin=coalesce(session_remote_access,"Not established"), Session_source=coalesce(session_source_ip,"Not established") | table Time User Process Host Application Session_origin Session_source</query>
         </search>
         <option name="count">5</option>
         <option name="wrap">true</option>
@@ -630,7 +630,7 @@
     <panel>
       <html>
         <h2>AU-2.a.2 · Object access and file operations</h2>
-        <p>Each tile is one required action/outcome. Missing evidence remains visible.</p>
+        <p>Each tile is one required action/outcome. Session origin/source are correlated login context, not direct event fields or proof of a network operation. Boot continuity requires review; missing evidence remains visible.</p>
       </html>
     </panel>
   </row>
@@ -656,7 +656,7 @@
       <table>
         <title>Latest 5 matching events • newest first</title>
         <search base="rhel_recent">
-          <query>search case_id="AU2-02-01-S" | where ($host_tok|s$="*" OR event_host=$host_tok|s$) AND ($app_tok|s$="*" OR application=$app_tok|s$) | sort 5 - event_time event_fingerprint | eval Time=strftime(event_time,"%Y-%m-%d %H:%M:%S %Z"), User=coalesce(mvjoin(actor,", "),"User not recorded"), Login=coalesce(mvjoin(login_user,", "),"Not recorded"), Login_UID=coalesce(mvjoin(login_uid,", "),"Not recorded"), Process=coalesce(mvjoin(process_user,", "),"Not recorded"), Effective=coalesce(mvjoin(effective_user,", "),"Not recorded"), Account=coalesce(mvjoin(target_account,", "),"Not recorded") | rename event_host AS Host application AS Application | eval User=User.if(Login!="Not recorded" AND NOT in(Login_UID,"4294967295","-1","Not recorded")," (login UID ".Login_UID.")","") | table Time User Process Host Application</query>
+          <query>search case_id="AU2-02-01-S" | where ($host_tok|s$="*" OR event_host=$host_tok|s$) AND ($app_tok|s$="*" OR application=$app_tok|s$) | sort 5 - event_time event_fingerprint | eval Time=strftime(event_time,"%Y-%m-%d %H:%M:%S %Z"), User=coalesce(mvjoin(actor,", "),"User not recorded"), Login=coalesce(mvjoin(login_user,", "),"Not recorded"), Login_UID=coalesce(mvjoin(login_uid,", "),"Not recorded"), Process=coalesce(mvjoin(process_user,", "),"Not recorded"), Effective=coalesce(mvjoin(effective_user,", "),"Not recorded"), Account=coalesce(mvjoin(target_account,", "),"Not recorded") | rename event_host AS Host application AS Application | eval User=User.if(Login!="Not recorded" AND NOT in(Login_UID,"4294967295","-1","Not recorded")," (login UID ".Login_UID.")","") | eval Session_origin=coalesce(session_remote_access,"Not established"), Session_source=coalesce(session_source_ip,"Not established") | table Time User Process Host Application Session_origin Session_source</query>
         </search>
         <option name="count">5</option>
         <option name="wrap">true</option>
@@ -699,7 +699,7 @@
       <table>
         <title>Latest 5 matching events • newest first</title>
         <search base="rhel_recent">
-          <query>search case_id="AU2-02-01-F" | where ($host_tok|s$="*" OR event_host=$host_tok|s$) AND ($app_tok|s$="*" OR application=$app_tok|s$) | sort 5 - event_time event_fingerprint | eval Time=strftime(event_time,"%Y-%m-%d %H:%M:%S %Z"), User=coalesce(mvjoin(actor,", "),"User not recorded"), Login=coalesce(mvjoin(login_user,", "),"Not recorded"), Login_UID=coalesce(mvjoin(login_uid,", "),"Not recorded"), Process=coalesce(mvjoin(process_user,", "),"Not recorded"), Effective=coalesce(mvjoin(effective_user,", "),"Not recorded"), Account=coalesce(mvjoin(target_account,", "),"Not recorded") | rename event_host AS Host application AS Application | eval User=User.if(Login!="Not recorded" AND NOT in(Login_UID,"4294967295","-1","Not recorded")," (login UID ".Login_UID.")","") | table Time User Process Host Application</query>
+          <query>search case_id="AU2-02-01-F" | where ($host_tok|s$="*" OR event_host=$host_tok|s$) AND ($app_tok|s$="*" OR application=$app_tok|s$) | sort 5 - event_time event_fingerprint | eval Time=strftime(event_time,"%Y-%m-%d %H:%M:%S %Z"), User=coalesce(mvjoin(actor,", "),"User not recorded"), Login=coalesce(mvjoin(login_user,", "),"Not recorded"), Login_UID=coalesce(mvjoin(login_uid,", "),"Not recorded"), Process=coalesce(mvjoin(process_user,", "),"Not recorded"), Effective=coalesce(mvjoin(effective_user,", "),"Not recorded"), Account=coalesce(mvjoin(target_account,", "),"Not recorded") | rename event_host AS Host application AS Application | eval User=User.if(Login!="Not recorded" AND NOT in(Login_UID,"4294967295","-1","Not recorded")," (login UID ".Login_UID.")","") | eval Session_origin=coalesce(session_remote_access,"Not established"), Session_source=coalesce(session_source_ip,"Not established") | table Time User Process Host Application Session_origin Session_source</query>
         </search>
         <option name="count">5</option>
         <option name="wrap">true</option>
@@ -742,7 +742,7 @@
       <table>
         <title>Latest 5 matching events • newest first</title>
         <search base="rhel_recent">
-          <query>search case_id="AU2-02-02-S" | where ($host_tok|s$="*" OR event_host=$host_tok|s$) AND ($app_tok|s$="*" OR application=$app_tok|s$) | sort 5 - event_time event_fingerprint | eval Time=strftime(event_time,"%Y-%m-%d %H:%M:%S %Z"), User=coalesce(mvjoin(actor,", "),"User not recorded"), Login=coalesce(mvjoin(login_user,", "),"Not recorded"), Login_UID=coalesce(mvjoin(login_uid,", "),"Not recorded"), Process=coalesce(mvjoin(process_user,", "),"Not recorded"), Effective=coalesce(mvjoin(effective_user,", "),"Not recorded"), Account=coalesce(mvjoin(target_account,", "),"Not recorded") | rename event_host AS Host application AS Application | eval User=User.if(Login!="Not recorded" AND NOT in(Login_UID,"4294967295","-1","Not recorded")," (login UID ".Login_UID.")","") | table Time User Process Host Application</query>
+          <query>search case_id="AU2-02-02-S" | where ($host_tok|s$="*" OR event_host=$host_tok|s$) AND ($app_tok|s$="*" OR application=$app_tok|s$) | sort 5 - event_time event_fingerprint | eval Time=strftime(event_time,"%Y-%m-%d %H:%M:%S %Z"), User=coalesce(mvjoin(actor,", "),"User not recorded"), Login=coalesce(mvjoin(login_user,", "),"Not recorded"), Login_UID=coalesce(mvjoin(login_uid,", "),"Not recorded"), Process=coalesce(mvjoin(process_user,", "),"Not recorded"), Effective=coalesce(mvjoin(effective_user,", "),"Not recorded"), Account=coalesce(mvjoin(target_account,", "),"Not recorded") | rename event_host AS Host application AS Application | eval User=User.if(Login!="Not recorded" AND NOT in(Login_UID,"4294967295","-1","Not recorded")," (login UID ".Login_UID.")","") | eval Session_origin=coalesce(session_remote_access,"Not established"), Session_source=coalesce(session_source_ip,"Not established") | table Time User Process Host Application Session_origin Session_source</query>
         </search>
         <option name="count">5</option>
         <option name="wrap">true</option>
@@ -787,7 +787,7 @@
       <table>
         <title>Latest 5 matching events • newest first</title>
         <search base="rhel_recent">
-          <query>search case_id="AU2-02-02-F" | where ($host_tok|s$="*" OR event_host=$host_tok|s$) AND ($app_tok|s$="*" OR application=$app_tok|s$) | sort 5 - event_time event_fingerprint | eval Time=strftime(event_time,"%Y-%m-%d %H:%M:%S %Z"), User=coalesce(mvjoin(actor,", "),"User not recorded"), Login=coalesce(mvjoin(login_user,", "),"Not recorded"), Login_UID=coalesce(mvjoin(login_uid,", "),"Not recorded"), Process=coalesce(mvjoin(process_user,", "),"Not recorded"), Effective=coalesce(mvjoin(effective_user,", "),"Not recorded"), Account=coalesce(mvjoin(target_account,", "),"Not recorded") | rename event_host AS Host application AS Application | eval User=User.if(Login!="Not recorded" AND NOT in(Login_UID,"4294967295","-1","Not recorded")," (login UID ".Login_UID.")","") | table Time User Process Host Application</query>
+          <query>search case_id="AU2-02-02-F" | where ($host_tok|s$="*" OR event_host=$host_tok|s$) AND ($app_tok|s$="*" OR application=$app_tok|s$) | sort 5 - event_time event_fingerprint | eval Time=strftime(event_time,"%Y-%m-%d %H:%M:%S %Z"), User=coalesce(mvjoin(actor,", "),"User not recorded"), Login=coalesce(mvjoin(login_user,", "),"Not recorded"), Login_UID=coalesce(mvjoin(login_uid,", "),"Not recorded"), Process=coalesce(mvjoin(process_user,", "),"Not recorded"), Effective=coalesce(mvjoin(effective_user,", "),"Not recorded"), Account=coalesce(mvjoin(target_account,", "),"Not recorded") | rename event_host AS Host application AS Application | eval User=User.if(Login!="Not recorded" AND NOT in(Login_UID,"4294967295","-1","Not recorded")," (login UID ".Login_UID.")","") | eval Session_origin=coalesce(session_remote_access,"Not established"), Session_source=coalesce(session_source_ip,"Not established") | table Time User Process Host Application Session_origin Session_source</query>
         </search>
         <option name="count">5</option>
         <option name="wrap">true</option>
@@ -830,7 +830,7 @@
       <table>
         <title>Latest 5 matching events • newest first</title>
         <search base="rhel_recent">
-          <query>search case_id="AU2-02-03-S" | where ($host_tok|s$="*" OR event_host=$host_tok|s$) AND ($app_tok|s$="*" OR application=$app_tok|s$) | sort 5 - event_time event_fingerprint | eval Time=strftime(event_time,"%Y-%m-%d %H:%M:%S %Z"), User=coalesce(mvjoin(actor,", "),"User not recorded"), Login=coalesce(mvjoin(login_user,", "),"Not recorded"), Login_UID=coalesce(mvjoin(login_uid,", "),"Not recorded"), Process=coalesce(mvjoin(process_user,", "),"Not recorded"), Effective=coalesce(mvjoin(effective_user,", "),"Not recorded"), Account=coalesce(mvjoin(target_account,", "),"Not recorded") | rename event_host AS Host application AS Application | eval User=User.if(Login!="Not recorded" AND NOT in(Login_UID,"4294967295","-1","Not recorded")," (login UID ".Login_UID.")","") | table Time User Process Host Application</query>
+          <query>search case_id="AU2-02-03-S" | where ($host_tok|s$="*" OR event_host=$host_tok|s$) AND ($app_tok|s$="*" OR application=$app_tok|s$) | sort 5 - event_time event_fingerprint | eval Time=strftime(event_time,"%Y-%m-%d %H:%M:%S %Z"), User=coalesce(mvjoin(actor,", "),"User not recorded"), Login=coalesce(mvjoin(login_user,", "),"Not recorded"), Login_UID=coalesce(mvjoin(login_uid,", "),"Not recorded"), Process=coalesce(mvjoin(process_user,", "),"Not recorded"), Effective=coalesce(mvjoin(effective_user,", "),"Not recorded"), Account=coalesce(mvjoin(target_account,", "),"Not recorded") | rename event_host AS Host application AS Application | eval User=User.if(Login!="Not recorded" AND NOT in(Login_UID,"4294967295","-1","Not recorded")," (login UID ".Login_UID.")","") | eval Session_origin=coalesce(session_remote_access,"Not established"), Session_source=coalesce(session_source_ip,"Not established") | table Time User Process Host Application Session_origin Session_source</query>
         </search>
         <option name="count">5</option>
         <option name="wrap">true</option>
@@ -873,7 +873,7 @@
       <table>
         <title>Latest 5 matching events • newest first</title>
         <search base="rhel_recent">
-          <query>search case_id="AU2-02-03-F" | where ($host_tok|s$="*" OR event_host=$host_tok|s$) AND ($app_tok|s$="*" OR application=$app_tok|s$) | sort 5 - event_time event_fingerprint | eval Time=strftime(event_time,"%Y-%m-%d %H:%M:%S %Z"), User=coalesce(mvjoin(actor,", "),"User not recorded"), Login=coalesce(mvjoin(login_user,", "),"Not recorded"), Login_UID=coalesce(mvjoin(login_uid,", "),"Not recorded"), Process=coalesce(mvjoin(process_user,", "),"Not recorded"), Effective=coalesce(mvjoin(effective_user,", "),"Not recorded"), Account=coalesce(mvjoin(target_account,", "),"Not recorded") | rename event_host AS Host application AS Application | eval User=User.if(Login!="Not recorded" AND NOT in(Login_UID,"4294967295","-1","Not recorded")," (login UID ".Login_UID.")","") | table Time User Process Host Application</query>
+          <query>search case_id="AU2-02-03-F" | where ($host_tok|s$="*" OR event_host=$host_tok|s$) AND ($app_tok|s$="*" OR application=$app_tok|s$) | sort 5 - event_time event_fingerprint | eval Time=strftime(event_time,"%Y-%m-%d %H:%M:%S %Z"), User=coalesce(mvjoin(actor,", "),"User not recorded"), Login=coalesce(mvjoin(login_user,", "),"Not recorded"), Login_UID=coalesce(mvjoin(login_uid,", "),"Not recorded"), Process=coalesce(mvjoin(process_user,", "),"Not recorded"), Effective=coalesce(mvjoin(effective_user,", "),"Not recorded"), Account=coalesce(mvjoin(target_account,", "),"Not recorded") | rename event_host AS Host application AS Application | eval User=User.if(Login!="Not recorded" AND NOT in(Login_UID,"4294967295","-1","Not recorded")," (login UID ".Login_UID.")","") | eval Session_origin=coalesce(session_remote_access,"Not established"), Session_source=coalesce(session_source_ip,"Not established") | table Time User Process Host Application Session_origin Session_source</query>
         </search>
         <option name="count">5</option>
         <option name="wrap">true</option>
@@ -918,7 +918,7 @@
       <table>
         <title>Latest 5 matching events • newest first</title>
         <search base="rhel_recent">
-          <query>search case_id="AU2-02-04-S" | where ($host_tok|s$="*" OR event_host=$host_tok|s$) AND ($app_tok|s$="*" OR application=$app_tok|s$) | sort 5 - event_time event_fingerprint | eval Time=strftime(event_time,"%Y-%m-%d %H:%M:%S %Z"), User=coalesce(mvjoin(actor,", "),"User not recorded"), Login=coalesce(mvjoin(login_user,", "),"Not recorded"), Login_UID=coalesce(mvjoin(login_uid,", "),"Not recorded"), Process=coalesce(mvjoin(process_user,", "),"Not recorded"), Effective=coalesce(mvjoin(effective_user,", "),"Not recorded"), Account=coalesce(mvjoin(target_account,", "),"Not recorded") | rename event_host AS Host application AS Application | eval User=User.if(Login!="Not recorded" AND NOT in(Login_UID,"4294967295","-1","Not recorded")," (login UID ".Login_UID.")","") | table Time User Process Host Application</query>
+          <query>search case_id="AU2-02-04-S" | where ($host_tok|s$="*" OR event_host=$host_tok|s$) AND ($app_tok|s$="*" OR application=$app_tok|s$) | sort 5 - event_time event_fingerprint | eval Time=strftime(event_time,"%Y-%m-%d %H:%M:%S %Z"), User=coalesce(mvjoin(actor,", "),"User not recorded"), Login=coalesce(mvjoin(login_user,", "),"Not recorded"), Login_UID=coalesce(mvjoin(login_uid,", "),"Not recorded"), Process=coalesce(mvjoin(process_user,", "),"Not recorded"), Effective=coalesce(mvjoin(effective_user,", "),"Not recorded"), Account=coalesce(mvjoin(target_account,", "),"Not recorded") | rename event_host AS Host application AS Application | eval User=User.if(Login!="Not recorded" AND NOT in(Login_UID,"4294967295","-1","Not recorded")," (login UID ".Login_UID.")","") | eval Session_origin=coalesce(session_remote_access,"Not established"), Session_source=coalesce(session_source_ip,"Not established") | table Time User Process Host Application Session_origin Session_source</query>
         </search>
         <option name="count">5</option>
         <option name="wrap">true</option>
@@ -961,7 +961,7 @@
       <table>
         <title>Latest 5 matching events • newest first</title>
         <search base="rhel_recent">
-          <query>search case_id="AU2-02-04-F" | where ($host_tok|s$="*" OR event_host=$host_tok|s$) AND ($app_tok|s$="*" OR application=$app_tok|s$) | sort 5 - event_time event_fingerprint | eval Time=strftime(event_time,"%Y-%m-%d %H:%M:%S %Z"), User=coalesce(mvjoin(actor,", "),"User not recorded"), Login=coalesce(mvjoin(login_user,", "),"Not recorded"), Login_UID=coalesce(mvjoin(login_uid,", "),"Not recorded"), Process=coalesce(mvjoin(process_user,", "),"Not recorded"), Effective=coalesce(mvjoin(effective_user,", "),"Not recorded"), Account=coalesce(mvjoin(target_account,", "),"Not recorded") | rename event_host AS Host application AS Application | eval User=User.if(Login!="Not recorded" AND NOT in(Login_UID,"4294967295","-1","Not recorded")," (login UID ".Login_UID.")","") | table Time User Process Host Application</query>
+          <query>search case_id="AU2-02-04-F" | where ($host_tok|s$="*" OR event_host=$host_tok|s$) AND ($app_tok|s$="*" OR application=$app_tok|s$) | sort 5 - event_time event_fingerprint | eval Time=strftime(event_time,"%Y-%m-%d %H:%M:%S %Z"), User=coalesce(mvjoin(actor,", "),"User not recorded"), Login=coalesce(mvjoin(login_user,", "),"Not recorded"), Login_UID=coalesce(mvjoin(login_uid,", "),"Not recorded"), Process=coalesce(mvjoin(process_user,", "),"Not recorded"), Effective=coalesce(mvjoin(effective_user,", "),"Not recorded"), Account=coalesce(mvjoin(target_account,", "),"Not recorded") | rename event_host AS Host application AS Application | eval User=User.if(Login!="Not recorded" AND NOT in(Login_UID,"4294967295","-1","Not recorded")," (login UID ".Login_UID.")","") | eval Session_origin=coalesce(session_remote_access,"Not established"), Session_source=coalesce(session_source_ip,"Not established") | table Time User Process Host Application Session_origin Session_source</query>
         </search>
         <option name="count">5</option>
         <option name="wrap">true</option>
@@ -1004,7 +1004,7 @@
       <table>
         <title>Latest 5 matching events • newest first</title>
         <search base="rhel_recent">
-          <query>search case_id="AU2-02-05-S" | where ($host_tok|s$="*" OR event_host=$host_tok|s$) AND ($app_tok|s$="*" OR application=$app_tok|s$) | sort 5 - event_time event_fingerprint | eval Time=strftime(event_time,"%Y-%m-%d %H:%M:%S %Z"), User=coalesce(mvjoin(actor,", "),"User not recorded"), Login=coalesce(mvjoin(login_user,", "),"Not recorded"), Login_UID=coalesce(mvjoin(login_uid,", "),"Not recorded"), Process=coalesce(mvjoin(process_user,", "),"Not recorded"), Effective=coalesce(mvjoin(effective_user,", "),"Not recorded"), Account=coalesce(mvjoin(target_account,", "),"Not recorded") | rename event_host AS Host application AS Application | eval User=User.if(Login!="Not recorded" AND NOT in(Login_UID,"4294967295","-1","Not recorded")," (login UID ".Login_UID.")","") | table Time User Process Host Application</query>
+          <query>search case_id="AU2-02-05-S" | where ($host_tok|s$="*" OR event_host=$host_tok|s$) AND ($app_tok|s$="*" OR application=$app_tok|s$) | sort 5 - event_time event_fingerprint | eval Time=strftime(event_time,"%Y-%m-%d %H:%M:%S %Z"), User=coalesce(mvjoin(actor,", "),"User not recorded"), Login=coalesce(mvjoin(login_user,", "),"Not recorded"), Login_UID=coalesce(mvjoin(login_uid,", "),"Not recorded"), Process=coalesce(mvjoin(process_user,", "),"Not recorded"), Effective=coalesce(mvjoin(effective_user,", "),"Not recorded"), Account=coalesce(mvjoin(target_account,", "),"Not recorded") | rename event_host AS Host application AS Application | eval User=User.if(Login!="Not recorded" AND NOT in(Login_UID,"4294967295","-1","Not recorded")," (login UID ".Login_UID.")","") | eval Session_origin=coalesce(session_remote_access,"Not established"), Session_source=coalesce(session_source_ip,"Not established") | table Time User Process Host Application Session_origin Session_source</query>
         </search>
         <option name="count">5</option>
         <option name="wrap">true</option>
@@ -1049,7 +1049,7 @@
       <table>
         <title>Latest 5 matching events • newest first</title>
         <search base="rhel_recent">
-          <query>search case_id="AU2-02-05-F" | where ($host_tok|s$="*" OR event_host=$host_tok|s$) AND ($app_tok|s$="*" OR application=$app_tok|s$) | sort 5 - event_time event_fingerprint | eval Time=strftime(event_time,"%Y-%m-%d %H:%M:%S %Z"), User=coalesce(mvjoin(actor,", "),"User not recorded"), Login=coalesce(mvjoin(login_user,", "),"Not recorded"), Login_UID=coalesce(mvjoin(login_uid,", "),"Not recorded"), Process=coalesce(mvjoin(process_user,", "),"Not recorded"), Effective=coalesce(mvjoin(effective_user,", "),"Not recorded"), Account=coalesce(mvjoin(target_account,", "),"Not recorded") | rename event_host AS Host application AS Application | eval User=User.if(Login!="Not recorded" AND NOT in(Login_UID,"4294967295","-1","Not recorded")," (login UID ".Login_UID.")","") | table Time User Process Host Application</query>
+          <query>search case_id="AU2-02-05-F" | where ($host_tok|s$="*" OR event_host=$host_tok|s$) AND ($app_tok|s$="*" OR application=$app_tok|s$) | sort 5 - event_time event_fingerprint | eval Time=strftime(event_time,"%Y-%m-%d %H:%M:%S %Z"), User=coalesce(mvjoin(actor,", "),"User not recorded"), Login=coalesce(mvjoin(login_user,", "),"Not recorded"), Login_UID=coalesce(mvjoin(login_uid,", "),"Not recorded"), Process=coalesce(mvjoin(process_user,", "),"Not recorded"), Effective=coalesce(mvjoin(effective_user,", "),"Not recorded"), Account=coalesce(mvjoin(target_account,", "),"Not recorded") | rename event_host AS Host application AS Application | eval User=User.if(Login!="Not recorded" AND NOT in(Login_UID,"4294967295","-1","Not recorded")," (login UID ".Login_UID.")","") | eval Session_origin=coalesce(session_remote_access,"Not established"), Session_source=coalesce(session_source_ip,"Not established") | table Time User Process Host Application Session_origin Session_source</query>
         </search>
         <option name="count">5</option>
         <option name="wrap">true</option>
@@ -1092,7 +1092,7 @@
       <table>
         <title>Latest 5 matching events • newest first</title>
         <search base="rhel_recent">
-          <query>search case_id="AU2-02-06-S" | where ($host_tok|s$="*" OR event_host=$host_tok|s$) AND ($app_tok|s$="*" OR application=$app_tok|s$) | sort 5 - event_time event_fingerprint | eval Time=strftime(event_time,"%Y-%m-%d %H:%M:%S %Z"), User=coalesce(mvjoin(actor,", "),"User not recorded"), Login=coalesce(mvjoin(login_user,", "),"Not recorded"), Login_UID=coalesce(mvjoin(login_uid,", "),"Not recorded"), Process=coalesce(mvjoin(process_user,", "),"Not recorded"), Effective=coalesce(mvjoin(effective_user,", "),"Not recorded"), Account=coalesce(mvjoin(target_account,", "),"Not recorded") | rename event_host AS Host application AS Application | eval User=User.if(Login!="Not recorded" AND NOT in(Login_UID,"4294967295","-1","Not recorded")," (login UID ".Login_UID.")","") | table Time User Process Host Application</query>
+          <query>search case_id="AU2-02-06-S" | where ($host_tok|s$="*" OR event_host=$host_tok|s$) AND ($app_tok|s$="*" OR application=$app_tok|s$) | sort 5 - event_time event_fingerprint | eval Time=strftime(event_time,"%Y-%m-%d %H:%M:%S %Z"), User=coalesce(mvjoin(actor,", "),"User not recorded"), Login=coalesce(mvjoin(login_user,", "),"Not recorded"), Login_UID=coalesce(mvjoin(login_uid,", "),"Not recorded"), Process=coalesce(mvjoin(process_user,", "),"Not recorded"), Effective=coalesce(mvjoin(effective_user,", "),"Not recorded"), Account=coalesce(mvjoin(target_account,", "),"Not recorded") | rename event_host AS Host application AS Application | eval User=User.if(Login!="Not recorded" AND NOT in(Login_UID,"4294967295","-1","Not recorded")," (login UID ".Login_UID.")","") | eval Session_origin=coalesce(session_remote_access,"Not established"), Session_source=coalesce(session_source_ip,"Not established") | table Time User Process Host Application Session_origin Session_source</query>
         </search>
         <option name="count">5</option>
         <option name="wrap">true</option>
@@ -1135,7 +1135,7 @@
       <table>
         <title>Latest 5 matching events • newest first</title>
         <search base="rhel_recent">
-          <query>search case_id="AU2-02-06-F" | where ($host_tok|s$="*" OR event_host=$host_tok|s$) AND ($app_tok|s$="*" OR application=$app_tok|s$) | sort 5 - event_time event_fingerprint | eval Time=strftime(event_time,"%Y-%m-%d %H:%M:%S %Z"), User=coalesce(mvjoin(actor,", "),"User not recorded"), Login=coalesce(mvjoin(login_user,", "),"Not recorded"), Login_UID=coalesce(mvjoin(login_uid,", "),"Not recorded"), Process=coalesce(mvjoin(process_user,", "),"Not recorded"), Effective=coalesce(mvjoin(effective_user,", "),"Not recorded"), Account=coalesce(mvjoin(target_account,", "),"Not recorded") | rename event_host AS Host application AS Application | eval User=User.if(Login!="Not recorded" AND NOT in(Login_UID,"4294967295","-1","Not recorded")," (login UID ".Login_UID.")","") | table Time User Process Host Application</query>
+          <query>search case_id="AU2-02-06-F" | where ($host_tok|s$="*" OR event_host=$host_tok|s$) AND ($app_tok|s$="*" OR application=$app_tok|s$) | sort 5 - event_time event_fingerprint | eval Time=strftime(event_time,"%Y-%m-%d %H:%M:%S %Z"), User=coalesce(mvjoin(actor,", "),"User not recorded"), Login=coalesce(mvjoin(login_user,", "),"Not recorded"), Login_UID=coalesce(mvjoin(login_uid,", "),"Not recorded"), Process=coalesce(mvjoin(process_user,", "),"Not recorded"), Effective=coalesce(mvjoin(effective_user,", "),"Not recorded"), Account=coalesce(mvjoin(target_account,", "),"Not recorded") | rename event_host AS Host application AS Application | eval User=User.if(Login!="Not recorded" AND NOT in(Login_UID,"4294967295","-1","Not recorded")," (login UID ".Login_UID.")","") | eval Session_origin=coalesce(session_remote_access,"Not established"), Session_source=coalesce(session_source_ip,"Not established") | table Time User Process Host Application Session_origin Session_source</query>
         </search>
         <option name="count">5</option>
         <option name="wrap">true</option>
@@ -1162,7 +1162,7 @@
     <panel>
       <html>
         <h2>AU-2.a.3 · Removable-media export</h2>
-        <p>Each tile is one required action/outcome. Missing evidence remains visible.</p>
+        <p>Each tile is one required action/outcome. Session origin/source are correlated login context, not direct event fields or proof of a network operation. Boot continuity requires review; missing evidence remains visible.</p>
       </html>
     </panel>
   </row>
@@ -1188,7 +1188,7 @@
       <table>
         <title>Latest 5 matching events • newest first</title>
         <search base="rhel_recent">
-          <query>search case_id="AU2-03-01-S" | where ($host_tok|s$="*" OR event_host=$host_tok|s$) AND ($app_tok|s$="*" OR application=$app_tok|s$) | sort 5 - event_time event_fingerprint | eval Time=strftime(event_time,"%Y-%m-%d %H:%M:%S %Z"), User=coalesce(mvjoin(actor,", "),"User not recorded"), Login=coalesce(mvjoin(login_user,", "),"Not recorded"), Login_UID=coalesce(mvjoin(login_uid,", "),"Not recorded"), Process=coalesce(mvjoin(process_user,", "),"Not recorded"), Effective=coalesce(mvjoin(effective_user,", "),"Not recorded"), Account=coalesce(mvjoin(target_account,", "),"Not recorded") | rename event_host AS Host application AS Application | eval User=User.if(Login!="Not recorded" AND NOT in(Login_UID,"4294967295","-1","Not recorded")," (login UID ".Login_UID.")","") | table Time User Process Host Application</query>
+          <query>search case_id="AU2-03-01-S" | where ($host_tok|s$="*" OR event_host=$host_tok|s$) AND ($app_tok|s$="*" OR application=$app_tok|s$) | sort 5 - event_time event_fingerprint | eval Time=strftime(event_time,"%Y-%m-%d %H:%M:%S %Z"), User=coalesce(mvjoin(actor,", "),"User not recorded"), Login=coalesce(mvjoin(login_user,", "),"Not recorded"), Login_UID=coalesce(mvjoin(login_uid,", "),"Not recorded"), Process=coalesce(mvjoin(process_user,", "),"Not recorded"), Effective=coalesce(mvjoin(effective_user,", "),"Not recorded"), Account=coalesce(mvjoin(target_account,", "),"Not recorded") | rename event_host AS Host application AS Application | eval User=User.if(Login!="Not recorded" AND NOT in(Login_UID,"4294967295","-1","Not recorded")," (login UID ".Login_UID.")","") | eval Session_origin=coalesce(session_remote_access,"Not established"), Session_source=coalesce(session_source_ip,"Not established") | table Time User Process Host Application Session_origin Session_source</query>
         </search>
         <option name="count">5</option>
         <option name="wrap">true</option>
@@ -1231,7 +1231,7 @@
       <table>
         <title>Latest 5 matching events • newest first</title>
         <search base="rhel_recent">
-          <query>search case_id="AU2-03-01-F" | where ($host_tok|s$="*" OR event_host=$host_tok|s$) AND ($app_tok|s$="*" OR application=$app_tok|s$) | sort 5 - event_time event_fingerprint | eval Time=strftime(event_time,"%Y-%m-%d %H:%M:%S %Z"), User=coalesce(mvjoin(actor,", "),"User not recorded"), Login=coalesce(mvjoin(login_user,", "),"Not recorded"), Login_UID=coalesce(mvjoin(login_uid,", "),"Not recorded"), Process=coalesce(mvjoin(process_user,", "),"Not recorded"), Effective=coalesce(mvjoin(effective_user,", "),"Not recorded"), Account=coalesce(mvjoin(target_account,", "),"Not recorded") | rename event_host AS Host application AS Application | eval User=User.if(Login!="Not recorded" AND NOT in(Login_UID,"4294967295","-1","Not recorded")," (login UID ".Login_UID.")","") | table Time User Process Host Application</query>
+          <query>search case_id="AU2-03-01-F" | where ($host_tok|s$="*" OR event_host=$host_tok|s$) AND ($app_tok|s$="*" OR application=$app_tok|s$) | sort 5 - event_time event_fingerprint | eval Time=strftime(event_time,"%Y-%m-%d %H:%M:%S %Z"), User=coalesce(mvjoin(actor,", "),"User not recorded"), Login=coalesce(mvjoin(login_user,", "),"Not recorded"), Login_UID=coalesce(mvjoin(login_uid,", "),"Not recorded"), Process=coalesce(mvjoin(process_user,", "),"Not recorded"), Effective=coalesce(mvjoin(effective_user,", "),"Not recorded"), Account=coalesce(mvjoin(target_account,", "),"Not recorded") | rename event_host AS Host application AS Application | eval User=User.if(Login!="Not recorded" AND NOT in(Login_UID,"4294967295","-1","Not recorded")," (login UID ".Login_UID.")","") | eval Session_origin=coalesce(session_remote_access,"Not established"), Session_source=coalesce(session_source_ip,"Not established") | table Time User Process Host Application Session_origin Session_source</query>
         </search>
         <option name="count">5</option>
         <option name="wrap">true</option>
@@ -1258,7 +1258,7 @@
     <panel>
       <html>
         <h2>AU-2.a.4 · Removable-media import</h2>
-        <p>Each tile is one required action/outcome. Missing evidence remains visible.</p>
+        <p>Each tile is one required action/outcome. Session origin/source are correlated login context, not direct event fields or proof of a network operation. Boot continuity requires review; missing evidence remains visible.</p>
       </html>
     </panel>
   </row>
@@ -1284,7 +1284,7 @@
       <table>
         <title>Latest 5 matching events • newest first</title>
         <search base="rhel_recent">
-          <query>search case_id="AU2-04-01-S" | where ($host_tok|s$="*" OR event_host=$host_tok|s$) AND ($app_tok|s$="*" OR application=$app_tok|s$) | sort 5 - event_time event_fingerprint | eval Time=strftime(event_time,"%Y-%m-%d %H:%M:%S %Z"), User=coalesce(mvjoin(actor,", "),"User not recorded"), Login=coalesce(mvjoin(login_user,", "),"Not recorded"), Login_UID=coalesce(mvjoin(login_uid,", "),"Not recorded"), Process=coalesce(mvjoin(process_user,", "),"Not recorded"), Effective=coalesce(mvjoin(effective_user,", "),"Not recorded"), Account=coalesce(mvjoin(target_account,", "),"Not recorded") | rename event_host AS Host application AS Application | eval User=User.if(Login!="Not recorded" AND NOT in(Login_UID,"4294967295","-1","Not recorded")," (login UID ".Login_UID.")","") | table Time User Process Host Application</query>
+          <query>search case_id="AU2-04-01-S" | where ($host_tok|s$="*" OR event_host=$host_tok|s$) AND ($app_tok|s$="*" OR application=$app_tok|s$) | sort 5 - event_time event_fingerprint | eval Time=strftime(event_time,"%Y-%m-%d %H:%M:%S %Z"), User=coalesce(mvjoin(actor,", "),"User not recorded"), Login=coalesce(mvjoin(login_user,", "),"Not recorded"), Login_UID=coalesce(mvjoin(login_uid,", "),"Not recorded"), Process=coalesce(mvjoin(process_user,", "),"Not recorded"), Effective=coalesce(mvjoin(effective_user,", "),"Not recorded"), Account=coalesce(mvjoin(target_account,", "),"Not recorded") | rename event_host AS Host application AS Application | eval User=User.if(Login!="Not recorded" AND NOT in(Login_UID,"4294967295","-1","Not recorded")," (login UID ".Login_UID.")","") | eval Session_origin=coalesce(session_remote_access,"Not established"), Session_source=coalesce(session_source_ip,"Not established") | table Time User Process Host Application Session_origin Session_source</query>
         </search>
         <option name="count">5</option>
         <option name="wrap">true</option>
@@ -1327,7 +1327,7 @@
       <table>
         <title>Latest 5 matching events • newest first</title>
         <search base="rhel_recent">
-          <query>search case_id="AU2-04-01-F" | where ($host_tok|s$="*" OR event_host=$host_tok|s$) AND ($app_tok|s$="*" OR application=$app_tok|s$) | sort 5 - event_time event_fingerprint | eval Time=strftime(event_time,"%Y-%m-%d %H:%M:%S %Z"), User=coalesce(mvjoin(actor,", "),"User not recorded"), Login=coalesce(mvjoin(login_user,", "),"Not recorded"), Login_UID=coalesce(mvjoin(login_uid,", "),"Not recorded"), Process=coalesce(mvjoin(process_user,", "),"Not recorded"), Effective=coalesce(mvjoin(effective_user,", "),"Not recorded"), Account=coalesce(mvjoin(target_account,", "),"Not recorded") | rename event_host AS Host application AS Application | eval User=User.if(Login!="Not recorded" AND NOT in(Login_UID,"4294967295","-1","Not recorded")," (login UID ".Login_UID.")","") | table Time User Process Host Application</query>
+          <query>search case_id="AU2-04-01-F" | where ($host_tok|s$="*" OR event_host=$host_tok|s$) AND ($app_tok|s$="*" OR application=$app_tok|s$) | sort 5 - event_time event_fingerprint | eval Time=strftime(event_time,"%Y-%m-%d %H:%M:%S %Z"), User=coalesce(mvjoin(actor,", "),"User not recorded"), Login=coalesce(mvjoin(login_user,", "),"Not recorded"), Login_UID=coalesce(mvjoin(login_uid,", "),"Not recorded"), Process=coalesce(mvjoin(process_user,", "),"Not recorded"), Effective=coalesce(mvjoin(effective_user,", "),"Not recorded"), Account=coalesce(mvjoin(target_account,", "),"Not recorded") | rename event_host AS Host application AS Application | eval User=User.if(Login!="Not recorded" AND NOT in(Login_UID,"4294967295","-1","Not recorded")," (login UID ".Login_UID.")","") | eval Session_origin=coalesce(session_remote_access,"Not established"), Session_source=coalesce(session_source_ip,"Not established") | table Time User Process Host Application Session_origin Session_source</query>
         </search>
         <option name="count">5</option>
         <option name="wrap">true</option>
@@ -1354,7 +1354,7 @@
     <panel>
       <html>
         <h2>AU-2.a.5 · Account, group, and role management</h2>
-        <p>Each tile is one required action/outcome. Missing evidence remains visible.</p>
+        <p>Each tile is one required action/outcome. Session origin/source are correlated login context, not direct event fields or proof of a network operation. Boot continuity requires review; missing evidence remains visible.</p>
       </html>
     </panel>
   </row>
@@ -1380,7 +1380,7 @@
       <table>
         <title>Latest 5 matching events • newest first</title>
         <search base="rhel_recent">
-          <query>search case_id="AU2-05-01-S" | where ($host_tok|s$="*" OR event_host=$host_tok|s$) AND ($app_tok|s$="*" OR application=$app_tok|s$) | sort 5 - event_time event_fingerprint | eval Time=strftime(event_time,"%Y-%m-%d %H:%M:%S %Z"), User=coalesce(mvjoin(actor,", "),"User not recorded"), Login=coalesce(mvjoin(login_user,", "),"Not recorded"), Login_UID=coalesce(mvjoin(login_uid,", "),"Not recorded"), Process=coalesce(mvjoin(process_user,", "),"Not recorded"), Effective=coalesce(mvjoin(effective_user,", "),"Not recorded"), Account=coalesce(mvjoin(target_account,", "),"Not recorded") | rename event_host AS Host application AS Application | eval User=User.if(Login!="Not recorded" AND NOT in(Login_UID,"4294967295","-1","Not recorded")," (login UID ".Login_UID.")","") | table Time User Process Host Application</query>
+          <query>search case_id="AU2-05-01-S" | where ($host_tok|s$="*" OR event_host=$host_tok|s$) AND ($app_tok|s$="*" OR application=$app_tok|s$) | sort 5 - event_time event_fingerprint | eval Time=strftime(event_time,"%Y-%m-%d %H:%M:%S %Z"), User=coalesce(mvjoin(actor,", "),"User not recorded"), Login=coalesce(mvjoin(login_user,", "),"Not recorded"), Login_UID=coalesce(mvjoin(login_uid,", "),"Not recorded"), Process=coalesce(mvjoin(process_user,", "),"Not recorded"), Effective=coalesce(mvjoin(effective_user,", "),"Not recorded"), Account=coalesce(mvjoin(target_account,", "),"Not recorded") | rename event_host AS Host application AS Application | eval User=User.if(Login!="Not recorded" AND NOT in(Login_UID,"4294967295","-1","Not recorded")," (login UID ".Login_UID.")","") | eval Session_origin=coalesce(session_remote_access,"Not established"), Session_source=coalesce(session_source_ip,"Not established") | table Time User Process Host Application Session_origin Session_source</query>
         </search>
         <option name="count">5</option>
         <option name="wrap">true</option>
@@ -1423,7 +1423,7 @@
       <table>
         <title>Latest 5 matching events • newest first</title>
         <search base="rhel_recent">
-          <query>search case_id="AU2-05-01-F" | where ($host_tok|s$="*" OR event_host=$host_tok|s$) AND ($app_tok|s$="*" OR application=$app_tok|s$) | sort 5 - event_time event_fingerprint | eval Time=strftime(event_time,"%Y-%m-%d %H:%M:%S %Z"), User=coalesce(mvjoin(actor,", "),"User not recorded"), Login=coalesce(mvjoin(login_user,", "),"Not recorded"), Login_UID=coalesce(mvjoin(login_uid,", "),"Not recorded"), Process=coalesce(mvjoin(process_user,", "),"Not recorded"), Effective=coalesce(mvjoin(effective_user,", "),"Not recorded"), Account=coalesce(mvjoin(target_account,", "),"Not recorded") | rename event_host AS Host application AS Application | eval User=User.if(Login!="Not recorded" AND NOT in(Login_UID,"4294967295","-1","Not recorded")," (login UID ".Login_UID.")","") | table Time User Process Host Application</query>
+          <query>search case_id="AU2-05-01-F" | where ($host_tok|s$="*" OR event_host=$host_tok|s$) AND ($app_tok|s$="*" OR application=$app_tok|s$) | sort 5 - event_time event_fingerprint | eval Time=strftime(event_time,"%Y-%m-%d %H:%M:%S %Z"), User=coalesce(mvjoin(actor,", "),"User not recorded"), Login=coalesce(mvjoin(login_user,", "),"Not recorded"), Login_UID=coalesce(mvjoin(login_uid,", "),"Not recorded"), Process=coalesce(mvjoin(process_user,", "),"Not recorded"), Effective=coalesce(mvjoin(effective_user,", "),"Not recorded"), Account=coalesce(mvjoin(target_account,", "),"Not recorded") | rename event_host AS Host application AS Application | eval User=User.if(Login!="Not recorded" AND NOT in(Login_UID,"4294967295","-1","Not recorded")," (login UID ".Login_UID.")","") | eval Session_origin=coalesce(session_remote_access,"Not established"), Session_source=coalesce(session_source_ip,"Not established") | table Time User Process Host Application Session_origin Session_source</query>
         </search>
         <option name="count">5</option>
         <option name="wrap">true</option>
@@ -1466,7 +1466,7 @@
       <table>
         <title>Latest 5 matching events • newest first</title>
         <search base="rhel_recent">
-          <query>search case_id="AU2-05-02-S" | where ($host_tok|s$="*" OR event_host=$host_tok|s$) AND ($app_tok|s$="*" OR application=$app_tok|s$) | sort 5 - event_time event_fingerprint | eval Time=strftime(event_time,"%Y-%m-%d %H:%M:%S %Z"), User=coalesce(mvjoin(actor,", "),"User not recorded"), Login=coalesce(mvjoin(login_user,", "),"Not recorded"), Login_UID=coalesce(mvjoin(login_uid,", "),"Not recorded"), Process=coalesce(mvjoin(process_user,", "),"Not recorded"), Effective=coalesce(mvjoin(effective_user,", "),"Not recorded"), Account=coalesce(mvjoin(target_account,", "),"Not recorded") | rename event_host AS Host application AS Application | eval User=User.if(Login!="Not recorded" AND NOT in(Login_UID,"4294967295","-1","Not recorded")," (login UID ".Login_UID.")","") | table Time User Process Host Application</query>
+          <query>search case_id="AU2-05-02-S" | where ($host_tok|s$="*" OR event_host=$host_tok|s$) AND ($app_tok|s$="*" OR application=$app_tok|s$) | sort 5 - event_time event_fingerprint | eval Time=strftime(event_time,"%Y-%m-%d %H:%M:%S %Z"), User=coalesce(mvjoin(actor,", "),"User not recorded"), Login=coalesce(mvjoin(login_user,", "),"Not recorded"), Login_UID=coalesce(mvjoin(login_uid,", "),"Not recorded"), Process=coalesce(mvjoin(process_user,", "),"Not recorded"), Effective=coalesce(mvjoin(effective_user,", "),"Not recorded"), Account=coalesce(mvjoin(target_account,", "),"Not recorded") | rename event_host AS Host application AS Application | eval User=User.if(Login!="Not recorded" AND NOT in(Login_UID,"4294967295","-1","Not recorded")," (login UID ".Login_UID.")","") | eval Session_origin=coalesce(session_remote_access,"Not established"), Session_source=coalesce(session_source_ip,"Not established") | table Time User Process Host Application Session_origin Session_source</query>
         </search>
         <option name="count">5</option>
         <option name="wrap">true</option>
@@ -1511,7 +1511,7 @@
       <table>
         <title>Latest 5 matching events • newest first</title>
         <search base="rhel_recent">
-          <query>search case_id="AU2-05-02-F" | where ($host_tok|s$="*" OR event_host=$host_tok|s$) AND ($app_tok|s$="*" OR application=$app_tok|s$) | sort 5 - event_time event_fingerprint | eval Time=strftime(event_time,"%Y-%m-%d %H:%M:%S %Z"), User=coalesce(mvjoin(actor,", "),"User not recorded"), Login=coalesce(mvjoin(login_user,", "),"Not recorded"), Login_UID=coalesce(mvjoin(login_uid,", "),"Not recorded"), Process=coalesce(mvjoin(process_user,", "),"Not recorded"), Effective=coalesce(mvjoin(effective_user,", "),"Not recorded"), Account=coalesce(mvjoin(target_account,", "),"Not recorded") | rename event_host AS Host application AS Application | eval User=User.if(Login!="Not recorded" AND NOT in(Login_UID,"4294967295","-1","Not recorded")," (login UID ".Login_UID.")","") | table Time User Process Host Application</query>
+          <query>search case_id="AU2-05-02-F" | where ($host_tok|s$="*" OR event_host=$host_tok|s$) AND ($app_tok|s$="*" OR application=$app_tok|s$) | sort 5 - event_time event_fingerprint | eval Time=strftime(event_time,"%Y-%m-%d %H:%M:%S %Z"), User=coalesce(mvjoin(actor,", "),"User not recorded"), Login=coalesce(mvjoin(login_user,", "),"Not recorded"), Login_UID=coalesce(mvjoin(login_uid,", "),"Not recorded"), Process=coalesce(mvjoin(process_user,", "),"Not recorded"), Effective=coalesce(mvjoin(effective_user,", "),"Not recorded"), Account=coalesce(mvjoin(target_account,", "),"Not recorded") | rename event_host AS Host application AS Application | eval User=User.if(Login!="Not recorded" AND NOT in(Login_UID,"4294967295","-1","Not recorded")," (login UID ".Login_UID.")","") | eval Session_origin=coalesce(session_remote_access,"Not established"), Session_source=coalesce(session_source_ip,"Not established") | table Time User Process Host Application Session_origin Session_source</query>
         </search>
         <option name="count">5</option>
         <option name="wrap">true</option>
@@ -1554,7 +1554,7 @@
       <table>
         <title>Latest 5 matching events • newest first</title>
         <search base="rhel_recent">
-          <query>search case_id="AU2-05-03-S" | where ($host_tok|s$="*" OR event_host=$host_tok|s$) AND ($app_tok|s$="*" OR application=$app_tok|s$) | sort 5 - event_time event_fingerprint | eval Time=strftime(event_time,"%Y-%m-%d %H:%M:%S %Z"), User=coalesce(mvjoin(actor,", "),"User not recorded"), Login=coalesce(mvjoin(login_user,", "),"Not recorded"), Login_UID=coalesce(mvjoin(login_uid,", "),"Not recorded"), Process=coalesce(mvjoin(process_user,", "),"Not recorded"), Effective=coalesce(mvjoin(effective_user,", "),"Not recorded"), Account=coalesce(mvjoin(target_account,", "),"Not recorded") | rename event_host AS Host application AS Application | eval User=User.if(Login!="Not recorded" AND NOT in(Login_UID,"4294967295","-1","Not recorded")," (login UID ".Login_UID.")","") | table Time User Process Host Application</query>
+          <query>search case_id="AU2-05-03-S" | where ($host_tok|s$="*" OR event_host=$host_tok|s$) AND ($app_tok|s$="*" OR application=$app_tok|s$) | sort 5 - event_time event_fingerprint | eval Time=strftime(event_time,"%Y-%m-%d %H:%M:%S %Z"), User=coalesce(mvjoin(actor,", "),"User not recorded"), Login=coalesce(mvjoin(login_user,", "),"Not recorded"), Login_UID=coalesce(mvjoin(login_uid,", "),"Not recorded"), Process=coalesce(mvjoin(process_user,", "),"Not recorded"), Effective=coalesce(mvjoin(effective_user,", "),"Not recorded"), Account=coalesce(mvjoin(target_account,", "),"Not recorded") | rename event_host AS Host application AS Application | eval User=User.if(Login!="Not recorded" AND NOT in(Login_UID,"4294967295","-1","Not recorded")," (login UID ".Login_UID.")","") | eval Session_origin=coalesce(session_remote_access,"Not established"), Session_source=coalesce(session_source_ip,"Not established") | table Time User Process Host Application Session_origin Session_source</query>
         </search>
         <option name="count">5</option>
         <option name="wrap">true</option>
@@ -1597,7 +1597,7 @@
       <table>
         <title>Latest 5 matching events • newest first</title>
         <search base="rhel_recent">
-          <query>search case_id="AU2-05-03-F" | where ($host_tok|s$="*" OR event_host=$host_tok|s$) AND ($app_tok|s$="*" OR application=$app_tok|s$) | sort 5 - event_time event_fingerprint | eval Time=strftime(event_time,"%Y-%m-%d %H:%M:%S %Z"), User=coalesce(mvjoin(actor,", "),"User not recorded"), Login=coalesce(mvjoin(login_user,", "),"Not recorded"), Login_UID=coalesce(mvjoin(login_uid,", "),"Not recorded"), Process=coalesce(mvjoin(process_user,", "),"Not recorded"), Effective=coalesce(mvjoin(effective_user,", "),"Not recorded"), Account=coalesce(mvjoin(target_account,", "),"Not recorded") | rename event_host AS Host application AS Application | eval User=User.if(Login!="Not recorded" AND NOT in(Login_UID,"4294967295","-1","Not recorded")," (login UID ".Login_UID.")","") | table Time User Process Host Application</query>
+          <query>search case_id="AU2-05-03-F" | where ($host_tok|s$="*" OR event_host=$host_tok|s$) AND ($app_tok|s$="*" OR application=$app_tok|s$) | sort 5 - event_time event_fingerprint | eval Time=strftime(event_time,"%Y-%m-%d %H:%M:%S %Z"), User=coalesce(mvjoin(actor,", "),"User not recorded"), Login=coalesce(mvjoin(login_user,", "),"Not recorded"), Login_UID=coalesce(mvjoin(login_uid,", "),"Not recorded"), Process=coalesce(mvjoin(process_user,", "),"Not recorded"), Effective=coalesce(mvjoin(effective_user,", "),"Not recorded"), Account=coalesce(mvjoin(target_account,", "),"Not recorded") | rename event_host AS Host application AS Application | eval User=User.if(Login!="Not recorded" AND NOT in(Login_UID,"4294967295","-1","Not recorded")," (login UID ".Login_UID.")","") | eval Session_origin=coalesce(session_remote_access,"Not established"), Session_source=coalesce(session_source_ip,"Not established") | table Time User Process Host Application Session_origin Session_source</query>
         </search>
         <option name="count">5</option>
         <option name="wrap">true</option>
@@ -1642,7 +1642,7 @@
       <table>
         <title>Latest 5 matching events • newest first</title>
         <search base="rhel_recent">
-          <query>search case_id="AU2-05-04-S" | where ($host_tok|s$="*" OR event_host=$host_tok|s$) AND ($app_tok|s$="*" OR application=$app_tok|s$) | sort 5 - event_time event_fingerprint | eval Time=strftime(event_time,"%Y-%m-%d %H:%M:%S %Z"), User=coalesce(mvjoin(actor,", "),"User not recorded"), Login=coalesce(mvjoin(login_user,", "),"Not recorded"), Login_UID=coalesce(mvjoin(login_uid,", "),"Not recorded"), Process=coalesce(mvjoin(process_user,", "),"Not recorded"), Effective=coalesce(mvjoin(effective_user,", "),"Not recorded"), Account=coalesce(mvjoin(target_account,", "),"Not recorded") | rename event_host AS Host application AS Application | eval User=User.if(Login!="Not recorded" AND NOT in(Login_UID,"4294967295","-1","Not recorded")," (login UID ".Login_UID.")","") | table Time User Process Host Application</query>
+          <query>search case_id="AU2-05-04-S" | where ($host_tok|s$="*" OR event_host=$host_tok|s$) AND ($app_tok|s$="*" OR application=$app_tok|s$) | sort 5 - event_time event_fingerprint | eval Time=strftime(event_time,"%Y-%m-%d %H:%M:%S %Z"), User=coalesce(mvjoin(actor,", "),"User not recorded"), Login=coalesce(mvjoin(login_user,", "),"Not recorded"), Login_UID=coalesce(mvjoin(login_uid,", "),"Not recorded"), Process=coalesce(mvjoin(process_user,", "),"Not recorded"), Effective=coalesce(mvjoin(effective_user,", "),"Not recorded"), Account=coalesce(mvjoin(target_account,", "),"Not recorded") | rename event_host AS Host application AS Application | eval User=User.if(Login!="Not recorded" AND NOT in(Login_UID,"4294967295","-1","Not recorded")," (login UID ".Login_UID.")","") | eval Session_origin=coalesce(session_remote_access,"Not established"), Session_source=coalesce(session_source_ip,"Not established") | table Time User Process Host Application Session_origin Session_source</query>
         </search>
         <option name="count">5</option>
         <option name="wrap">true</option>
@@ -1685,7 +1685,7 @@
       <table>
         <title>Latest 5 matching events • newest first</title>
         <search base="rhel_recent">
-          <query>search case_id="AU2-05-04-F" | where ($host_tok|s$="*" OR event_host=$host_tok|s$) AND ($app_tok|s$="*" OR application=$app_tok|s$) | sort 5 - event_time event_fingerprint | eval Time=strftime(event_time,"%Y-%m-%d %H:%M:%S %Z"), User=coalesce(mvjoin(actor,", "),"User not recorded"), Login=coalesce(mvjoin(login_user,", "),"Not recorded"), Login_UID=coalesce(mvjoin(login_uid,", "),"Not recorded"), Process=coalesce(mvjoin(process_user,", "),"Not recorded"), Effective=coalesce(mvjoin(effective_user,", "),"Not recorded"), Account=coalesce(mvjoin(target_account,", "),"Not recorded") | rename event_host AS Host application AS Application | eval User=User.if(Login!="Not recorded" AND NOT in(Login_UID,"4294967295","-1","Not recorded")," (login UID ".Login_UID.")","") | table Time User Process Host Application</query>
+          <query>search case_id="AU2-05-04-F" | where ($host_tok|s$="*" OR event_host=$host_tok|s$) AND ($app_tok|s$="*" OR application=$app_tok|s$) | sort 5 - event_time event_fingerprint | eval Time=strftime(event_time,"%Y-%m-%d %H:%M:%S %Z"), User=coalesce(mvjoin(actor,", "),"User not recorded"), Login=coalesce(mvjoin(login_user,", "),"Not recorded"), Login_UID=coalesce(mvjoin(login_uid,", "),"Not recorded"), Process=coalesce(mvjoin(process_user,", "),"Not recorded"), Effective=coalesce(mvjoin(effective_user,", "),"Not recorded"), Account=coalesce(mvjoin(target_account,", "),"Not recorded") | rename event_host AS Host application AS Application | eval User=User.if(Login!="Not recorded" AND NOT in(Login_UID,"4294967295","-1","Not recorded")," (login UID ".Login_UID.")","") | eval Session_origin=coalesce(session_remote_access,"Not established"), Session_source=coalesce(session_source_ip,"Not established") | table Time User Process Host Application Session_origin Session_source</query>
         </search>
         <option name="count">5</option>
         <option name="wrap">true</option>
@@ -1728,7 +1728,7 @@
       <table>
         <title>Latest 5 matching events • newest first</title>
         <search base="rhel_recent">
-          <query>search case_id="AU2-05-05-S" | where ($host_tok|s$="*" OR event_host=$host_tok|s$) AND ($app_tok|s$="*" OR application=$app_tok|s$) | sort 5 - event_time event_fingerprint | eval Time=strftime(event_time,"%Y-%m-%d %H:%M:%S %Z"), User=coalesce(mvjoin(actor,", "),"User not recorded"), Login=coalesce(mvjoin(login_user,", "),"Not recorded"), Login_UID=coalesce(mvjoin(login_uid,", "),"Not recorded"), Process=coalesce(mvjoin(process_user,", "),"Not recorded"), Effective=coalesce(mvjoin(effective_user,", "),"Not recorded"), Account=coalesce(mvjoin(target_account,", "),"Not recorded") | rename event_host AS Host application AS Application | eval User=User.if(Login!="Not recorded" AND NOT in(Login_UID,"4294967295","-1","Not recorded")," (login UID ".Login_UID.")","") | table Time User Process Host Application</query>
+          <query>search case_id="AU2-05-05-S" | where ($host_tok|s$="*" OR event_host=$host_tok|s$) AND ($app_tok|s$="*" OR application=$app_tok|s$) | sort 5 - event_time event_fingerprint | eval Time=strftime(event_time,"%Y-%m-%d %H:%M:%S %Z"), User=coalesce(mvjoin(actor,", "),"User not recorded"), Login=coalesce(mvjoin(login_user,", "),"Not recorded"), Login_UID=coalesce(mvjoin(login_uid,", "),"Not recorded"), Process=coalesce(mvjoin(process_user,", "),"Not recorded"), Effective=coalesce(mvjoin(effective_user,", "),"Not recorded"), Account=coalesce(mvjoin(target_account,", "),"Not recorded") | rename event_host AS Host application AS Application | eval User=User.if(Login!="Not recorded" AND NOT in(Login_UID,"4294967295","-1","Not recorded")," (login UID ".Login_UID.")","") | eval Session_origin=coalesce(session_remote_access,"Not established"), Session_source=coalesce(session_source_ip,"Not established") | table Time User Process Host Application Session_origin Session_source</query>
         </search>
         <option name="count">5</option>
         <option name="wrap">true</option>
@@ -1773,7 +1773,7 @@
       <table>
         <title>Latest 5 matching events • newest first</title>
         <search base="rhel_recent">
-          <query>search case_id="AU2-05-05-F" | where ($host_tok|s$="*" OR event_host=$host_tok|s$) AND ($app_tok|s$="*" OR application=$app_tok|s$) | sort 5 - event_time event_fingerprint | eval Time=strftime(event_time,"%Y-%m-%d %H:%M:%S %Z"), User=coalesce(mvjoin(actor,", "),"User not recorded"), Login=coalesce(mvjoin(login_user,", "),"Not recorded"), Login_UID=coalesce(mvjoin(login_uid,", "),"Not recorded"), Process=coalesce(mvjoin(process_user,", "),"Not recorded"), Effective=coalesce(mvjoin(effective_user,", "),"Not recorded"), Account=coalesce(mvjoin(target_account,", "),"Not recorded") | rename event_host AS Host application AS Application | eval User=User.if(Login!="Not recorded" AND NOT in(Login_UID,"4294967295","-1","Not recorded")," (login UID ".Login_UID.")","") | table Time User Process Host Application</query>
+          <query>search case_id="AU2-05-05-F" | where ($host_tok|s$="*" OR event_host=$host_tok|s$) AND ($app_tok|s$="*" OR application=$app_tok|s$) | sort 5 - event_time event_fingerprint | eval Time=strftime(event_time,"%Y-%m-%d %H:%M:%S %Z"), User=coalesce(mvjoin(actor,", "),"User not recorded"), Login=coalesce(mvjoin(login_user,", "),"Not recorded"), Login_UID=coalesce(mvjoin(login_uid,", "),"Not recorded"), Process=coalesce(mvjoin(process_user,", "),"Not recorded"), Effective=coalesce(mvjoin(effective_user,", "),"Not recorded"), Account=coalesce(mvjoin(target_account,", "),"Not recorded") | rename event_host AS Host application AS Application | eval User=User.if(Login!="Not recorded" AND NOT in(Login_UID,"4294967295","-1","Not recorded")," (login UID ".Login_UID.")","") | eval Session_origin=coalesce(session_remote_access,"Not established"), Session_source=coalesce(session_source_ip,"Not established") | table Time User Process Host Application Session_origin Session_source</query>
         </search>
         <option name="count">5</option>
         <option name="wrap">true</option>
@@ -1816,7 +1816,7 @@
       <table>
         <title>Latest 5 matching events • newest first</title>
         <search base="rhel_recent">
-          <query>search case_id="AU2-05-06-S" | where ($host_tok|s$="*" OR event_host=$host_tok|s$) AND ($app_tok|s$="*" OR application=$app_tok|s$) | sort 5 - event_time event_fingerprint | eval Time=strftime(event_time,"%Y-%m-%d %H:%M:%S %Z"), User=coalesce(mvjoin(actor,", "),"User not recorded"), Login=coalesce(mvjoin(login_user,", "),"Not recorded"), Login_UID=coalesce(mvjoin(login_uid,", "),"Not recorded"), Process=coalesce(mvjoin(process_user,", "),"Not recorded"), Effective=coalesce(mvjoin(effective_user,", "),"Not recorded"), Account=coalesce(mvjoin(target_account,", "),"Not recorded") | rename event_host AS Host application AS Application | eval User=User.if(Login!="Not recorded" AND NOT in(Login_UID,"4294967295","-1","Not recorded")," (login UID ".Login_UID.")","") | table Time User Process Host Application</query>
+          <query>search case_id="AU2-05-06-S" | where ($host_tok|s$="*" OR event_host=$host_tok|s$) AND ($app_tok|s$="*" OR application=$app_tok|s$) | sort 5 - event_time event_fingerprint | eval Time=strftime(event_time,"%Y-%m-%d %H:%M:%S %Z"), User=coalesce(mvjoin(actor,", "),"User not recorded"), Login=coalesce(mvjoin(login_user,", "),"Not recorded"), Login_UID=coalesce(mvjoin(login_uid,", "),"Not recorded"), Process=coalesce(mvjoin(process_user,", "),"Not recorded"), Effective=coalesce(mvjoin(effective_user,", "),"Not recorded"), Account=coalesce(mvjoin(target_account,", "),"Not recorded") | rename event_host AS Host application AS Application | eval User=User.if(Login!="Not recorded" AND NOT in(Login_UID,"4294967295","-1","Not recorded")," (login UID ".Login_UID.")","") | eval Session_origin=coalesce(session_remote_access,"Not established"), Session_source=coalesce(session_source_ip,"Not established") | table Time User Process Host Application Session_origin Session_source</query>
         </search>
         <option name="count">5</option>
         <option name="wrap">true</option>
@@ -1859,7 +1859,7 @@
       <table>
         <title>Latest 5 matching events • newest first</title>
         <search base="rhel_recent">
-          <query>search case_id="AU2-05-06-F" | where ($host_tok|s$="*" OR event_host=$host_tok|s$) AND ($app_tok|s$="*" OR application=$app_tok|s$) | sort 5 - event_time event_fingerprint | eval Time=strftime(event_time,"%Y-%m-%d %H:%M:%S %Z"), User=coalesce(mvjoin(actor,", "),"User not recorded"), Login=coalesce(mvjoin(login_user,", "),"Not recorded"), Login_UID=coalesce(mvjoin(login_uid,", "),"Not recorded"), Process=coalesce(mvjoin(process_user,", "),"Not recorded"), Effective=coalesce(mvjoin(effective_user,", "),"Not recorded"), Account=coalesce(mvjoin(target_account,", "),"Not recorded") | rename event_host AS Host application AS Application | eval User=User.if(Login!="Not recorded" AND NOT in(Login_UID,"4294967295","-1","Not recorded")," (login UID ".Login_UID.")","") | table Time User Process Host Application</query>
+          <query>search case_id="AU2-05-06-F" | where ($host_tok|s$="*" OR event_host=$host_tok|s$) AND ($app_tok|s$="*" OR application=$app_tok|s$) | sort 5 - event_time event_fingerprint | eval Time=strftime(event_time,"%Y-%m-%d %H:%M:%S %Z"), User=coalesce(mvjoin(actor,", "),"User not recorded"), Login=coalesce(mvjoin(login_user,", "),"Not recorded"), Login_UID=coalesce(mvjoin(login_uid,", "),"Not recorded"), Process=coalesce(mvjoin(process_user,", "),"Not recorded"), Effective=coalesce(mvjoin(effective_user,", "),"Not recorded"), Account=coalesce(mvjoin(target_account,", "),"Not recorded") | rename event_host AS Host application AS Application | eval User=User.if(Login!="Not recorded" AND NOT in(Login_UID,"4294967295","-1","Not recorded")," (login UID ".Login_UID.")","") | eval Session_origin=coalesce(session_remote_access,"Not established"), Session_source=coalesce(session_source_ip,"Not established") | table Time User Process Host Application Session_origin Session_source</query>
         </search>
         <option name="count">5</option>
         <option name="wrap">true</option>
@@ -1904,7 +1904,7 @@
       <table>
         <title>Latest 5 matching events • newest first</title>
         <search base="rhel_recent">
-          <query>search case_id="AU2-05-07-S" | where ($host_tok|s$="*" OR event_host=$host_tok|s$) AND ($app_tok|s$="*" OR application=$app_tok|s$) | sort 5 - event_time event_fingerprint | eval Time=strftime(event_time,"%Y-%m-%d %H:%M:%S %Z"), User=coalesce(mvjoin(actor,", "),"User not recorded"), Login=coalesce(mvjoin(login_user,", "),"Not recorded"), Login_UID=coalesce(mvjoin(login_uid,", "),"Not recorded"), Process=coalesce(mvjoin(process_user,", "),"Not recorded"), Effective=coalesce(mvjoin(effective_user,", "),"Not recorded"), Account=coalesce(mvjoin(target_account,", "),"Not recorded") | rename event_host AS Host application AS Application | eval User=User.if(Login!="Not recorded" AND NOT in(Login_UID,"4294967295","-1","Not recorded")," (login UID ".Login_UID.")","") | table Time User Process Host Application</query>
+          <query>search case_id="AU2-05-07-S" | where ($host_tok|s$="*" OR event_host=$host_tok|s$) AND ($app_tok|s$="*" OR application=$app_tok|s$) | sort 5 - event_time event_fingerprint | eval Time=strftime(event_time,"%Y-%m-%d %H:%M:%S %Z"), User=coalesce(mvjoin(actor,", "),"User not recorded"), Login=coalesce(mvjoin(login_user,", "),"Not recorded"), Login_UID=coalesce(mvjoin(login_uid,", "),"Not recorded"), Process=coalesce(mvjoin(process_user,", "),"Not recorded"), Effective=coalesce(mvjoin(effective_user,", "),"Not recorded"), Account=coalesce(mvjoin(target_account,", "),"Not recorded") | rename event_host AS Host application AS Application | eval User=User.if(Login!="Not recorded" AND NOT in(Login_UID,"4294967295","-1","Not recorded")," (login UID ".Login_UID.")","") | eval Session_origin=coalesce(session_remote_access,"Not established"), Session_source=coalesce(session_source_ip,"Not established") | table Time User Process Host Application Session_origin Session_source</query>
         </search>
         <option name="count">5</option>
         <option name="wrap">true</option>
@@ -1947,7 +1947,7 @@
       <table>
         <title>Latest 5 matching events • newest first</title>
         <search base="rhel_recent">
-          <query>search case_id="AU2-05-07-F" | where ($host_tok|s$="*" OR event_host=$host_tok|s$) AND ($app_tok|s$="*" OR application=$app_tok|s$) | sort 5 - event_time event_fingerprint | eval Time=strftime(event_time,"%Y-%m-%d %H:%M:%S %Z"), User=coalesce(mvjoin(actor,", "),"User not recorded"), Login=coalesce(mvjoin(login_user,", "),"Not recorded"), Login_UID=coalesce(mvjoin(login_uid,", "),"Not recorded"), Process=coalesce(mvjoin(process_user,", "),"Not recorded"), Effective=coalesce(mvjoin(effective_user,", "),"Not recorded"), Account=coalesce(mvjoin(target_account,", "),"Not recorded") | rename event_host AS Host application AS Application | eval User=User.if(Login!="Not recorded" AND NOT in(Login_UID,"4294967295","-1","Not recorded")," (login UID ".Login_UID.")","") | table Time User Process Host Application</query>
+          <query>search case_id="AU2-05-07-F" | where ($host_tok|s$="*" OR event_host=$host_tok|s$) AND ($app_tok|s$="*" OR application=$app_tok|s$) | sort 5 - event_time event_fingerprint | eval Time=strftime(event_time,"%Y-%m-%d %H:%M:%S %Z"), User=coalesce(mvjoin(actor,", "),"User not recorded"), Login=coalesce(mvjoin(login_user,", "),"Not recorded"), Login_UID=coalesce(mvjoin(login_uid,", "),"Not recorded"), Process=coalesce(mvjoin(process_user,", "),"Not recorded"), Effective=coalesce(mvjoin(effective_user,", "),"Not recorded"), Account=coalesce(mvjoin(target_account,", "),"Not recorded") | rename event_host AS Host application AS Application | eval User=User.if(Login!="Not recorded" AND NOT in(Login_UID,"4294967295","-1","Not recorded")," (login UID ".Login_UID.")","") | eval Session_origin=coalesce(session_remote_access,"Not established"), Session_source=coalesce(session_source_ip,"Not established") | table Time User Process Host Application Session_origin Session_source</query>
         </search>
         <option name="count">5</option>
         <option name="wrap">true</option>
@@ -1990,7 +1990,7 @@
       <table>
         <title>Latest 5 matching events • newest first</title>
         <search base="rhel_recent">
-          <query>search case_id="AU2-05-08-S" | where ($host_tok|s$="*" OR event_host=$host_tok|s$) AND ($app_tok|s$="*" OR application=$app_tok|s$) | sort 5 - event_time event_fingerprint | eval Time=strftime(event_time,"%Y-%m-%d %H:%M:%S %Z"), User=coalesce(mvjoin(actor,", "),"User not recorded"), Login=coalesce(mvjoin(login_user,", "),"Not recorded"), Login_UID=coalesce(mvjoin(login_uid,", "),"Not recorded"), Process=coalesce(mvjoin(process_user,", "),"Not recorded"), Effective=coalesce(mvjoin(effective_user,", "),"Not recorded"), Account=coalesce(mvjoin(target_account,", "),"Not recorded") | rename event_host AS Host application AS Application | eval User=User.if(Login!="Not recorded" AND NOT in(Login_UID,"4294967295","-1","Not recorded")," (login UID ".Login_UID.")","") | table Time User Process Host Application</query>
+          <query>search case_id="AU2-05-08-S" | where ($host_tok|s$="*" OR event_host=$host_tok|s$) AND ($app_tok|s$="*" OR application=$app_tok|s$) | sort 5 - event_time event_fingerprint | eval Time=strftime(event_time,"%Y-%m-%d %H:%M:%S %Z"), User=coalesce(mvjoin(actor,", "),"User not recorded"), Login=coalesce(mvjoin(login_user,", "),"Not recorded"), Login_UID=coalesce(mvjoin(login_uid,", "),"Not recorded"), Process=coalesce(mvjoin(process_user,", "),"Not recorded"), Effective=coalesce(mvjoin(effective_user,", "),"Not recorded"), Account=coalesce(mvjoin(target_account,", "),"Not recorded") | rename event_host AS Host application AS Application | eval User=User.if(Login!="Not recorded" AND NOT in(Login_UID,"4294967295","-1","Not recorded")," (login UID ".Login_UID.")","") | eval Session_origin=coalesce(session_remote_access,"Not established"), Session_source=coalesce(session_source_ip,"Not established") | table Time User Process Host Application Session_origin Session_source</query>
         </search>
         <option name="count">5</option>
         <option name="wrap">true</option>
@@ -2035,7 +2035,7 @@
       <table>
         <title>Latest 5 matching events • newest first</title>
         <search base="rhel_recent">
-          <query>search case_id="AU2-05-08-F" | where ($host_tok|s$="*" OR event_host=$host_tok|s$) AND ($app_tok|s$="*" OR application=$app_tok|s$) | sort 5 - event_time event_fingerprint | eval Time=strftime(event_time,"%Y-%m-%d %H:%M:%S %Z"), User=coalesce(mvjoin(actor,", "),"User not recorded"), Login=coalesce(mvjoin(login_user,", "),"Not recorded"), Login_UID=coalesce(mvjoin(login_uid,", "),"Not recorded"), Process=coalesce(mvjoin(process_user,", "),"Not recorded"), Effective=coalesce(mvjoin(effective_user,", "),"Not recorded"), Account=coalesce(mvjoin(target_account,", "),"Not recorded") | rename event_host AS Host application AS Application | eval User=User.if(Login!="Not recorded" AND NOT in(Login_UID,"4294967295","-1","Not recorded")," (login UID ".Login_UID.")","") | table Time User Process Host Application</query>
+          <query>search case_id="AU2-05-08-F" | where ($host_tok|s$="*" OR event_host=$host_tok|s$) AND ($app_tok|s$="*" OR application=$app_tok|s$) | sort 5 - event_time event_fingerprint | eval Time=strftime(event_time,"%Y-%m-%d %H:%M:%S %Z"), User=coalesce(mvjoin(actor,", "),"User not recorded"), Login=coalesce(mvjoin(login_user,", "),"Not recorded"), Login_UID=coalesce(mvjoin(login_uid,", "),"Not recorded"), Process=coalesce(mvjoin(process_user,", "),"Not recorded"), Effective=coalesce(mvjoin(effective_user,", "),"Not recorded"), Account=coalesce(mvjoin(target_account,", "),"Not recorded") | rename event_host AS Host application AS Application | eval User=User.if(Login!="Not recorded" AND NOT in(Login_UID,"4294967295","-1","Not recorded")," (login UID ".Login_UID.")","") | eval Session_origin=coalesce(session_remote_access,"Not established"), Session_source=coalesce(session_source_ip,"Not established") | table Time User Process Host Application Session_origin Session_source</query>
         </search>
         <option name="count">5</option>
         <option name="wrap">true</option>
@@ -2062,7 +2062,7 @@
     <panel>
       <html>
         <h2>AU-2.a.6 · Security policy and configuration changes</h2>
-        <p>Each tile is one required action/outcome. Missing evidence remains visible.</p>
+        <p>Each tile is one required action/outcome. Session origin/source are correlated login context, not direct event fields or proof of a network operation. Boot continuity requires review; missing evidence remains visible.</p>
       </html>
     </panel>
   </row>
@@ -2088,7 +2088,7 @@
       <table>
         <title>Latest 5 matching events • newest first</title>
         <search base="rhel_recent">
-          <query>search case_id="AU2-06-01-S" | where ($host_tok|s$="*" OR event_host=$host_tok|s$) AND ($app_tok|s$="*" OR application=$app_tok|s$) | sort 5 - event_time event_fingerprint | eval Time=strftime(event_time,"%Y-%m-%d %H:%M:%S %Z"), User=coalesce(mvjoin(actor,", "),"User not recorded"), Login=coalesce(mvjoin(login_user,", "),"Not recorded"), Login_UID=coalesce(mvjoin(login_uid,", "),"Not recorded"), Process=coalesce(mvjoin(process_user,", "),"Not recorded"), Effective=coalesce(mvjoin(effective_user,", "),"Not recorded"), Account=coalesce(mvjoin(target_account,", "),"Not recorded") | rename event_host AS Host application AS Application | eval User=User.if(Login!="Not recorded" AND NOT in(Login_UID,"4294967295","-1","Not recorded")," (login UID ".Login_UID.")","") | table Time User Process Host Application</query>
+          <query>search case_id="AU2-06-01-S" | where ($host_tok|s$="*" OR event_host=$host_tok|s$) AND ($app_tok|s$="*" OR application=$app_tok|s$) | sort 5 - event_time event_fingerprint | eval Time=strftime(event_time,"%Y-%m-%d %H:%M:%S %Z"), User=coalesce(mvjoin(actor,", "),"User not recorded"), Login=coalesce(mvjoin(login_user,", "),"Not recorded"), Login_UID=coalesce(mvjoin(login_uid,", "),"Not recorded"), Process=coalesce(mvjoin(process_user,", "),"Not recorded"), Effective=coalesce(mvjoin(effective_user,", "),"Not recorded"), Account=coalesce(mvjoin(target_account,", "),"Not recorded") | rename event_host AS Host application AS Application | eval User=User.if(Login!="Not recorded" AND NOT in(Login_UID,"4294967295","-1","Not recorded")," (login UID ".Login_UID.")","") | eval Session_origin=coalesce(session_remote_access,"Not established"), Session_source=coalesce(session_source_ip,"Not established") | table Time User Process Host Application Session_origin Session_source</query>
         </search>
         <option name="count">5</option>
         <option name="wrap">true</option>
@@ -2131,7 +2131,7 @@
       <table>
         <title>Latest 5 matching events • newest first</title>
         <search base="rhel_recent">
-          <query>search case_id="AU2-06-01-F" | where ($host_tok|s$="*" OR event_host=$host_tok|s$) AND ($app_tok|s$="*" OR application=$app_tok|s$) | sort 5 - event_time event_fingerprint | eval Time=strftime(event_time,"%Y-%m-%d %H:%M:%S %Z"), User=coalesce(mvjoin(actor,", "),"User not recorded"), Login=coalesce(mvjoin(login_user,", "),"Not recorded"), Login_UID=coalesce(mvjoin(login_uid,", "),"Not recorded"), Process=coalesce(mvjoin(process_user,", "),"Not recorded"), Effective=coalesce(mvjoin(effective_user,", "),"Not recorded"), Account=coalesce(mvjoin(target_account,", "),"Not recorded") | rename event_host AS Host application AS Application | eval User=User.if(Login!="Not recorded" AND NOT in(Login_UID,"4294967295","-1","Not recorded")," (login UID ".Login_UID.")","") | table Time User Process Host Application</query>
+          <query>search case_id="AU2-06-01-F" | where ($host_tok|s$="*" OR event_host=$host_tok|s$) AND ($app_tok|s$="*" OR application=$app_tok|s$) | sort 5 - event_time event_fingerprint | eval Time=strftime(event_time,"%Y-%m-%d %H:%M:%S %Z"), User=coalesce(mvjoin(actor,", "),"User not recorded"), Login=coalesce(mvjoin(login_user,", "),"Not recorded"), Login_UID=coalesce(mvjoin(login_uid,", "),"Not recorded"), Process=coalesce(mvjoin(process_user,", "),"Not recorded"), Effective=coalesce(mvjoin(effective_user,", "),"Not recorded"), Account=coalesce(mvjoin(target_account,", "),"Not recorded") | rename event_host AS Host application AS Application | eval User=User.if(Login!="Not recorded" AND NOT in(Login_UID,"4294967295","-1","Not recorded")," (login UID ".Login_UID.")","") | eval Session_origin=coalesce(session_remote_access,"Not established"), Session_source=coalesce(session_source_ip,"Not established") | table Time User Process Host Application Session_origin Session_source</query>
         </search>
         <option name="count">5</option>
         <option name="wrap">true</option>
@@ -2174,7 +2174,7 @@
       <table>
         <title>Latest 5 matching events • newest first</title>
         <search base="rhel_recent">
-          <query>search case_id="AU2-06-02-S" | where ($host_tok|s$="*" OR event_host=$host_tok|s$) AND ($app_tok|s$="*" OR application=$app_tok|s$) | sort 5 - event_time event_fingerprint | eval Time=strftime(event_time,"%Y-%m-%d %H:%M:%S %Z"), User=coalesce(mvjoin(actor,", "),"User not recorded"), Login=coalesce(mvjoin(login_user,", "),"Not recorded"), Login_UID=coalesce(mvjoin(login_uid,", "),"Not recorded"), Process=coalesce(mvjoin(process_user,", "),"Not recorded"), Effective=coalesce(mvjoin(effective_user,", "),"Not recorded"), Account=coalesce(mvjoin(target_account,", "),"Not recorded") | rename event_host AS Host application AS Application | eval User=User.if(Login!="Not recorded" AND NOT in(Login_UID,"4294967295","-1","Not recorded")," (login UID ".Login_UID.")","") | table Time User Process Host Application</query>
+          <query>search case_id="AU2-06-02-S" | where ($host_tok|s$="*" OR event_host=$host_tok|s$) AND ($app_tok|s$="*" OR application=$app_tok|s$) | sort 5 - event_time event_fingerprint | eval Time=strftime(event_time,"%Y-%m-%d %H:%M:%S %Z"), User=coalesce(mvjoin(actor,", "),"User not recorded"), Login=coalesce(mvjoin(login_user,", "),"Not recorded"), Login_UID=coalesce(mvjoin(login_uid,", "),"Not recorded"), Process=coalesce(mvjoin(process_user,", "),"Not recorded"), Effective=coalesce(mvjoin(effective_user,", "),"Not recorded"), Account=coalesce(mvjoin(target_account,", "),"Not recorded") | rename event_host AS Host application AS Application | eval User=User.if(Login!="Not recorded" AND NOT in(Login_UID,"4294967295","-1","Not recorded")," (login UID ".Login_UID.")","") | eval Session_origin=coalesce(session_remote_access,"Not established"), Session_source=coalesce(session_source_ip,"Not established") | table Time User Process Host Application Session_origin Session_source</query>
         </search>
         <option name="count">5</option>
         <option name="wrap">true</option>
@@ -2219,7 +2219,7 @@
       <table>
         <title>Latest 5 matching events • newest first</title>
         <search base="rhel_recent">
-          <query>search case_id="AU2-06-02-F" | where ($host_tok|s$="*" OR event_host=$host_tok|s$) AND ($app_tok|s$="*" OR application=$app_tok|s$) | sort 5 - event_time event_fingerprint | eval Time=strftime(event_time,"%Y-%m-%d %H:%M:%S %Z"), User=coalesce(mvjoin(actor,", "),"User not recorded"), Login=coalesce(mvjoin(login_user,", "),"Not recorded"), Login_UID=coalesce(mvjoin(login_uid,", "),"Not recorded"), Process=coalesce(mvjoin(process_user,", "),"Not recorded"), Effective=coalesce(mvjoin(effective_user,", "),"Not recorded"), Account=coalesce(mvjoin(target_account,", "),"Not recorded") | rename event_host AS Host application AS Application | eval User=User.if(Login!="Not recorded" AND NOT in(Login_UID,"4294967295","-1","Not recorded")," (login UID ".Login_UID.")","") | table Time User Process Host Application</query>
+          <query>search case_id="AU2-06-02-F" | where ($host_tok|s$="*" OR event_host=$host_tok|s$) AND ($app_tok|s$="*" OR application=$app_tok|s$) | sort 5 - event_time event_fingerprint | eval Time=strftime(event_time,"%Y-%m-%d %H:%M:%S %Z"), User=coalesce(mvjoin(actor,", "),"User not recorded"), Login=coalesce(mvjoin(login_user,", "),"Not recorded"), Login_UID=coalesce(mvjoin(login_uid,", "),"Not recorded"), Process=coalesce(mvjoin(process_user,", "),"Not recorded"), Effective=coalesce(mvjoin(effective_user,", "),"Not recorded"), Account=coalesce(mvjoin(target_account,", "),"Not recorded") | rename event_host AS Host application AS Application | eval User=User.if(Login!="Not recorded" AND NOT in(Login_UID,"4294967295","-1","Not recorded")," (login UID ".Login_UID.")","") | eval Session_origin=coalesce(session_remote_access,"Not established"), Session_source=coalesce(session_source_ip,"Not established") | table Time User Process Host Application Session_origin Session_source</query>
         </search>
         <option name="count">5</option>
         <option name="wrap">true</option>
@@ -2246,7 +2246,7 @@
     <panel>
       <html>
         <h2>AU-2.a.7 · Administrative and root access</h2>
-        <p>Each tile is one required action/outcome. Missing evidence remains visible.</p>
+        <p>Each tile is one required action/outcome. Session origin/source are correlated login context, not direct event fields or proof of a network operation. Boot continuity requires review; missing evidence remains visible.</p>
       </html>
     </panel>
   </row>
@@ -2272,7 +2272,7 @@
       <table>
         <title>Latest 5 matching events • newest first</title>
         <search base="rhel_recent">
-          <query>search case_id="AU2-07-01-S" | where ($host_tok|s$="*" OR event_host=$host_tok|s$) AND ($app_tok|s$="*" OR application=$app_tok|s$) | sort 5 - event_time event_fingerprint | eval Time=strftime(event_time,"%Y-%m-%d %H:%M:%S %Z"), User=coalesce(mvjoin(actor,", "),"User not recorded"), Login=coalesce(mvjoin(login_user,", "),"Not recorded"), Login_UID=coalesce(mvjoin(login_uid,", "),"Not recorded"), Process=coalesce(mvjoin(process_user,", "),"Not recorded"), Effective=coalesce(mvjoin(effective_user,", "),"Not recorded"), Account=coalesce(mvjoin(target_account,", "),"Not recorded") | rename event_host AS Host application AS Application | eval User=User.if(Login!="Not recorded" AND NOT in(Login_UID,"4294967295","-1","Not recorded")," (login UID ".Login_UID.")","") | table Time User Process Host Application</query>
+          <query>search case_id="AU2-07-01-S" | where ($host_tok|s$="*" OR event_host=$host_tok|s$) AND ($app_tok|s$="*" OR application=$app_tok|s$) | sort 5 - event_time event_fingerprint | eval Time=strftime(event_time,"%Y-%m-%d %H:%M:%S %Z"), User=coalesce(mvjoin(actor,", "),"User not recorded"), Login=coalesce(mvjoin(login_user,", "),"Not recorded"), Login_UID=coalesce(mvjoin(login_uid,", "),"Not recorded"), Process=coalesce(mvjoin(process_user,", "),"Not recorded"), Effective=coalesce(mvjoin(effective_user,", "),"Not recorded"), Account=coalesce(mvjoin(target_account,", "),"Not recorded") | rename event_host AS Host application AS Application | eval User=User.if(Login!="Not recorded" AND NOT in(Login_UID,"4294967295","-1","Not recorded")," (login UID ".Login_UID.")","") | eval Session_origin=coalesce(session_remote_access,"Not established"), Session_source=coalesce(session_source_ip,"Not established") | table Time User Process Host Application Session_origin Session_source</query>
         </search>
         <option name="count">5</option>
         <option name="wrap">true</option>
@@ -2315,7 +2315,7 @@
       <table>
         <title>Latest 5 matching events • newest first</title>
         <search base="rhel_recent">
-          <query>search case_id="AU2-07-01-F" | where ($host_tok|s$="*" OR event_host=$host_tok|s$) AND ($app_tok|s$="*" OR application=$app_tok|s$) | sort 5 - event_time event_fingerprint | eval Time=strftime(event_time,"%Y-%m-%d %H:%M:%S %Z"), User=coalesce(mvjoin(actor,", "),"User not recorded"), Login=coalesce(mvjoin(login_user,", "),"Not recorded"), Login_UID=coalesce(mvjoin(login_uid,", "),"Not recorded"), Process=coalesce(mvjoin(process_user,", "),"Not recorded"), Effective=coalesce(mvjoin(effective_user,", "),"Not recorded"), Account=coalesce(mvjoin(target_account,", "),"Not recorded") | rename event_host AS Host application AS Application | eval User=User.if(Login!="Not recorded" AND NOT in(Login_UID,"4294967295","-1","Not recorded")," (login UID ".Login_UID.")","") | table Time User Process Host Application</query>
+          <query>search case_id="AU2-07-01-F" | where ($host_tok|s$="*" OR event_host=$host_tok|s$) AND ($app_tok|s$="*" OR application=$app_tok|s$) | sort 5 - event_time event_fingerprint | eval Time=strftime(event_time,"%Y-%m-%d %H:%M:%S %Z"), User=coalesce(mvjoin(actor,", "),"User not recorded"), Login=coalesce(mvjoin(login_user,", "),"Not recorded"), Login_UID=coalesce(mvjoin(login_uid,", "),"Not recorded"), Process=coalesce(mvjoin(process_user,", "),"Not recorded"), Effective=coalesce(mvjoin(effective_user,", "),"Not recorded"), Account=coalesce(mvjoin(target_account,", "),"Not recorded") | rename event_host AS Host application AS Application | eval User=User.if(Login!="Not recorded" AND NOT in(Login_UID,"4294967295","-1","Not recorded")," (login UID ".Login_UID.")","") | eval Session_origin=coalesce(session_remote_access,"Not established"), Session_source=coalesce(session_source_ip,"Not established") | table Time User Process Host Application Session_origin Session_source</query>
         </search>
         <option name="count">5</option>
         <option name="wrap">true</option>
@@ -2342,7 +2342,7 @@
     <panel>
       <html>
         <h2>AU-2.a.8 · Privilege or role elevation</h2>
-        <p>Each tile is one required action/outcome. Missing evidence remains visible.</p>
+        <p>Each tile is one required action/outcome. Session origin/source are correlated login context, not direct event fields or proof of a network operation. Boot continuity requires review; missing evidence remains visible.</p>
       </html>
     </panel>
   </row>
@@ -2368,7 +2368,7 @@
       <table>
         <title>Latest 5 matching events • newest first</title>
         <search base="rhel_recent">
-          <query>search case_id="AU2-08-01-S" | where ($host_tok|s$="*" OR event_host=$host_tok|s$) AND ($app_tok|s$="*" OR application=$app_tok|s$) | sort 5 - event_time event_fingerprint | eval Time=strftime(event_time,"%Y-%m-%d %H:%M:%S %Z"), User=coalesce(mvjoin(actor,", "),"User not recorded"), Login=coalesce(mvjoin(login_user,", "),"Not recorded"), Login_UID=coalesce(mvjoin(login_uid,", "),"Not recorded"), Process=coalesce(mvjoin(process_user,", "),"Not recorded"), Effective=coalesce(mvjoin(effective_user,", "),"Not recorded"), Account=coalesce(mvjoin(target_account,", "),"Not recorded") | rename event_host AS Host application AS Application | eval User=User.if(Login!="Not recorded" AND NOT in(Login_UID,"4294967295","-1","Not recorded")," (login UID ".Login_UID.")","") | table Time User Process Host Application</query>
+          <query>search case_id="AU2-08-01-S" | where ($host_tok|s$="*" OR event_host=$host_tok|s$) AND ($app_tok|s$="*" OR application=$app_tok|s$) | sort 5 - event_time event_fingerprint | eval Time=strftime(event_time,"%Y-%m-%d %H:%M:%S %Z"), User=coalesce(mvjoin(actor,", "),"User not recorded"), Login=coalesce(mvjoin(login_user,", "),"Not recorded"), Login_UID=coalesce(mvjoin(login_uid,", "),"Not recorded"), Process=coalesce(mvjoin(process_user,", "),"Not recorded"), Effective=coalesce(mvjoin(effective_user,", "),"Not recorded"), Account=coalesce(mvjoin(target_account,", "),"Not recorded") | rename event_host AS Host application AS Application | eval User=User.if(Login!="Not recorded" AND NOT in(Login_UID,"4294967295","-1","Not recorded")," (login UID ".Login_UID.")","") | eval Session_origin=coalesce(session_remote_access,"Not established"), Session_source=coalesce(session_source_ip,"Not established") | table Time User Process Host Application Session_origin Session_source</query>
         </search>
         <option name="count">5</option>
         <option name="wrap">true</option>
@@ -2411,7 +2411,7 @@
       <table>
         <title>Latest 5 matching events • newest first</title>
         <search base="rhel_recent">
-          <query>search case_id="AU2-08-01-F" | where ($host_tok|s$="*" OR event_host=$host_tok|s$) AND ($app_tok|s$="*" OR application=$app_tok|s$) | sort 5 - event_time event_fingerprint | eval Time=strftime(event_time,"%Y-%m-%d %H:%M:%S %Z"), User=coalesce(mvjoin(actor,", "),"User not recorded"), Login=coalesce(mvjoin(login_user,", "),"Not recorded"), Login_UID=coalesce(mvjoin(login_uid,", "),"Not recorded"), Process=coalesce(mvjoin(process_user,", "),"Not recorded"), Effective=coalesce(mvjoin(effective_user,", "),"Not recorded"), Account=coalesce(mvjoin(target_account,", "),"Not recorded") | rename event_host AS Host application AS Application | eval User=User.if(Login!="Not recorded" AND NOT in(Login_UID,"4294967295","-1","Not recorded")," (login UID ".Login_UID.")","") | table Time User Process Host Application</query>
+          <query>search case_id="AU2-08-01-F" | where ($host_tok|s$="*" OR event_host=$host_tok|s$) AND ($app_tok|s$="*" OR application=$app_tok|s$) | sort 5 - event_time event_fingerprint | eval Time=strftime(event_time,"%Y-%m-%d %H:%M:%S %Z"), User=coalesce(mvjoin(actor,", "),"User not recorded"), Login=coalesce(mvjoin(login_user,", "),"Not recorded"), Login_UID=coalesce(mvjoin(login_uid,", "),"Not recorded"), Process=coalesce(mvjoin(process_user,", "),"Not recorded"), Effective=coalesce(mvjoin(effective_user,", "),"Not recorded"), Account=coalesce(mvjoin(target_account,", "),"Not recorded") | rename event_host AS Host application AS Application | eval User=User.if(Login!="Not recorded" AND NOT in(Login_UID,"4294967295","-1","Not recorded")," (login UID ".Login_UID.")","") | eval Session_origin=coalesce(session_remote_access,"Not established"), Session_source=coalesce(session_source_ip,"Not established") | table Time User Process Host Application Session_origin Session_source</query>
         </search>
         <option name="count">5</option>
         <option name="wrap">true</option>
@@ -2438,7 +2438,7 @@
     <panel>
       <html>
         <h2>AU-2.a.9 · Audit and security log access</h2>
-        <p>Each tile is one required action/outcome. Missing evidence remains visible.</p>
+        <p>Each tile is one required action/outcome. Session origin/source are correlated login context, not direct event fields or proof of a network operation. Boot continuity requires review; missing evidence remains visible.</p>
       </html>
     </panel>
   </row>
@@ -2464,7 +2464,7 @@
       <table>
         <title>Latest 5 matching events • newest first</title>
         <search base="rhel_recent">
-          <query>search case_id="AU2-09-01-S" | where ($host_tok|s$="*" OR event_host=$host_tok|s$) AND ($app_tok|s$="*" OR application=$app_tok|s$) | sort 5 - event_time event_fingerprint | eval Time=strftime(event_time,"%Y-%m-%d %H:%M:%S %Z"), User=coalesce(mvjoin(actor,", "),"User not recorded"), Login=coalesce(mvjoin(login_user,", "),"Not recorded"), Login_UID=coalesce(mvjoin(login_uid,", "),"Not recorded"), Process=coalesce(mvjoin(process_user,", "),"Not recorded"), Effective=coalesce(mvjoin(effective_user,", "),"Not recorded"), Account=coalesce(mvjoin(target_account,", "),"Not recorded") | rename event_host AS Host application AS Application | eval User=User.if(Login!="Not recorded" AND NOT in(Login_UID,"4294967295","-1","Not recorded")," (login UID ".Login_UID.")","") | table Time User Process Host Application</query>
+          <query>search case_id="AU2-09-01-S" | where ($host_tok|s$="*" OR event_host=$host_tok|s$) AND ($app_tok|s$="*" OR application=$app_tok|s$) | sort 5 - event_time event_fingerprint | eval Time=strftime(event_time,"%Y-%m-%d %H:%M:%S %Z"), User=coalesce(mvjoin(actor,", "),"User not recorded"), Login=coalesce(mvjoin(login_user,", "),"Not recorded"), Login_UID=coalesce(mvjoin(login_uid,", "),"Not recorded"), Process=coalesce(mvjoin(process_user,", "),"Not recorded"), Effective=coalesce(mvjoin(effective_user,", "),"Not recorded"), Account=coalesce(mvjoin(target_account,", "),"Not recorded") | rename event_host AS Host application AS Application | eval User=User.if(Login!="Not recorded" AND NOT in(Login_UID,"4294967295","-1","Not recorded")," (login UID ".Login_UID.")","") | eval Session_origin=coalesce(session_remote_access,"Not established"), Session_source=coalesce(session_source_ip,"Not established") | table Time User Process Host Application Session_origin Session_source</query>
         </search>
         <option name="count">5</option>
         <option name="wrap">true</option>
@@ -2507,7 +2507,7 @@
       <table>
         <title>Latest 5 matching events • newest first</title>
         <search base="rhel_recent">
-          <query>search case_id="AU2-09-01-F" | where ($host_tok|s$="*" OR event_host=$host_tok|s$) AND ($app_tok|s$="*" OR application=$app_tok|s$) | sort 5 - event_time event_fingerprint | eval Time=strftime(event_time,"%Y-%m-%d %H:%M:%S %Z"), User=coalesce(mvjoin(actor,", "),"User not recorded"), Login=coalesce(mvjoin(login_user,", "),"Not recorded"), Login_UID=coalesce(mvjoin(login_uid,", "),"Not recorded"), Process=coalesce(mvjoin(process_user,", "),"Not recorded"), Effective=coalesce(mvjoin(effective_user,", "),"Not recorded"), Account=coalesce(mvjoin(target_account,", "),"Not recorded") | rename event_host AS Host application AS Application | eval User=User.if(Login!="Not recorded" AND NOT in(Login_UID,"4294967295","-1","Not recorded")," (login UID ".Login_UID.")","") | table Time User Process Host Application</query>
+          <query>search case_id="AU2-09-01-F" | where ($host_tok|s$="*" OR event_host=$host_tok|s$) AND ($app_tok|s$="*" OR application=$app_tok|s$) | sort 5 - event_time event_fingerprint | eval Time=strftime(event_time,"%Y-%m-%d %H:%M:%S %Z"), User=coalesce(mvjoin(actor,", "),"User not recorded"), Login=coalesce(mvjoin(login_user,", "),"Not recorded"), Login_UID=coalesce(mvjoin(login_uid,", "),"Not recorded"), Process=coalesce(mvjoin(process_user,", "),"Not recorded"), Effective=coalesce(mvjoin(effective_user,", "),"Not recorded"), Account=coalesce(mvjoin(target_account,", "),"Not recorded") | rename event_host AS Host application AS Application | eval User=User.if(Login!="Not recorded" AND NOT in(Login_UID,"4294967295","-1","Not recorded")," (login UID ".Login_UID.")","") | eval Session_origin=coalesce(session_remote_access,"Not established"), Session_source=coalesce(session_source_ip,"Not established") | table Time User Process Host Application Session_origin Session_source</query>
         </search>
         <option name="count">5</option>
         <option name="wrap">true</option>
@@ -2534,7 +2534,7 @@
     <panel>
       <html>
         <h2>AU-2.a.10 · System restart and shutdown</h2>
-        <p>Each tile is one required action/outcome. Missing evidence remains visible.</p>
+        <p>Each tile is one required action/outcome. Session origin/source are correlated login context, not direct event fields or proof of a network operation. Boot continuity requires review; missing evidence remains visible.</p>
       </html>
     </panel>
   </row>
@@ -2560,7 +2560,7 @@
       <table>
         <title>Latest 5 matching events • newest first</title>
         <search base="rhel_recent">
-          <query>search case_id="AU2-10-01-S" | where ($host_tok|s$="*" OR event_host=$host_tok|s$) AND ($app_tok|s$="*" OR application=$app_tok|s$) | sort 5 - event_time event_fingerprint | eval Time=strftime(event_time,"%Y-%m-%d %H:%M:%S %Z"), User=coalesce(mvjoin(actor,", "),"User not recorded"), Login=coalesce(mvjoin(login_user,", "),"Not recorded"), Login_UID=coalesce(mvjoin(login_uid,", "),"Not recorded"), Process=coalesce(mvjoin(process_user,", "),"Not recorded"), Effective=coalesce(mvjoin(effective_user,", "),"Not recorded"), Account=coalesce(mvjoin(target_account,", "),"Not recorded") | rename event_host AS Host application AS Application | eval User=User.if(Login!="Not recorded" AND NOT in(Login_UID,"4294967295","-1","Not recorded")," (login UID ".Login_UID.")","") | table Time User Process Host Application</query>
+          <query>search case_id="AU2-10-01-S" | where ($host_tok|s$="*" OR event_host=$host_tok|s$) AND ($app_tok|s$="*" OR application=$app_tok|s$) | sort 5 - event_time event_fingerprint | eval Time=strftime(event_time,"%Y-%m-%d %H:%M:%S %Z"), User=coalesce(mvjoin(actor,", "),"User not recorded"), Login=coalesce(mvjoin(login_user,", "),"Not recorded"), Login_UID=coalesce(mvjoin(login_uid,", "),"Not recorded"), Process=coalesce(mvjoin(process_user,", "),"Not recorded"), Effective=coalesce(mvjoin(effective_user,", "),"Not recorded"), Account=coalesce(mvjoin(target_account,", "),"Not recorded") | rename event_host AS Host application AS Application | eval User=User.if(Login!="Not recorded" AND NOT in(Login_UID,"4294967295","-1","Not recorded")," (login UID ".Login_UID.")","") | eval Session_origin=coalesce(session_remote_access,"Not established"), Session_source=coalesce(session_source_ip,"Not established") | table Time User Process Host Application Session_origin Session_source</query>
         </search>
         <option name="count">5</option>
         <option name="wrap">true</option>
@@ -2603,7 +2603,7 @@
       <table>
         <title>Latest 5 matching events • newest first</title>
         <search base="rhel_recent">
-          <query>search case_id="AU2-10-01-F" | where ($host_tok|s$="*" OR event_host=$host_tok|s$) AND ($app_tok|s$="*" OR application=$app_tok|s$) | sort 5 - event_time event_fingerprint | eval Time=strftime(event_time,"%Y-%m-%d %H:%M:%S %Z"), User=coalesce(mvjoin(actor,", "),"User not recorded"), Login=coalesce(mvjoin(login_user,", "),"Not recorded"), Login_UID=coalesce(mvjoin(login_uid,", "),"Not recorded"), Process=coalesce(mvjoin(process_user,", "),"Not recorded"), Effective=coalesce(mvjoin(effective_user,", "),"Not recorded"), Account=coalesce(mvjoin(target_account,", "),"Not recorded") | rename event_host AS Host application AS Application | eval User=User.if(Login!="Not recorded" AND NOT in(Login_UID,"4294967295","-1","Not recorded")," (login UID ".Login_UID.")","") | table Time User Process Host Application</query>
+          <query>search case_id="AU2-10-01-F" | where ($host_tok|s$="*" OR event_host=$host_tok|s$) AND ($app_tok|s$="*" OR application=$app_tok|s$) | sort 5 - event_time event_fingerprint | eval Time=strftime(event_time,"%Y-%m-%d %H:%M:%S %Z"), User=coalesce(mvjoin(actor,", "),"User not recorded"), Login=coalesce(mvjoin(login_user,", "),"Not recorded"), Login_UID=coalesce(mvjoin(login_uid,", "),"Not recorded"), Process=coalesce(mvjoin(process_user,", "),"Not recorded"), Effective=coalesce(mvjoin(effective_user,", "),"Not recorded"), Account=coalesce(mvjoin(target_account,", "),"Not recorded") | rename event_host AS Host application AS Application | eval User=User.if(Login!="Not recorded" AND NOT in(Login_UID,"4294967295","-1","Not recorded")," (login UID ".Login_UID.")","") | eval Session_origin=coalesce(session_remote_access,"Not established"), Session_source=coalesce(session_source_ip,"Not established") | table Time User Process Host Application Session_origin Session_source</query>
         </search>
         <option name="count">5</option>
         <option name="wrap">true</option>
@@ -2646,7 +2646,7 @@
       <table>
         <title>Latest 5 matching events • newest first</title>
         <search base="rhel_recent">
-          <query>search case_id="AU2-10-02-S" | where ($host_tok|s$="*" OR event_host=$host_tok|s$) AND ($app_tok|s$="*" OR application=$app_tok|s$) | sort 5 - event_time event_fingerprint | eval Time=strftime(event_time,"%Y-%m-%d %H:%M:%S %Z"), User=coalesce(mvjoin(actor,", "),"User not recorded"), Login=coalesce(mvjoin(login_user,", "),"Not recorded"), Login_UID=coalesce(mvjoin(login_uid,", "),"Not recorded"), Process=coalesce(mvjoin(process_user,", "),"Not recorded"), Effective=coalesce(mvjoin(effective_user,", "),"Not recorded"), Account=coalesce(mvjoin(target_account,", "),"Not recorded") | rename event_host AS Host application AS Application | eval User=User.if(Login!="Not recorded" AND NOT in(Login_UID,"4294967295","-1","Not recorded")," (login UID ".Login_UID.")","") | table Time User Process Host Application</query>
+          <query>search case_id="AU2-10-02-S" | where ($host_tok|s$="*" OR event_host=$host_tok|s$) AND ($app_tok|s$="*" OR application=$app_tok|s$) | sort 5 - event_time event_fingerprint | eval Time=strftime(event_time,"%Y-%m-%d %H:%M:%S %Z"), User=coalesce(mvjoin(actor,", "),"User not recorded"), Login=coalesce(mvjoin(login_user,", "),"Not recorded"), Login_UID=coalesce(mvjoin(login_uid,", "),"Not recorded"), Process=coalesce(mvjoin(process_user,", "),"Not recorded"), Effective=coalesce(mvjoin(effective_user,", "),"Not recorded"), Account=coalesce(mvjoin(target_account,", "),"Not recorded") | rename event_host AS Host application AS Application | eval User=User.if(Login!="Not recorded" AND NOT in(Login_UID,"4294967295","-1","Not recorded")," (login UID ".Login_UID.")","") | eval Session_origin=coalesce(session_remote_access,"Not established"), Session_source=coalesce(session_source_ip,"Not established") | table Time User Process Host Application Session_origin Session_source</query>
         </search>
         <option name="count">5</option>
         <option name="wrap">true</option>
@@ -2691,7 +2691,7 @@
       <table>
         <title>Latest 5 matching events • newest first</title>
         <search base="rhel_recent">
-          <query>search case_id="AU2-10-02-F" | where ($host_tok|s$="*" OR event_host=$host_tok|s$) AND ($app_tok|s$="*" OR application=$app_tok|s$) | sort 5 - event_time event_fingerprint | eval Time=strftime(event_time,"%Y-%m-%d %H:%M:%S %Z"), User=coalesce(mvjoin(actor,", "),"User not recorded"), Login=coalesce(mvjoin(login_user,", "),"Not recorded"), Login_UID=coalesce(mvjoin(login_uid,", "),"Not recorded"), Process=coalesce(mvjoin(process_user,", "),"Not recorded"), Effective=coalesce(mvjoin(effective_user,", "),"Not recorded"), Account=coalesce(mvjoin(target_account,", "),"Not recorded") | rename event_host AS Host application AS Application | eval User=User.if(Login!="Not recorded" AND NOT in(Login_UID,"4294967295","-1","Not recorded")," (login UID ".Login_UID.")","") | table Time User Process Host Application</query>
+          <query>search case_id="AU2-10-02-F" | where ($host_tok|s$="*" OR event_host=$host_tok|s$) AND ($app_tok|s$="*" OR application=$app_tok|s$) | sort 5 - event_time event_fingerprint | eval Time=strftime(event_time,"%Y-%m-%d %H:%M:%S %Z"), User=coalesce(mvjoin(actor,", "),"User not recorded"), Login=coalesce(mvjoin(login_user,", "),"Not recorded"), Login_UID=coalesce(mvjoin(login_uid,", "),"Not recorded"), Process=coalesce(mvjoin(process_user,", "),"Not recorded"), Effective=coalesce(mvjoin(effective_user,", "),"Not recorded"), Account=coalesce(mvjoin(target_account,", "),"Not recorded") | rename event_host AS Host application AS Application | eval User=User.if(Login!="Not recorded" AND NOT in(Login_UID,"4294967295","-1","Not recorded")," (login UID ".Login_UID.")","") | eval Session_origin=coalesce(session_remote_access,"Not established"), Session_source=coalesce(session_source_ip,"Not established") | table Time User Process Host Application Session_origin Session_source</query>
         </search>
         <option name="count">5</option>
         <option name="wrap">true</option>
@@ -2734,7 +2734,7 @@
       <table>
         <title>Latest 5 matching events • newest first</title>
         <search base="rhel_recent">
-          <query>search case_id="AU2-10-03-S" | where ($host_tok|s$="*" OR event_host=$host_tok|s$) AND ($app_tok|s$="*" OR application=$app_tok|s$) | sort 5 - event_time event_fingerprint | eval Time=strftime(event_time,"%Y-%m-%d %H:%M:%S %Z"), User=coalesce(mvjoin(actor,", "),"User not recorded"), Login=coalesce(mvjoin(login_user,", "),"Not recorded"), Login_UID=coalesce(mvjoin(login_uid,", "),"Not recorded"), Process=coalesce(mvjoin(process_user,", "),"Not recorded"), Effective=coalesce(mvjoin(effective_user,", "),"Not recorded"), Account=coalesce(mvjoin(target_account,", "),"Not recorded") | rename event_host AS Host application AS Application | eval User=User.if(Login!="Not recorded" AND NOT in(Login_UID,"4294967295","-1","Not recorded")," (login UID ".Login_UID.")","") | table Time User Process Host Application</query>
+          <query>search case_id="AU2-10-03-S" | where ($host_tok|s$="*" OR event_host=$host_tok|s$) AND ($app_tok|s$="*" OR application=$app_tok|s$) | sort 5 - event_time event_fingerprint | eval Time=strftime(event_time,"%Y-%m-%d %H:%M:%S %Z"), User=coalesce(mvjoin(actor,", "),"User not recorded"), Login=coalesce(mvjoin(login_user,", "),"Not recorded"), Login_UID=coalesce(mvjoin(login_uid,", "),"Not recorded"), Process=coalesce(mvjoin(process_user,", "),"Not recorded"), Effective=coalesce(mvjoin(effective_user,", "),"Not recorded"), Account=coalesce(mvjoin(target_account,", "),"Not recorded") | rename event_host AS Host application AS Application | eval User=User.if(Login!="Not recorded" AND NOT in(Login_UID,"4294967295","-1","Not recorded")," (login UID ".Login_UID.")","") | eval Session_origin=coalesce(session_remote_access,"Not established"), Session_source=coalesce(session_source_ip,"Not established") | table Time User Process Host Application Session_origin Session_source</query>
         </search>
         <option name="count">5</option>
         <option name="wrap">true</option>
@@ -2777,7 +2777,7 @@
       <table>
         <title>Latest 5 matching events • newest first</title>
         <search base="rhel_recent">
-          <query>search case_id="AU2-10-03-F" | where ($host_tok|s$="*" OR event_host=$host_tok|s$) AND ($app_tok|s$="*" OR application=$app_tok|s$) | sort 5 - event_time event_fingerprint | eval Time=strftime(event_time,"%Y-%m-%d %H:%M:%S %Z"), User=coalesce(mvjoin(actor,", "),"User not recorded"), Login=coalesce(mvjoin(login_user,", "),"Not recorded"), Login_UID=coalesce(mvjoin(login_uid,", "),"Not recorded"), Process=coalesce(mvjoin(process_user,", "),"Not recorded"), Effective=coalesce(mvjoin(effective_user,", "),"Not recorded"), Account=coalesce(mvjoin(target_account,", "),"Not recorded") | rename event_host AS Host application AS Application | eval User=User.if(Login!="Not recorded" AND NOT in(Login_UID,"4294967295","-1","Not recorded")," (login UID ".Login_UID.")","") | table Time User Process Host Application</query>
+          <query>search case_id="AU2-10-03-F" | where ($host_tok|s$="*" OR event_host=$host_tok|s$) AND ($app_tok|s$="*" OR application=$app_tok|s$) | sort 5 - event_time event_fingerprint | eval Time=strftime(event_time,"%Y-%m-%d %H:%M:%S %Z"), User=coalesce(mvjoin(actor,", "),"User not recorded"), Login=coalesce(mvjoin(login_user,", "),"Not recorded"), Login_UID=coalesce(mvjoin(login_uid,", "),"Not recorded"), Process=coalesce(mvjoin(process_user,", "),"Not recorded"), Effective=coalesce(mvjoin(effective_user,", "),"Not recorded"), Account=coalesce(mvjoin(target_account,", "),"Not recorded") | rename event_host AS Host application AS Application | eval User=User.if(Login!="Not recorded" AND NOT in(Login_UID,"4294967295","-1","Not recorded")," (login UID ".Login_UID.")","") | eval Session_origin=coalesce(session_remote_access,"Not established"), Session_source=coalesce(session_source_ip,"Not established") | table Time User Process Host Application Session_origin Session_source</query>
         </search>
         <option name="count">5</option>
         <option name="wrap">true</option>
@@ -2804,7 +2804,7 @@
     <panel>
       <html>
         <h2>AU-2.a.11 · Printing to a physical device</h2>
-        <p>Each tile is one required action/outcome. Missing evidence remains visible.</p>
+        <p>Each tile is one required action/outcome. Session origin/source are correlated login context, not direct event fields or proof of a network operation. Boot continuity requires review; missing evidence remains visible.</p>
       </html>
     </panel>
   </row>
@@ -2830,7 +2830,7 @@
       <table>
         <title>Latest 5 matching events • newest first</title>
         <search base="rhel_recent">
-          <query>search case_id="AU2-11-01-S" | where ($host_tok|s$="*" OR event_host=$host_tok|s$) AND ($app_tok|s$="*" OR application=$app_tok|s$) | sort 5 - event_time event_fingerprint | eval Time=strftime(event_time,"%Y-%m-%d %H:%M:%S %Z"), User=coalesce(mvjoin(actor,", "),"User not recorded"), Login=coalesce(mvjoin(login_user,", "),"Not recorded"), Login_UID=coalesce(mvjoin(login_uid,", "),"Not recorded"), Process=coalesce(mvjoin(process_user,", "),"Not recorded"), Effective=coalesce(mvjoin(effective_user,", "),"Not recorded"), Account=coalesce(mvjoin(target_account,", "),"Not recorded") | rename event_host AS Host application AS Application | eval User=User.if(Login!="Not recorded" AND NOT in(Login_UID,"4294967295","-1","Not recorded")," (login UID ".Login_UID.")","") | table Time User Process Host Application</query>
+          <query>search case_id="AU2-11-01-S" | where ($host_tok|s$="*" OR event_host=$host_tok|s$) AND ($app_tok|s$="*" OR application=$app_tok|s$) | sort 5 - event_time event_fingerprint | eval Time=strftime(event_time,"%Y-%m-%d %H:%M:%S %Z"), User=coalesce(mvjoin(actor,", "),"User not recorded"), Login=coalesce(mvjoin(login_user,", "),"Not recorded"), Login_UID=coalesce(mvjoin(login_uid,", "),"Not recorded"), Process=coalesce(mvjoin(process_user,", "),"Not recorded"), Effective=coalesce(mvjoin(effective_user,", "),"Not recorded"), Account=coalesce(mvjoin(target_account,", "),"Not recorded") | rename event_host AS Host application AS Application | eval User=User.if(Login!="Not recorded" AND NOT in(Login_UID,"4294967295","-1","Not recorded")," (login UID ".Login_UID.")","") | eval Session_origin=coalesce(session_remote_access,"Not established"), Session_source=coalesce(session_source_ip,"Not established") | table Time User Process Host Application Session_origin Session_source</query>
         </search>
         <option name="count">5</option>
         <option name="wrap">true</option>
@@ -2873,7 +2873,7 @@
       <table>
         <title>Latest 5 matching events • newest first</title>
         <search base="rhel_recent">
-          <query>search case_id="AU2-11-01-F" | where ($host_tok|s$="*" OR event_host=$host_tok|s$) AND ($app_tok|s$="*" OR application=$app_tok|s$) | sort 5 - event_time event_fingerprint | eval Time=strftime(event_time,"%Y-%m-%d %H:%M:%S %Z"), User=coalesce(mvjoin(actor,", "),"User not recorded"), Login=coalesce(mvjoin(login_user,", "),"Not recorded"), Login_UID=coalesce(mvjoin(login_uid,", "),"Not recorded"), Process=coalesce(mvjoin(process_user,", "),"Not recorded"), Effective=coalesce(mvjoin(effective_user,", "),"Not recorded"), Account=coalesce(mvjoin(target_account,", "),"Not recorded") | rename event_host AS Host application AS Application | eval User=User.if(Login!="Not recorded" AND NOT in(Login_UID,"4294967295","-1","Not recorded")," (login UID ".Login_UID.")","") | table Time User Process Host Application</query>
+          <query>search case_id="AU2-11-01-F" | where ($host_tok|s$="*" OR event_host=$host_tok|s$) AND ($app_tok|s$="*" OR application=$app_tok|s$) | sort 5 - event_time event_fingerprint | eval Time=strftime(event_time,"%Y-%m-%d %H:%M:%S %Z"), User=coalesce(mvjoin(actor,", "),"User not recorded"), Login=coalesce(mvjoin(login_user,", "),"Not recorded"), Login_UID=coalesce(mvjoin(login_uid,", "),"Not recorded"), Process=coalesce(mvjoin(process_user,", "),"Not recorded"), Effective=coalesce(mvjoin(effective_user,", "),"Not recorded"), Account=coalesce(mvjoin(target_account,", "),"Not recorded") | rename event_host AS Host application AS Application | eval User=User.if(Login!="Not recorded" AND NOT in(Login_UID,"4294967295","-1","Not recorded")," (login UID ".Login_UID.")","") | eval Session_origin=coalesce(session_remote_access,"Not established"), Session_source=coalesce(session_source_ip,"Not established") | table Time User Process Host Application Session_origin Session_source</query>
         </search>
         <option name="count">5</option>
         <option name="wrap">true</option>
@@ -2900,7 +2900,7 @@
     <panel>
       <html>
         <h2>AU-2.a.12 · Printing to a file</h2>
-        <p>Each tile is one required action/outcome. Missing evidence remains visible.</p>
+        <p>Each tile is one required action/outcome. Session origin/source are correlated login context, not direct event fields or proof of a network operation. Boot continuity requires review; missing evidence remains visible.</p>
       </html>
     </panel>
   </row>
@@ -2926,7 +2926,7 @@
       <table>
         <title>Latest 5 matching events • newest first</title>
         <search base="rhel_recent">
-          <query>search case_id="AU2-12-01-S" | where ($host_tok|s$="*" OR event_host=$host_tok|s$) AND ($app_tok|s$="*" OR application=$app_tok|s$) | sort 5 - event_time event_fingerprint | eval Time=strftime(event_time,"%Y-%m-%d %H:%M:%S %Z"), User=coalesce(mvjoin(actor,", "),"User not recorded"), Login=coalesce(mvjoin(login_user,", "),"Not recorded"), Login_UID=coalesce(mvjoin(login_uid,", "),"Not recorded"), Process=coalesce(mvjoin(process_user,", "),"Not recorded"), Effective=coalesce(mvjoin(effective_user,", "),"Not recorded"), Account=coalesce(mvjoin(target_account,", "),"Not recorded") | rename event_host AS Host application AS Application | eval User=User.if(Login!="Not recorded" AND NOT in(Login_UID,"4294967295","-1","Not recorded")," (login UID ".Login_UID.")","") | table Time User Process Host Application</query>
+          <query>search case_id="AU2-12-01-S" | where ($host_tok|s$="*" OR event_host=$host_tok|s$) AND ($app_tok|s$="*" OR application=$app_tok|s$) | sort 5 - event_time event_fingerprint | eval Time=strftime(event_time,"%Y-%m-%d %H:%M:%S %Z"), User=coalesce(mvjoin(actor,", "),"User not recorded"), Login=coalesce(mvjoin(login_user,", "),"Not recorded"), Login_UID=coalesce(mvjoin(login_uid,", "),"Not recorded"), Process=coalesce(mvjoin(process_user,", "),"Not recorded"), Effective=coalesce(mvjoin(effective_user,", "),"Not recorded"), Account=coalesce(mvjoin(target_account,", "),"Not recorded") | rename event_host AS Host application AS Application | eval User=User.if(Login!="Not recorded" AND NOT in(Login_UID,"4294967295","-1","Not recorded")," (login UID ".Login_UID.")","") | eval Session_origin=coalesce(session_remote_access,"Not established"), Session_source=coalesce(session_source_ip,"Not established") | table Time User Process Host Application Session_origin Session_source</query>
         </search>
         <option name="count">5</option>
         <option name="wrap">true</option>
@@ -2969,7 +2969,7 @@
       <table>
         <title>Latest 5 matching events • newest first</title>
         <search base="rhel_recent">
-          <query>search case_id="AU2-12-01-F" | where ($host_tok|s$="*" OR event_host=$host_tok|s$) AND ($app_tok|s$="*" OR application=$app_tok|s$) | sort 5 - event_time event_fingerprint | eval Time=strftime(event_time,"%Y-%m-%d %H:%M:%S %Z"), User=coalesce(mvjoin(actor,", "),"User not recorded"), Login=coalesce(mvjoin(login_user,", "),"Not recorded"), Login_UID=coalesce(mvjoin(login_uid,", "),"Not recorded"), Process=coalesce(mvjoin(process_user,", "),"Not recorded"), Effective=coalesce(mvjoin(effective_user,", "),"Not recorded"), Account=coalesce(mvjoin(target_account,", "),"Not recorded") | rename event_host AS Host application AS Application | eval User=User.if(Login!="Not recorded" AND NOT in(Login_UID,"4294967295","-1","Not recorded")," (login UID ".Login_UID.")","") | table Time User Process Host Application</query>
+          <query>search case_id="AU2-12-01-F" | where ($host_tok|s$="*" OR event_host=$host_tok|s$) AND ($app_tok|s$="*" OR application=$app_tok|s$) | sort 5 - event_time event_fingerprint | eval Time=strftime(event_time,"%Y-%m-%d %H:%M:%S %Z"), User=coalesce(mvjoin(actor,", "),"User not recorded"), Login=coalesce(mvjoin(login_user,", "),"Not recorded"), Login_UID=coalesce(mvjoin(login_uid,", "),"Not recorded"), Process=coalesce(mvjoin(process_user,", "),"Not recorded"), Effective=coalesce(mvjoin(effective_user,", "),"Not recorded"), Account=coalesce(mvjoin(target_account,", "),"Not recorded") | rename event_host AS Host application AS Application | eval User=User.if(Login!="Not recorded" AND NOT in(Login_UID,"4294967295","-1","Not recorded")," (login UID ".Login_UID.")","") | eval Session_origin=coalesce(session_remote_access,"Not established"), Session_source=coalesce(session_source_ip,"Not established") | table Time User Process Host Application Session_origin Session_source</query>
         </search>
         <option name="count">5</option>
         <option name="wrap">true</option>
@@ -2996,7 +2996,7 @@
     <panel>
       <html>
         <h2>AU-2.a.13 · Application start</h2>
-        <p>Each tile is one required action/outcome. Missing evidence remains visible.</p>
+        <p>Each tile is one required action/outcome. Session origin/source are correlated login context, not direct event fields or proof of a network operation. Boot continuity requires review; missing evidence remains visible.</p>
       </html>
     </panel>
   </row>
@@ -3022,7 +3022,7 @@
       <table>
         <title>Latest 5 matching events • newest first</title>
         <search base="rhel_recent">
-          <query>search case_id="AU2-13-01-S" | where ($host_tok|s$="*" OR event_host=$host_tok|s$) AND ($app_tok|s$="*" OR application=$app_tok|s$) | sort 5 - event_time event_fingerprint | eval Time=strftime(event_time,"%Y-%m-%d %H:%M:%S %Z"), User=coalesce(mvjoin(actor,", "),"User not recorded"), Login=coalesce(mvjoin(login_user,", "),"Not recorded"), Login_UID=coalesce(mvjoin(login_uid,", "),"Not recorded"), Process=coalesce(mvjoin(process_user,", "),"Not recorded"), Effective=coalesce(mvjoin(effective_user,", "),"Not recorded"), Account=coalesce(mvjoin(target_account,", "),"Not recorded") | rename event_host AS Host application AS Application | eval User=User.if(Login!="Not recorded" AND NOT in(Login_UID,"4294967295","-1","Not recorded")," (login UID ".Login_UID.")","") | table Time User Process Host Application</query>
+          <query>search case_id="AU2-13-01-S" | where ($host_tok|s$="*" OR event_host=$host_tok|s$) AND ($app_tok|s$="*" OR application=$app_tok|s$) | sort 5 - event_time event_fingerprint | eval Time=strftime(event_time,"%Y-%m-%d %H:%M:%S %Z"), User=coalesce(mvjoin(actor,", "),"User not recorded"), Login=coalesce(mvjoin(login_user,", "),"Not recorded"), Login_UID=coalesce(mvjoin(login_uid,", "),"Not recorded"), Process=coalesce(mvjoin(process_user,", "),"Not recorded"), Effective=coalesce(mvjoin(effective_user,", "),"Not recorded"), Account=coalesce(mvjoin(target_account,", "),"Not recorded") | rename event_host AS Host application AS Application | eval User=User.if(Login!="Not recorded" AND NOT in(Login_UID,"4294967295","-1","Not recorded")," (login UID ".Login_UID.")","") | eval Session_origin=coalesce(session_remote_access,"Not established"), Session_source=coalesce(session_source_ip,"Not established") | table Time User Process Host Application Session_origin Session_source</query>
         </search>
         <option name="count">5</option>
         <option name="wrap">true</option>
@@ -3065,7 +3065,7 @@
       <table>
         <title>Latest 5 matching events • newest first</title>
         <search base="rhel_recent">
-          <query>search case_id="AU2-13-01-F" | where ($host_tok|s$="*" OR event_host=$host_tok|s$) AND ($app_tok|s$="*" OR application=$app_tok|s$) | sort 5 - event_time event_fingerprint | eval Time=strftime(event_time,"%Y-%m-%d %H:%M:%S %Z"), User=coalesce(mvjoin(actor,", "),"User not recorded"), Login=coalesce(mvjoin(login_user,", "),"Not recorded"), Login_UID=coalesce(mvjoin(login_uid,", "),"Not recorded"), Process=coalesce(mvjoin(process_user,", "),"Not recorded"), Effective=coalesce(mvjoin(effective_user,", "),"Not recorded"), Account=coalesce(mvjoin(target_account,", "),"Not recorded") | rename event_host AS Host application AS Application | eval User=User.if(Login!="Not recorded" AND NOT in(Login_UID,"4294967295","-1","Not recorded")," (login UID ".Login_UID.")","") | table Time User Process Host Application</query>
+          <query>search case_id="AU2-13-01-F" | where ($host_tok|s$="*" OR event_host=$host_tok|s$) AND ($app_tok|s$="*" OR application=$app_tok|s$) | sort 5 - event_time event_fingerprint | eval Time=strftime(event_time,"%Y-%m-%d %H:%M:%S %Z"), User=coalesce(mvjoin(actor,", "),"User not recorded"), Login=coalesce(mvjoin(login_user,", "),"Not recorded"), Login_UID=coalesce(mvjoin(login_uid,", "),"Not recorded"), Process=coalesce(mvjoin(process_user,", "),"Not recorded"), Effective=coalesce(mvjoin(effective_user,", "),"Not recorded"), Account=coalesce(mvjoin(target_account,", "),"Not recorded") | rename event_host AS Host application AS Application | eval User=User.if(Login!="Not recorded" AND NOT in(Login_UID,"4294967295","-1","Not recorded")," (login UID ".Login_UID.")","") | eval Session_origin=coalesce(session_remote_access,"Not established"), Session_source=coalesce(session_source_ip,"Not established") | table Time User Process Host Application Session_origin Session_source</query>
         </search>
         <option name="count">5</option>
         <option name="wrap">true</option>

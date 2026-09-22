@@ -11,9 +11,10 @@ by existing Universal Forwarders. It organizes supported records into event
 categories, displays source-reported identities and application context, and
 helps an analyst identify missing evidence before completing a weekly review.
 
-**Release status: validation in progress.** Version 1.4.4 is a tested software
-build, not a fully accepted end-to-end audit solution. The live source pipeline
-has exhibited loss, and every required event has not yet been validated.
+**Release status: validation in progress.** Version 1.4.6 is a tested software
+build, not a fully accepted end-to-end audit solution. A reference source had
+historical loss; later controlled RHEL 10 windows reconciled source to index.
+Those bounded checks do not establish lossless operation or full event coverage.
 Do not use candidate counts or passing software fixtures as control acceptance.
 
 Parent-only native PATH records do not satisfy the exact target-object field.
@@ -29,11 +30,14 @@ but full weekly, fleet-wide and per-control acceptance is not yet established.
 - Full-window candidate counts and up to five newest samples per tile.
 - Recorded user, process user, host and application, with detailed login and
   effective identities, target account, object, outcome and missing content.
+- Separate, source-backed SSH-session origin/source columns when an unambiguous
+  closed session is available; direct event fields are not overwritten.
 - AU-2 event-catalog mapping and AU-3 content checks, with a separately identified
   stricter context profile that requires local applicability review.
 - Expected-feed readiness checks and explicit missing/stale-feed results.
 - A manual weekly export with original indexed records, normalized events,
-  readable report, search metadata, checksums and a reviewer worksheet.
+  readable report, search metadata, checksums and a reviewer worksheet, including
+  a check that every record supporting derived session context is preserved.
 - Source, build tools, tests and disabled RHEL collection examples.
 
 The starter catalog contains 57 baseline action/outcome cases and two
@@ -54,9 +58,10 @@ USB and review guides under `package/TA_au2_linux/README/` in the final reposito
 
 ## Validation boundaries
 
-The current build has static/package tests and 27 offline exporter/review tests.
-Live integration has used Splunk Enterprise 10.4.3 and RHEL 8 x86_64 audit/auth
-records. Full RHEL 9/10 source coverage, other architectures, arbitrary
+The current build has static/package tests and 33 offline exporter/review tests.
+The latest classification suite passed 103 candidate and 103 deployed checks.
+Live integration has used Splunk Enterprise 10.4.3, RHEL 8.10 and RHEL 10.2
+x86_64 audit/auth records. Full RHEL 9/10 source coverage, other architectures, arbitrary
 applications, distributed deployments and production scale remain unvalidated.
 Source loss, missing cases and incomplete fields remain release gates.
 
@@ -75,7 +80,7 @@ With Python 3 and Bash available, run from its root:
 
 ```sh
 bash tools/build_app.sh
-python3 tools/validate_app.py package/TA_au2_linux --archive dist/TA_au2_linux-1.4.4.spl
+python3 tools/validate_app.py package/TA_au2_linux --archive dist/TA_au2_linux-1.4.6.spl
 python3 tools/test_review.py
 ```
 

@@ -1,4 +1,21 @@
-RHEL Audit Verification 1.4.4
+RHEL Audit Verification 1.4.6
+
+Version1.4.6 recognizes native access attempts against /var/log/secure and
+/var/log/audit/audit.log, or source-reviewed au2_security_log_access targets,
+only with an access syscall and an actual target. Rule labels/exec alone are
+not proof of log access. Exact-path defaults do not cover arbitrary locations,
+rotations or symlink aliases without a reviewed source rule/parser extension.
+Native failed USER_CMD from /usr/bin/sudo with a non-root process UID maps to
+denied administrative access; successful authorization alone does not prove
+completed privilege elevation. Identity and missing-content gates are unchanged.
+
+Version1.4.5 adds separately labelled correlated SSH session origin/source to
+event samples and full detail, preserving direct event fields and strict gaps.
+The exporter retains and verifies every supporting event/record fingerprint
+in session-provenance.json; absent, ambiguous or mismatched support fails closed.
+This is login-session context, not proof of network use by an individual action.
+Boot continuity still needs review. No automatic control acceptance is added.
+Keep aulx_review.py and aulx_provenance.py together when running the exporter.
 ============================
 
 Purpose

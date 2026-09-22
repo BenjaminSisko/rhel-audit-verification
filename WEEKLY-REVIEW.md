@@ -53,6 +53,13 @@ configuration snapshots, search metadata, a manifest, `SHA256SUMS` and an
 unsigned `review-template.json`. Store it as sensitive evidence with approved
 access, retention and backup. Do not upload bundles to GitHub.
 
+Keep `aulx_review.py` and `aulx_provenance.py` together if copying the exporter
+outside the app. `session-provenance.json` reports whether all supporting
+session-event and record references resolve in the same evidence export.
+Missing, ambiguous or mismatched support fails the export. A matching checksum
+and resolved references do not establish boot continuity or semantic acceptance.
+No derived context is reported as `NO_DERIVED_CONTEXT`, not a passed test.
+
 ## Record the human decision
 
 Copy `review-template.json` outside the bundle. Complete reviewer identity,
