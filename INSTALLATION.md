@@ -6,7 +6,7 @@ last_verified: 2026-09-22
 
 # Installation and first verification
 
-This guide describes the tested 1.4.6 release candidate. Review VALIDATION.md
+This guide describes the tested 1.4.7 release candidate. Review VALIDATION.md
 before operational reliance. The `.spl` installs on the search head,
 not on the Universal Forwarder. Distributed deployments need separate testing.
 
@@ -28,9 +28,17 @@ A connected forwarder or a fresh event does not prove lossless delivery.
 Do not run a full controlled test suite while the source pipeline is dropping
 records. Immutable audit policy changes can require an approved reboot.
 
+Verify collection across rotation and a controlled forwarder outage. The
+reference test found that an exact audit.log monitor missed shutdown/boot
+records renamed into audit.log.1 while the forwarder was offline. Evaluate
+an approved directory monitor restricted to numbered audit rotations, replacing
+overlapping inputs rather than adding duplicates. Preserve CRC identity and
+checkpoints; do not reset them to make a test pass. The reference rotation
+repair is pending approval/testing, not claimed deployed or proven.
+
 ## 2. Install the release
 
-Use `dist/TA_au2_linux-1.4.6.spl` and `dist/SHA256SUMS` from this bundle.
+Use `dist/TA_au2_linux-1.4.7.spl` and `dist/SHA256SUMS` from this bundle.
 Verify the archive's SHA-256 against that manifest. Back up any existing app,
 `local/` configuration and operational lookups before an upgrade.
 
@@ -57,6 +65,10 @@ legacy overview has a separate `au2_linux_source` macro. Do not edit packaged
 `default/` files to store site overrides. Verify effective configuration after
 the normal reload/deployment procedure.
 
+Test scope as the intended analyst, not only the administrator who created the
+macro. User-owned knowledge objects can shadow app-shared scope. Check sharing,
+ownership and index permissions; reference other-role verification is pending.
+
 ## 4. Configure expected feeds
 
 Create `lookups/site_expected_sources.csv` with the shipped schema:
@@ -80,6 +92,14 @@ An empty inventory means coverage is unknown. It must not be treated as a pass.
 Keep operational inventory and verification receipts in separately named,
 access-controlled, backed-up lookups outside the distributed release content.
 The detailed shipped README explains the receipt lookup override and schema.
+
+## Optional application instrumentation
+
+The source bundle includes tools/operation_audit.py; the .spl does not install
+it on RHEL. It records only calls explicitly integrated with its API, using
+existing administrator authority. Follow [OPTIONAL-RECORDER.md](OPTIONAL-RECORDER.md).
+Do not grant a generic privileged command runner or deploy a validation
+harness as production monitoring. Native audit remains necessary.
 
 ## 5. Verify before relying on it
 

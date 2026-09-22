@@ -11,7 +11,7 @@ by existing Universal Forwarders. It organizes supported records into event
 categories, displays source-reported identities and application context, and
 helps an analyst identify missing evidence before completing a weekly review.
 
-**Release status: validation in progress.** Version 1.4.6 is a tested software
+**Release status: validation in progress.** Version 1.4.7 is a tested software
 build, not a fully accepted end-to-end audit solution. A reference source had
 historical loss; later controlled RHEL 10 windows reconciled source to index.
 Those bounded checks do not establish lossless operation or full event coverage.
@@ -39,6 +39,8 @@ but full weekly, fleet-wide and per-control acceptance is not yet established.
   readable report, search metadata, checksums and a reviewer worksheet, including
   a check that every record supporting derived session context is preserved.
 - Source, build tools, tests and disabled RHEL collection examples.
+- Optional source-side command-recorder library and offline tests. This is
+  explicit application instrumentation, not an automatic collector.
 
 The starter catalog contains 57 baseline action/outcome cases and two
 supplemental USB-presence cases. It is an editable baseline, not a universal
@@ -55,15 +57,25 @@ recover records that were never generated or were dropped in transit.
 Begin with [quick start](QUICKSTART.md) and [installation](INSTALLATION.md), then follow the
 [weekly review guide](WEEKLY-REVIEW.md). The app also includes detailed source,
 USB and review guides under `package/TA_au2_linux/README/` in the final repository.
+For application-completion evidence, read [OPTIONAL-RECORDER.md](OPTIONAL-RECORDER.md).
+Installing this library alone does not instrument applications.
 
 ## Validation boundaries
 
 The current build has static/package tests and 33 offline exporter/review tests.
-The latest classification suite passed 103 candidate and 103 deployed checks.
+The latest classification suite passed 111 candidate and 111 deployed checks.
 Live integration has used Splunk Enterprise 10.4.3, RHEL 8.10 and RHEL 10.2
 x86_64 audit/auth records. Full RHEL 9/10 source coverage, other architectures, arbitrary
 applications, distributed deployments and production scale remain unvalidated.
 Source loss, missing cases and incomplete fields remain release gates.
+
+The current reference plan has technical evidence for **52 of57 required
+cases**:49 explicitly wrapped operations, one two-phase reboot test and two
+exact native login/logout events. These are not52 automatically covered native
+event types. Five checks remain: successful shutdown, restart success/failure
+and USB attachment/disconnection content. Shutdown exposed a missed rotated
+audit file; it remains pending until native records are reconciled. See the
+[full matrix](VALIDATION-MATRIX.csv) and [validation details](VALIDATION.md).
 
 USB kernel observations establish device presence, not the physical person's
 identity, access authorization or a file transfer. Failed-login account names
@@ -80,8 +92,9 @@ With Python 3 and Bash available, run from its root:
 
 ```sh
 bash tools/build_app.sh
-python3 tools/validate_app.py package/TA_au2_linux --archive dist/TA_au2_linux-1.4.6.spl
+python3 tools/validate_app.py package/TA_au2_linux --archive dist/TA_au2_linux-1.4.7.spl
 python3 tools/test_review.py
+python3 tools/test_operation_audit.py
 ```
 
 These are software checks, not controlled source-event tests. This bundle

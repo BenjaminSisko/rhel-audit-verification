@@ -1,4 +1,4 @@
-RHEL Audit Review Kit 1.4.6 — Universal Forwarder workflow
+RHEL Audit Review Kit 1.4.7 — Universal Forwarder workflow
 ========================================================
 
 Scope and prerequisites

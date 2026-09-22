@@ -1,4 +1,12 @@
-RHEL Audit Verification 1.4.6
+RHEL Audit Verification 1.4.7
+
+Version1.4.7 preserves the source-reported RHEL authentication target from
+acct or a valid numeric id and its enriched ID name. USER_LOGIN uses that
+target account, not an unrelated login AUID or the root process identity.
+USER_AUTH/USER_LOGIN/USER_LOGOUT retain an account target when supplied.
+Missing/unset target IDs remain missing; enriched names alone are insufficient.
+The displayed user is the reported account, not proof of a physical person.
+This is a search-time correction; no input, audit-rule or retention change.
 
 Version1.4.6 recognizes native access attempts against /var/log/secure and
 /var/log/audit/audit.log, or source-reviewed au2_security_log_access targets,
