@@ -1,4 +1,15 @@
-RHEL Audit Verification 1.5.0
+RHEL Audit Verification 1.5.1
+
+Version1.5.1 adds Express setup: Find my logs, Review selection, confirm the
+Red Hat scope, then Finish and check. Recognized feeds are suggestions, not
+proof of the OS or full coverage. Existing silent/disabled feeds and their
+owners/thresholds are retained. Advanced setup keeps CSV editing/import.
+Restore previous settings identifies the current wizard backup after reload.
+The setup-complete flag now uses Splunk's native app-management endpoint so
+successful setup allows dashboard navigation. No endpoint changes are made.
+The full source bundle includes EXPRESS-INSTALL.md and USING-THE-APP.md with
+real privacy-masked browser screenshots. Follow Splunk's installation result
+and approved restart process; fresh installs can display a restart notice.
 
 Version1.5.0 adds Set up RHEL Audit Verification, the app's default landing
 page and first-run setup view. Use existing Splunk login: select up to5indexes,

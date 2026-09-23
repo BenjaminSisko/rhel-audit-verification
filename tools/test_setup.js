@@ -118,3 +118,48 @@ test('HTTP permission denial produces no setup success',async()=>{
     const c=new Core.Client(async()=>{throw Error('403 forbidden');},'TA_au2_linux');
     await assert.rejects(c.snapshot(),/403/);
 });
+const candidate={host:row.event_host,index:row.index,sourcetype:row.sourcetype,format_hint:'auditd candidate'};
+test('Express recognizes only explicit wholly recognized format hints',()=>{
+    assert.equal(Core.recognized(candidate),true);
+    assert.equal(Core.recognized({...candidate,format_hint:['auditd candidate','authentication candidate']}),true);
+    for(const hint of [undefined,[],['auditd candidate','Unrecognized — inspect source'],'something else']) assert.equal(Core.recognized({...candidate,format_hint:hint}),false);
+});
+test('Express creates an exact validated draft without CSV',()=>{
+    assert.deepEqual(Core.expressRows([], [candidate],row.owner,3600),[row]);
+    assert.throws(()=>Core.expressRows([],[],row.owner,3600),/Select at least/);
+    assert.throws(()=>Core.expressRows([],[{...candidate,format_hint:'Unrecognized — inspect source'}],row.owner,3600),/unrecognized/);
+});
+test('Express retains silent and disabled feeds plus existing owners and thresholds',()=>{
+    const existing=[{...row,owner:'Existing owner',max_silence_seconds:'7200',enabled:'0'},{...row,event_host:'silent.example.invalid'}];
+    const selected=[candidate,{...candidate,host:'new.example.invalid'}];
+    const result=Core.expressRows(existing,selected,'New owner',1800);
+    assert.equal(result.length,3);
+    for(const old of existing) assert.deepEqual(result.find(r=>r.event_host===old.event_host),old);
+    assert.equal(result.find(r=>r.event_host==='new.example.invalid').owner,'New owner');
+    assert.deepEqual(existing[0].enabled,'0');
+});
+test('Express preserves bounds and rejects injected names, bad owners and invalid existing rows',()=>{
+    assert.throws(()=>Core.expressRows([],[{...candidate,host:'*'}],row.owner,3600));
+    assert.throws(()=>Core.expressRows([],[candidate],'',3600));
+    assert.throws(()=>Core.expressRows([],[candidate],row.owner,59));
+    assert.throws(()=>Core.expressRows([{...row,owner:''}],[candidate],row.owner,3600));
+    assert.throws(()=>Core.expressRows(Array.from({length:200},(_,i)=>({...row,event_host:'h'+i})),[candidate],row.owner,3600));
+});
+test('Express deduplicates selected tuples and does not auto-enable disabled inventory',()=>{
+    assert.equal(Core.expressRows([],[candidate,candidate],row.owner,3600).length,1);
+    assert.throws(()=>Core.expressRows([{...row,enabled:'0'}],[candidate],row.owner,3600),/Enable at least/);
+});
+test('Restore shortcut uses only the exact current generated inventory filename',()=>{
+    assert.equal(Core.backupId({lookup:{filename:'aulx_setup_'+id+'.csv'}}),id);
+    for(const name of ['../aulx_setup_'+id+'.csv','original.csv','aulx_setup_bad.csv']) assert.equal(Core.backupId({lookup:{filename:name}}),'');
+});
+test('Configured flag uses native app management while preserving logical backup compatibility',async()=>{
+    const calls=[];
+    const c=new Core.Client(async(method,path,args)=>{calls.push({method,path,args});return {entry:[{content:{configured:true}}]};},'TA_au2_linux');
+    const entry=await c.entry('configs/conf-app/install');
+    assert.equal(entry.content.is_configured,'1');
+    await c.api('POST','configs/conf-app/install',{is_configured:'0'});
+    assert.equal(calls[0].path,'/services/apps/local/TA_au2_linux');
+    assert.equal(calls[1].args.configured,'0');assert.equal(calls[1].args.is_configured,undefined);
+    assert.equal(calls[1].args.output_mode,undefined);
+});

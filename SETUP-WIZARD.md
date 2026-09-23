@@ -6,6 +6,30 @@ last_verified: 2026-09-23
 
 # First-run setup wizard
 
+For a pictured walkthrough, start with [Express installation](EXPRESS-INSTALL.md).
+This page is the configuration reference for both modes.
+
+## Express setup
+
+Express is the default in 1.5.1. Choose approved indexes and **Find my logs**.
+Recognized-format candidates are checked as suggestions; uncheck anything outside
+your scope. Unrecognized or mixed-format feeds are not eligible for Express.
+The app does not infer an operating system from a log format.
+
+Review the displayed owner and silence threshold for new feeds, then click
+**Review selection**. Existing inventory entries—including silent and disabled
+feeds—retain their settings. Confirm every enabled feed in the preview belongs
+to your intended Red Hat scope, then **Finish and check**. Save uses the same
+backup, drift detection, read-back and rollback protections described below.
+Post-save checks run automatically; a failed check explicitly leaves the
+configuration labeled saved, not unsaved or verified. No automatic redirect
+hides warnings. Use the dashboard links after reviewing the results.
+
+Select **Advanced setup** for CSV import, missing hosts, owner/threshold changes
+to existing feeds, or manual inspection of unsupported formats. Discovery alone
+never establishes complete fleet coverage. Changing mode or selection invalidates
+the pending preview and approval. The steps below describe Advanced setup.
+
 Install the app on a standalone Splunk Enterprise search head, then open
 **Set up RHEL Audit Verification** from its navigation. An unconfigured app
 declares this as its first-run setup view. Use your existing Splunk login;
@@ -93,6 +117,12 @@ never creates verification receipts or accepts controls. A setup check under an
 administrator does not establish another analyst's permissions.
 
 ## Restore and upgrade
+
+**Restore previous settings** finds the backup associated with the current
+wizard inventory, including after a page reload. Confirm before restoring.
+It uses the same guards as manual restore; it cannot undo arbitrary manual or
+endpoint changes and does not delete records. If no current backup is identified,
+use **Restore a previous wizard configuration by ID** with a known backup.
 
 Expand **Restore a previous wizard configuration**, enter the shown backup ID
 and explicitly confirm. Restore verifies the saved scope/inventory/configured

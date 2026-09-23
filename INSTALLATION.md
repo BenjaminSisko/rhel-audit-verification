@@ -6,7 +6,7 @@ last_verified: 2026-09-23
 
 # Installation and first verification
 
-This guide describes the tested 1.5.0 release candidate. Review VALIDATION.md
+This guide describes the tested 1.5.1 release candidate. Review VALIDATION.md
 before operational reliance. The `.spl` installs on the search head,
 not on the Universal Forwarder. Distributed deployments need separate testing.
 
@@ -41,7 +41,7 @@ rotations. Test your deployment independently before enabling it.
 
 ## 2. Install the release
 
-Use `dist/TA_au2_linux-1.5.0.spl` and `dist/SHA256SUMS` from this bundle.
+Use `dist/TA_au2_linux-1.5.1.spl` and `dist/SHA256SUMS` from this bundle.
 Verify the archive's SHA-256 against that manifest. Back up any existing app,
 `local/` configuration and operational lookups before an upgrade.
 
@@ -51,6 +51,11 @@ The internal app ID remains `TA_au2_linux`; the displayed name is
 **RHEL Audit Verification**.
 
 ## 3. Recommended: use the setup wizard
+
+For the shortest path, follow the illustrated [Express installation guide](EXPRESS-INSTALL.md).
+Express preserves existing feeds, builds an exact-scope preview, and runs checks
+after you approve **Finish and check**. **Advanced setup** retains CSV import and
+manual inventory editing. Neither mode configures the Universal Forwarder.
 
 Open **Set up RHEL Audit Verification**. Choose your indexes, discover candidate
 feeds, confirm the expected inventory (including silent hosts via CSV), preview

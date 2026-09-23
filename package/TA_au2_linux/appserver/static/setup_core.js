@@ -104,6 +104,29 @@
             + ' | fields ' + columns.join(' ') + ' | outputlookup createinapp=true override_if_empty=false ' + filename;
     }
     function same(a, b) { return JSON.stringify(a) === JSON.stringify(b); }
+    function recognized(row) {
+        const hints = Array.isArray(row.format_hint) ? row.format_hint : [row.format_hint];
+        return hints.length > 0 && hints.every(v => ['auditd candidate', 'authentication candidate',
+            'USB collector contract — inspect source', 'application JSON contract — inspect source'].includes(v));
+    }
+    function expressRows(existing, selected, owner, silence) {
+        if (!Array.isArray(selected) || !selected.length) fail('Select at least one recognized feed. Use Advanced setup for other formats.');
+        const rows = existing.map(r => Object.assign({},r));
+        for (const r of selected) {
+            if (!recognized(r)) fail('Express setup cannot add an unrecognized or mixed-format feed. Inspect it in Advanced setup.');
+            const added = {event_host:r.host, index:r.index, sourcetype:r.sourcetype, owner,
+                max_silence_seconds:String(silence), enabled:'1'};
+            // Validate candidates even if an existing tuple will win. Never re-enable a
+            // disabled feed or replace its owner/threshold because discovery found it.
+            feeds([added]);
+            if (!rows.some(v => v.event_host === r.host && v.index === r.index && v.sourcetype === r.sourcetype)) rows.push(added);
+        }
+        return feeds(rows);
+    }
+    function backupId(snapshot) {
+        const match = /^aulx_setup_([0-9a-f]{32})\.csv$/.exec(snapshot.lookup.filename);
+        return match ? match[1] : '';
+    }
     class Client {
         constructor(request, app, sleep) {
             this.request = request;
@@ -113,7 +136,21 @@
             this.active = false;
         }
         async api(method, path, args) {
-            const data = await this.request(method, path.startsWith('/') ? path : this.base + path, Object.assign({output_mode: 'json'}, args));
+            // The app-management endpoint updates the same app.conf flag AND the
+            // app manager's effective state. Writing only conf-app left Splunk Web
+            // redirecting to first-run setup in the live navigation test.
+            // Keep the logical backup path compatible with 1.5.0 backups.
+            const install = path === 'configs/conf-app/install';
+            const parameters = Object.assign({output_mode:'json'},args);
+            if (install && Object.prototype.hasOwnProperty.call(parameters,'is_configured')) {
+                parameters.configured=parameters.is_configured; delete parameters.is_configured;
+            }
+            let endpoint = install ? '/services/apps/local/'+encodeURIComponent(this.app) : path.startsWith('/') ? path : this.base + path;
+            // This handler rejects output_mode as an app property. The Splunk
+            // SDK adapter already negotiates JSON in the URL for every request.
+            if (install && method==='POST') delete parameters.output_mode;
+            const data = await this.request(method, endpoint, parameters);
+            if (install) for (const entry of data.entry || []) entry.content.is_configured=String(Number(truth(entry.content.configured)));
             const messages = data.messages || [];
             if (messages.some(m => ['ERROR', 'FATAL', 'WARN'].includes(m.type))) fail(messages.map(m => m.text).join('; '));
             return data;
@@ -258,5 +295,5 @@
             } finally { this.active = false; }
         }
     }
-    return {columns, feeds, parseCSV, csv, source, discovery, checkQuery, inventoryQuery, Client, same};
+    return {columns, feeds, parseCSV, csv, source, discovery, checkQuery, inventoryQuery, Client, same, recognized, expressRows, backupId};
 }));

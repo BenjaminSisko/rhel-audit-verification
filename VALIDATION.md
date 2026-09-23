@@ -4,12 +4,29 @@ status: release-candidate-known-content-gaps
 last_verified: 2026-09-23
 ---
 
-# Validation status — 1.5.0 release candidate
+# Validation status — 1.5.1 release candidate
 
 This is a tested installation and review toolkit, not a compliance attestation
 or a promise that default forwarded logs cover every required event.
 
-## New in 1.5.0: guided setup
+## New in 1.5.1: Express setup and illustrated guides
+
+Express suggests recognized formats, preserves existing silent/disabled feeds,
+requires explicit scope confirmation, then saves and automatically checks setup.
+The no-ID restore shortcut works after reload. Advanced CSV setup remains.
+See [Express installation](EXPRESS-INSTALL.md) and [event review](USING-THE-APP.md)
+for real, privacy-masked screenshots from the isolated test namespace.
+
+The real browser test found and corrected a first-run redirect after save:
+the configured flag now uses the native app-management endpoint, preserving the
+logical backup format. Failed intermediate requests were rolled back; no blind
+write retries were used. Tested navigation reaches the actual event dashboard.
+This follows Splunk's [app-management API](https://help.splunk.com/en/splunk-enterprise/rest-api-reference/9.4/application-endpoints/application-endpoint-descriptions).
+
+Fresh native upload displayed Restart Required. No shared-server restart was
+performed; the app was exercised live without it. This does not clear that notice
+or establish restart-free installation generally. The separate Manage Apps
+screen stalled at Loading; the native upload form worked. No server fix was made.
 
 The app now opens its setup page by default, with direct links for already
 configured users. The wizard provides bounded index discovery, editable/imported
@@ -27,11 +44,12 @@ identical. Metadata differed only in Splunk's installer checksum modification
 time; access permissions were unchanged. Old inventory and verification receipts
 were preserved. No production wizard scope replacement was performed.
 
-21offline setup tests cover input safety, limits, CSV quoting, duplicate feeds,
+28offline setup tests cover Express preservation/recognition and restore selection,
+native configured-flag mapping, input safety, limits, CSV quoting, duplicate feeds,
 stale previews, permission errors, uncertain writes, rollback/restore and user
 overrides. The existing51offline review/recorder/USB tests also passed. These do
 not replace controlled source tests or independently verify analyst-role access.
-The installed1.5.0 app also passed all111search-only semantic regressions, with
+The installed1.5.1 app also passed all111search-only semantic regressions, with
 no synthetic events indexed and no acceptance receipts created.
 The event parser and classification macros are unchanged from1.4.8; the historical
 source-event evidence below is explicitly retained, not relabeled as new testing.

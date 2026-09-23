@@ -4,7 +4,7 @@ status: release-candidate
 last_verified: 2026-09-23
 ---
 
-# Start here — RHEL Audit Verification 1.5.0
+# Start here — RHEL Audit Verification 1.5.1
 
 **Installable now; complete control validation is not claimed.**
 This app works with logs already indexed from Universal Forwarders. It does
@@ -13,18 +13,20 @@ not turn on missing RHEL audit rules or create application audit records.
 1. Unzip the handoff bundle. In its dist folder run
    `sha256sum -c SHA256SUMS` on Linux or `shasum -a 256 -c SHA256SUMS` on macOS.
 2. In Splunk Web: **Apps → Manage Apps → Install app from file**. Select
-   **dist/TA_au2_linux-1.5.0.spl**. Back up an older app and site lookups before
+   **dist/TA_au2_linux-1.5.1.spl**. Back up an older app and site lookups before
    selecting an upgrade. Follow your site's reload/restart process if requested.
 3. Open the app; if Splunk shows its first-run prompt, click **Continue to app
    setup page**. In **Set up RHEL Audit Verification**, choose approved indexes and click
    **Find my logs**, or import your expected-feed CSV. No manual configuration
    file editing is needed for the supported standalone wizard path.
-4. Confirm Red Hat scope, owners and silence thresholds. Preview the changes,
-   explicitly approve Save, then click **Check saved setup**. See the
-   [wizard guide](SETUP-WIZARD.md). A blank inventory means unknown coverage.
-   Preserve the displayed backup ID. Existing custom configurations can still
-   use the manual [installation guide](INSTALLATION.md).
-5. Open **RHEL Audit Verification** and **Review readiness**. Choose a short
+4. In **Express setup**, review the suggested feeds, owner and silence threshold.
+   Click **Review selection**, confirm your Red Hat scope, then **Finish and
+   check**. Existing expected feeds are retained. See the illustrated
+   [Express installation guide](EXPRESS-INSTALL.md). For silent hosts, CSV import
+   or custom selections, choose **Advanced setup** and follow the
+   [wizard reference](SETUP-WIZARD.md). A blank inventory means unknown coverage.
+5. Follow the illustrated [event review guide](USING-THE-APP.md). Open
+   **RHEL Audit Verification** and **Review readiness**. Choose a short
    time range and one known host first. Each event/outcome tile shows a count
    and up to five recent samples; inspect the user, application and gaps.
 6. Compare an actual known event with its source record. Do not interpret
@@ -38,7 +40,7 @@ verified events and must not be used as control-validation proof.
 
 ## What is in the handoff
 
-- dist/TA_au2_linux-1.5.0.spl: install this in Splunk, not on the forwarder.
+- dist/TA_au2_linux-1.5.1.spl: install this in Splunk, not on the forwarder.
 - package/: the complete portable app source and packaged source-onboarding,
   USB, input-example and review instructions.
 - searches/: readable search logic.

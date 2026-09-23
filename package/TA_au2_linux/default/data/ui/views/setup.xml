@@ -9,7 +9,9 @@
       </div>
       <p id="setup-status" role="status" aria-live="polite">Loading your existing app configuration…</p>
       <div class="setup-actions"><a href="rhel_audit_verification">Already configured? Open event dashboard</a><a href="rhel_review_readiness">Review readiness</a></div>
-      <ol class="setup-steps" aria-label="Setup steps"><li>1 · Find logs</li><li>2 · Confirm feeds</li><li>3 · Preview and save</li><li>4 · Check setup</li></ol>
+      <div class="setup-modes" role="group" aria-label="Setup mode"><button id="setup-mode-express" type="button" aria-pressed="true" class="setup-primary">Express setup</button><button id="setup-mode-advanced" type="button" aria-pressed="false">Advanced setup</button></div>
+      <p id="setup-mode-description">Express: find logs, review your selection, then Finish. No CSV or search-language editing. Existing expected feeds are retained.</p>
+      <ol class="setup-steps" aria-label="Setup steps"><li>1 · Find logs</li><li>2 · Review selection</li><li>3 · Finish and check</li></ol>
       <div class="setup-note">Setup readiness is not control acceptance. Discovery cannot establish your host inventory, prove lossless delivery, or identify the person who physically handled a USB.</div>
       <section id="setup-find" class="setup-card">
         <h2>1. Find your logs</h2><p>Already forwarding logs? Choose their indexes. Not sure? Select up to five likely indexes and run discovery. No search runs until you click.</p>
@@ -19,6 +21,20 @@
         <button id="setup-discover" type="button">Find my logs</button>
         <div id="setup-discovery"></div>
       </section>
+      <section id="setup-express" class="setup-card">
+        <h2>2. Review and finish</h2>
+        <p>Recognized feeds are suggested above. Uncheck anything outside your scope. These are format hints, not proof that a host runs Red Hat. Unrecognized or mixed-format feeds need Advanced setup.</p>
+        <div class="setup-inline"><label>Owner for new feeds <input id="setup-express-owner" type="text" value="Linux operations" /></label><label>Warn after silence (seconds) <input id="setup-express-silence" type="number" min="60" max="2592000" value="3600" /></label></div>
+        <p>One hour is a starting value, not a policy requirement. Existing owners, thresholds and disabled feeds stay unchanged. Discovery cannot find systems that never send logs: use Advanced setup to import your complete inventory.</p>
+        <button id="setup-express-review" type="button">Review selection</button>
+        <div id="setup-express-summary" aria-live="polite">Find your logs first, then review your selection.</div>
+        <div id="setup-express-feeds"></div>
+        <details><summary>Technical change preview</summary><pre id="setup-express-diff">No changes prepared.</pre></details>
+        <label class="setup-consent"><input id="setup-express-consent" type="checkbox" /> I confirm the enabled feeds in this preview belong to my intended Red Hat audit scope and approve these app settings. Discovery alone does not establish complete network coverage. I am the only administrator running setup now.</label>
+        <button id="setup-finish" type="button" class="setup-primary">Finish and check</button>
+        <p>A backup is created before saving. No endpoint settings, original logs, roles or retention are changed.</p>
+      </section>
+      <div id="setup-advanced" hidden="hidden">
       <section class="setup-card">
         <h2>2. Confirm your expected systems and feeds</h2>
         <p>Check discovered feeds, then add them below. Existing inventory is loaded when possible. Import CSV to include systems that are not sending logs; discovery cannot find silent systems.</p>
@@ -38,15 +54,22 @@
         <label class="setup-consent"><input id="setup-consent" type="checkbox" /> Apply this exact preview. I have reviewed the inventory and will not run setup from another window at the same time.</label>
         <button id="setup-save" type="button" class="setup-primary">Save configuration</button>
         <p>Administrator write permission is required. A server-side backup is saved first; the prior inventory is never overwritten.</p>
-        <details><summary>Restore a previous wizard configuration</summary>
+      </section>
+      </div>
+      <section class="setup-card">
+        <h2>Restore settings</h2>
+        <p id="setup-restore-summary">No current wizard backup selected.</p>
+        <label class="setup-consent"><input id="setup-restore-current-consent" type="checkbox" /> Restore the settings from immediately before the current wizard configuration. Stop if subsequent changes make that unsafe.</label>
+        <button id="setup-restore-current" type="button">Restore previous settings</button>
+        <details><summary>Restore a previous wizard configuration by ID</summary>
           <p>Enter the backup ID shown after save. Restore refuses settings changed since that save. Backups live in this app's aulx_setup configuration; retain them during upgrades.</p>
           <label for="setup-backup-id">Backup ID</label><input id="setup-backup-id" type="text" maxlength="32" />
           <label class="setup-consent"><input id="setup-restore-consent" type="checkbox" /> Restore the previous app settings identified by this backup.</label>
-          <button id="setup-restore" type="button">Restore previous settings</button>
+          <button id="setup-restore" type="button">Restore specified backup</button>
         </details>
       </section>
       <section class="setup-card">
-        <h2>4. Check setup</h2><p>Checks the saved feed selection under your current account. It does not generate test events or mark controls accepted.</p>
+        <h2>Setup results and next steps</h2><p>Express runs these checks after saving. You can run them again here. Checks use your current account; they do not generate test events or mark controls accepted.</p>
         <button id="setup-check" type="button">Check saved setup</button>
         <div id="setup-check-results"></div>
         <div class="setup-actions"><a id="setup-open-dashboard" href="rhel_audit_verification">Open event dashboard</a><a id="setup-open-readiness" href="rhel_review_readiness">Review readiness and content gaps</a></div>

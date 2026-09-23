@@ -11,7 +11,7 @@ by existing Universal Forwarders. It organizes supported records into event
 categories, displays source-reported identities and application context, and
 helps an analyst identify missing evidence before completing a weekly review.
 
-**Release status: validation in progress.** Version 1.5.0 adds guided setup to the
+**Release status: validation in progress.** Version 1.5.1 adds Express setup to the
 tested software
 build, not a fully accepted end-to-end audit solution. A reference source had
 historical loss; later controlled RHEL 10 windows reconciled source to index.
@@ -27,7 +27,10 @@ but full weekly, fleet-wide and per-control acceptance is not yet established.
 
 ## What you get
 
-- A first-run [setup wizard](SETUP-WIZARD.md): bounded discovery, editable/imported
+- An illustrated [Express installation guide](EXPRESS-INSTALL.md) and
+  [event review guide](USING-THE-APP.md), with real, privacy-masked browser screenshots.
+  The [screenshot index](SCREENSHOTS.md) records their scope and limitations.
+- A first-run [setup wizard](SETUP-WIZARD.md): Express or Advanced, bounded discovery, editable/imported
   expected feeds, explicit preview, app-only save with backup/restore, and setup
   checks. Existing source logging is not changed and controls are not accepted.
 - Separate action/outcome tiles, including successful and failed authentication.
@@ -105,7 +108,7 @@ With Python 3 and Bash available, run from its root:
 
 ```sh
 bash tools/build_app.sh
-python3 tools/validate_app.py package/TA_au2_linux --archive dist/TA_au2_linux-1.5.0.spl
+python3 tools/validate_app.py package/TA_au2_linux --archive dist/TA_au2_linux-1.5.1.spl
 python3 tools/test_review.py
 python3 tools/test_operation_audit.py
 python3 tools/test_usb_provenance.py
