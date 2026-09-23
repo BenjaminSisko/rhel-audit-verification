@@ -103,6 +103,11 @@ def validate(root: pathlib.Path) -> list[str]:
         root / "bin/aulx_provenance.py",
         root / "README/REVIEW-GUIDE.txt",
         root / "README/RHEL-SOURCE-ONBOARDING.txt",
+        root / "default/data/ui/views/setup.xml",
+        root / "appserver/static/setup.js",
+        root / "appserver/static/setup_core.js",
+        root / "appserver/static/setup.css",
+        root / "default/aulx_setup.conf",
     ]
     for path in required:
         if not path.is_file():
@@ -114,6 +119,14 @@ def validate(root: pathlib.Path) -> list[str]:
             fail(f"app.conf missing [{section}]")
     if app_conf.get("package", "id") != root.name:
         fail("app.conf package id must match the app directory")
+    if app_conf.get("ui", "setup_view") != "setup":
+        fail("first-run setup view missing")
+    setup = ET.parse(root / "default/data/ui/views/setup.xml").getroot()
+    if setup.get("script") != "setup.js" or setup.findall(".//search"):
+        fail("setup must load its JS adapter without automatic indexed searches")
+    for name in ("setup-save", "setup-consent", "setup-preview", "setup-check", "setup-restore"):
+        if setup.find(f".//*[@id='{name}']") is None:
+            fail("missing setup control: " + name)
 
     macros = parse_conf(root / "default/macros.conf")
     for macro in ("aulx_source", "aulx_extract", "aulx_correlate", "aulx_session_context", "aulx_usb_session_context", "aulx_classify", "aulx_content", "aulx_events"):

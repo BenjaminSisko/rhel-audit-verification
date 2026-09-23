@@ -1,12 +1,12 @@
 ---
 type: documentation
 status: release-candidate
-last_verified: 2026-09-22
+last_verified: 2026-09-23
 ---
 
 # Installation and first verification
 
-This guide describes the tested 1.4.8 release candidate. Review VALIDATION.md
+This guide describes the tested 1.5.0 release candidate. Review VALIDATION.md
 before operational reliance. The `.spl` installs on the search head,
 not on the Universal Forwarder. Distributed deployments need separate testing.
 
@@ -41,7 +41,7 @@ rotations. Test your deployment independently before enabling it.
 
 ## 2. Install the release
 
-Use `dist/TA_au2_linux-1.4.8.spl` and `dist/SHA256SUMS` from this bundle.
+Use `dist/TA_au2_linux-1.5.0.spl` and `dist/SHA256SUMS` from this bundle.
 Verify the archive's SHA-256 against that manifest. Back up any existing app,
 `local/` configuration and operational lookups before an upgrade.
 
@@ -50,7 +50,18 @@ Follow the installation result and your site's deployment/restart procedure.
 The internal app ID remains `TA_au2_linux`; the displayed name is
 **RHEL Audit Verification**.
 
-## 3. Set the approved search scope
+## 3. Recommended: use the setup wizard
+
+Open **Set up RHEL Audit Verification**. Choose your indexes, discover candidate
+feeds, confirm the expected inventory (including silent hosts via CSV), preview
+and approve the changes, then check the saved setup. The wizard saves app-only
+configuration with a backup and read-back checks. It does not change source
+collection or grant permissions. Follow [SETUP-WIZARD.md](SETUP-WIZARD.md).
+
+The manual steps below remain available for managed deployments or unsupported
+wizard inputs. Do not apply both workflows without reconciling their settings.
+
+## 3a. Manual alternative: set the approved search scope
 
 Create or update `$SPLUNK_HOME/etc/apps/TA_au2_linux/local/macros.conf` using
 your normal Splunk configuration-management process. Replace illustrative
@@ -72,7 +83,7 @@ Test scope as the intended analyst, not only the administrator who created the
 macro. User-owned knowledge objects can shadow app-shared scope. Check sharing,
 ownership and index permissions; reference other-role verification is pending.
 
-## 4. Configure expected feeds
+## 4. Manual alternative: configure expected feeds
 
 Create `lookups/site_expected_sources.csv` with the shipped schema:
 

@@ -1,0 +1,58 @@
+<dashboard version="1.1" script="setup.js" stylesheet="setup.css">
+  <label>Set up RHEL Audit Verification</label>
+  <description>Connect supported, already-indexed logs. No endpoint or collection settings are changed.</description>
+  <row><panel><html>
+    <div id="aulx-setup">
+      <div class="setup-hero"><span class="setup-eyebrow">RHEL AUDIT VERIFICATION · GET STARTED</span>
+        <h1>Your logs. A clear starting point.</h1>
+        <p>Find the records you already collect, confirm your expected systems, and check the connection to your dashboard.</p>
+      </div>
+      <p id="setup-status" role="status" aria-live="polite">Loading your existing app configuration…</p>
+      <div class="setup-actions"><a href="rhel_audit_verification">Already configured? Open event dashboard</a><a href="rhel_review_readiness">Review readiness</a></div>
+      <ol class="setup-steps" aria-label="Setup steps"><li>1 · Find logs</li><li>2 · Confirm feeds</li><li>3 · Preview and save</li><li>4 · Check setup</li></ol>
+      <div class="setup-note">Setup readiness is not control acceptance. Discovery cannot establish your host inventory, prove lossless delivery, or identify the person who physically handled a USB.</div>
+      <section id="setup-find" class="setup-card">
+        <h2>1. Find your logs</h2><p>Already forwarding logs? Choose their indexes. Not sure? Select up to five likely indexes and run discovery. No search runs until you click.</p>
+        <label for="setup-indexes">Accessible indexes</label><select id="setup-indexes" multiple="multiple" size="5" aria-describedby="setup-bounds"></select>
+        <p id="setup-bounds">Last 24 hours · up to 10,001 sampled records · 25-second search limit. Samples are suggestions, not a complete inventory.</p>
+        <label for="setup-manual-indexes">Or enter exact index names, separated by commas</label><input id="setup-manual-indexes" type="text" placeholder="rhel_audit" />
+        <button id="setup-discover" type="button">Find my logs</button>
+        <div id="setup-discovery"></div>
+      </section>
+      <section class="setup-card">
+        <h2>2. Confirm your expected systems and feeds</h2>
+        <p>Check discovered feeds, then add them below. Existing inventory is loaded when possible. Import CSV to include systems that are not sending logs; discovery cannot find silent systems.</p>
+        <div class="setup-inline"><label>Owner for added feeds <input id="setup-owner" type="text" placeholder="Linux operations" /></label>
+        <label>Silence threshold (seconds) <input id="setup-silence" type="number" min="60" max="2592000" value="3600" /></label></div>
+        <p>The suggested 3,600 seconds is not a policy requirement. Confirm an appropriate threshold for each feed.</p>
+        <button id="setup-add" type="button">Add checked feeds</button>
+        <label for="setup-csv-file">Import expected-feed CSV (replaces the draft, not the saved inventory)</label><input id="setup-csv-file" type="file" accept=".csv,text/csv" />
+        <label for="setup-feeds">Expected-feed CSV · editable preview · maximum 200 rows</label><textarea id="setup-feeds" rows="8" spellcheck="false"></textarea>
+        <button id="setup-template" type="button">Download CSV template</button>
+        <label class="setup-consent"><input id="setup-confirm-rhel" type="checkbox" /> I confirm the enabled feeds belong to the Red Hat systems I intend to audit. Discovery alone does not establish that.</label>
+      </section>
+      <section class="setup-card">
+        <h2>3. Preview and save</h2><p>Only app search scope, expected-feed inventory, and the setup-complete flag change. Original logs, forwarders, audit rules, roles, and retention stay untouched. The legacy overview remains separately configured.</p>
+        <button id="setup-preview" type="button">Preview configuration</button>
+        <pre id="setup-preview-text">No changes prepared.</pre>
+        <label class="setup-consent"><input id="setup-consent" type="checkbox" /> Apply this exact preview. I have reviewed the inventory and will not run setup from another window at the same time.</label>
+        <button id="setup-save" type="button" class="setup-primary">Save configuration</button>
+        <p>Administrator write permission is required. A server-side backup is saved first; the prior inventory is never overwritten.</p>
+        <details><summary>Restore a previous wizard configuration</summary>
+          <p>Enter the backup ID shown after save. Restore refuses settings changed since that save. Backups live in this app's aulx_setup configuration; retain them during upgrades.</p>
+          <label for="setup-backup-id">Backup ID</label><input id="setup-backup-id" type="text" maxlength="32" />
+          <label class="setup-consent"><input id="setup-restore-consent" type="checkbox" /> Restore the previous app settings identified by this backup.</label>
+          <button id="setup-restore" type="button">Restore previous settings</button>
+        </details>
+      </section>
+      <section class="setup-card">
+        <h2>4. Check setup</h2><p>Checks the saved feed selection under your current account. It does not generate test events or mark controls accepted.</p>
+        <button id="setup-check" type="button">Check saved setup</button>
+        <div id="setup-check-results"></div>
+        <div class="setup-actions"><a id="setup-open-dashboard" href="rhel_audit_verification">Open event dashboard</a><a id="setup-open-readiness" href="rhel_review_readiness">Review readiness and content gaps</a></div>
+        <p>If a feed is missing, confirm its index, host identity, time, access rights and source collection. A zero count is not proof that logging is disabled. USB session context is not physical-user attribution.</p>
+      </section>
+      <p class="setup-footnote">Standalone Splunk Enterprise first. Clustered/Cloud deployments and inventories above 200 feeds should use the managed installation guide. No automatic compliance acceptance or source changes.</p>
+    </div>
+  </html></panel></row>
+</dashboard>

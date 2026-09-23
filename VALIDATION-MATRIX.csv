@@ -1,60 +1,60 @@
 case_id,event_action,outcome,reference_required,technical_status,evidence_scope,independent_control_acceptance,release_app_version,evidence_observed_through
-AU2-01-01-S,Sign-in,success,True,NATIVE_EVENT_VERIFIED,Exact native RHEL login/logout event only,False,1.4.8,2026-09-22T16:11:41.847943+00:00
-AU2-01-01-F,Sign-in,failure,True,CONTROLLED_OPERATION_VERIFIED,Explicitly wrapped test operation only,False,1.4.8,2026-09-22T16:11:41.847943+00:00
-AU2-01-02-S,Sign-out,success,True,NATIVE_EVENT_VERIFIED,Exact native RHEL login/logout event only,False,1.4.8,2026-09-22T16:11:41.847943+00:00
-AU2-02-01-S,Create,success,True,CONTROLLED_OPERATION_VERIFIED,Explicitly wrapped test operation only,False,1.4.8,2026-09-22T16:11:41.847943+00:00
-AU2-02-01-F,Create,failure,True,CONTROLLED_OPERATION_VERIFIED,Explicitly wrapped test operation only,False,1.4.8,2026-09-22T16:11:41.847943+00:00
-AU2-02-02-S,Read/access,success,True,CONTROLLED_OPERATION_VERIFIED,Explicitly wrapped test operation only,False,1.4.8,2026-09-22T16:11:41.847943+00:00
-AU2-02-02-F,Read/access,failure,True,CONTROLLED_OPERATION_VERIFIED,Explicitly wrapped test operation only,False,1.4.8,2026-09-22T16:11:41.847943+00:00
-AU2-02-03-S,Delete,success,True,CONTROLLED_OPERATION_VERIFIED,Explicitly wrapped test operation only,False,1.4.8,2026-09-22T16:11:41.847943+00:00
-AU2-02-03-F,Delete,failure,True,CONTROLLED_OPERATION_VERIFIED,Explicitly wrapped test operation only,False,1.4.8,2026-09-22T16:11:41.847943+00:00
-AU2-02-04-S,Modify,success,True,CONTROLLED_OPERATION_VERIFIED,Explicitly wrapped test operation only,False,1.4.8,2026-09-22T16:11:41.847943+00:00
-AU2-02-04-F,Modify,failure,True,CONTROLLED_OPERATION_VERIFIED,Explicitly wrapped test operation only,False,1.4.8,2026-09-22T16:11:41.847943+00:00
-AU2-02-05-S,Change permission,success,True,CONTROLLED_OPERATION_VERIFIED,Explicitly wrapped test operation only,False,1.4.8,2026-09-22T16:11:41.847943+00:00
-AU2-02-05-F,Change permission,failure,True,CONTROLLED_OPERATION_VERIFIED,Explicitly wrapped test operation only,False,1.4.8,2026-09-22T16:11:41.847943+00:00
-AU2-02-06-S,Change ownership,success,True,CONTROLLED_OPERATION_VERIFIED,Explicitly wrapped test operation only,False,1.4.8,2026-09-22T16:11:41.847943+00:00
-AU2-02-06-F,Change ownership,failure,True,CONTROLLED_OPERATION_VERIFIED,Explicitly wrapped test operation only,False,1.4.8,2026-09-22T16:11:41.847943+00:00
-AU2-03-01-S,Export/write/download to media,success,True,CONTROLLED_OPERATION_VERIFIED,Explicitly wrapped test operation only,False,1.4.8,2026-09-22T16:11:41.847943+00:00
-AU2-03-01-F,Export/write/download to media,failure,True,CONTROLLED_OPERATION_VERIFIED,Explicitly wrapped test operation only,False,1.4.8,2026-09-22T16:11:41.847943+00:00
-AU2-04-01-S,Import/upload from media,success,True,CONTROLLED_OPERATION_VERIFIED,Explicitly wrapped test operation only,False,1.4.8,2026-09-22T16:11:41.847943+00:00
-AU2-04-01-F,Import/upload from media,failure,True,CONTROLLED_OPERATION_VERIFIED,Explicitly wrapped test operation only,False,1.4.8,2026-09-22T16:11:41.847943+00:00
-AU2-05-01-S,Add user,success,True,CONTROLLED_OPERATION_VERIFIED,Explicitly wrapped test operation only,False,1.4.8,2026-09-22T16:11:41.847943+00:00
-AU2-05-01-F,Add user,failure,True,CONTROLLED_OPERATION_VERIFIED,Explicitly wrapped test operation only,False,1.4.8,2026-09-22T16:11:41.847943+00:00
-AU2-05-02-S,Delete user,success,True,CONTROLLED_OPERATION_VERIFIED,Explicitly wrapped test operation only,False,1.4.8,2026-09-22T16:11:41.847943+00:00
-AU2-05-02-F,Delete user,failure,True,CONTROLLED_OPERATION_VERIFIED,Explicitly wrapped test operation only,False,1.4.8,2026-09-22T16:11:41.847943+00:00
-AU2-05-03-S,Modify user,success,True,CONTROLLED_OPERATION_VERIFIED,Explicitly wrapped test operation only,False,1.4.8,2026-09-22T16:11:41.847943+00:00
-AU2-05-03-F,Modify user,failure,True,CONTROLLED_OPERATION_VERIFIED,Explicitly wrapped test operation only,False,1.4.8,2026-09-22T16:11:41.847943+00:00
-AU2-05-04-S,Disable user,success,True,CONTROLLED_OPERATION_VERIFIED,Explicitly wrapped test operation only,False,1.4.8,2026-09-22T16:11:41.847943+00:00
-AU2-05-04-F,Disable user,failure,True,CONTROLLED_OPERATION_VERIFIED,Explicitly wrapped test operation only,False,1.4.8,2026-09-22T16:11:41.847943+00:00
-AU2-05-05-S,Lock user,success,True,CONTROLLED_OPERATION_VERIFIED,Explicitly wrapped test operation only,False,1.4.8,2026-09-22T16:11:41.847943+00:00
-AU2-05-05-F,Lock user,failure,True,CONTROLLED_OPERATION_VERIFIED,Explicitly wrapped test operation only,False,1.4.8,2026-09-22T16:11:41.847943+00:00
-AU2-05-06-S,Add group/role,success,True,CONTROLLED_OPERATION_VERIFIED,Explicitly wrapped test operation only,False,1.4.8,2026-09-22T16:11:41.847943+00:00
-AU2-05-06-F,Add group/role,failure,True,CONTROLLED_OPERATION_VERIFIED,Explicitly wrapped test operation only,False,1.4.8,2026-09-22T16:11:41.847943+00:00
-AU2-05-07-S,Delete group/role,success,True,CONTROLLED_OPERATION_VERIFIED,Explicitly wrapped test operation only,False,1.4.8,2026-09-22T16:11:41.847943+00:00
-AU2-05-07-F,Delete group/role,failure,True,CONTROLLED_OPERATION_VERIFIED,Explicitly wrapped test operation only,False,1.4.8,2026-09-22T16:11:41.847943+00:00
-AU2-05-08-S,Modify group/role,success,True,CONTROLLED_OPERATION_VERIFIED,Explicitly wrapped test operation only,False,1.4.8,2026-09-22T16:11:41.847943+00:00
-AU2-05-08-F,Modify group/role,failure,True,CONTROLLED_OPERATION_VERIFIED,Explicitly wrapped test operation only,False,1.4.8,2026-09-22T16:11:41.847943+00:00
-AU2-06-01-S,Change security/audit policy,success,True,CONTROLLED_OPERATION_VERIFIED,Explicitly wrapped test operation only,False,1.4.8,2026-09-22T16:11:41.847943+00:00
-AU2-06-01-F,Change security/audit policy,failure,True,CONTROLLED_OPERATION_VERIFIED,Explicitly wrapped test operation only,False,1.4.8,2026-09-22T16:11:41.847943+00:00
-AU2-06-02-S,Change configuration,success,True,CONTROLLED_OPERATION_VERIFIED,Explicitly wrapped test operation only,False,1.4.8,2026-09-22T16:11:41.847943+00:00
-AU2-06-02-F,Change configuration,failure,True,CONTROLLED_OPERATION_VERIFIED,Explicitly wrapped test operation only,False,1.4.8,2026-09-22T16:11:41.847943+00:00
-AU2-07-01-S,Administrative/root access,success,True,CONTROLLED_OPERATION_VERIFIED,Explicitly wrapped test operation only,False,1.4.8,2026-09-22T16:11:41.847943+00:00
-AU2-07-01-F,Administrative/root access,failure,True,CONTROLLED_OPERATION_VERIFIED,Explicitly wrapped test operation only,False,1.4.8,2026-09-22T16:11:41.847943+00:00
-AU2-08-01-S,Elevate privilege/role,success,True,CONTROLLED_OPERATION_VERIFIED,Explicitly wrapped test operation only,False,1.4.8,2026-09-22T16:11:41.847943+00:00
-AU2-08-01-F,Elevate privilege/role,failure,True,CONTROLLED_OPERATION_VERIFIED,Explicitly wrapped test operation only,False,1.4.8,2026-09-22T16:11:41.847943+00:00
-AU2-09-01-S,Access audit/security logs,success,True,CONTROLLED_OPERATION_VERIFIED,Explicitly wrapped test operation only,False,1.4.8,2026-09-22T16:11:41.847943+00:00
-AU2-09-01-F,Access audit/security logs,failure,True,CONTROLLED_OPERATION_VERIFIED,Explicitly wrapped test operation only,False,1.4.8,2026-09-22T16:11:41.847943+00:00
-AU2-10-01-S,Reboot,success,True,CONTROLLED_OPERATION_VERIFIED,Explicit two-phase lifecycle test with native corroboration,False,1.4.8,2026-09-22T16:11:41.847943+00:00
-AU2-10-01-F,Reboot,failure,True,CONTROLLED_OPERATION_VERIFIED,Explicitly wrapped test operation only,False,1.4.8,2026-09-22T16:11:41.847943+00:00
-AU2-10-02-S,Restart,success,True,OS_RESTART_ALIAS_VERIFIED,"OS Restart alias of verified Reboot; same event identity, not an additional operation",False,1.4.8,2026-09-22T16:11:41.847943+00:00
-AU2-10-02-F,Restart,failure,True,OS_RESTART_ALIAS_VERIFIED,"OS Restart alias of verified Reboot; same event identity, not an additional operation",False,1.4.8,2026-09-22T16:11:41.847943+00:00
-AU2-10-03-S,Shutdown,success,True,CONTROLLED_OPERATION_VERIFIED,Explicit two-phase lifecycle test with native corroboration,False,1.4.8,2026-09-22T16:11:41.847943+00:00
-AU2-10-03-F,Shutdown,failure,True,CONTROLLED_OPERATION_VERIFIED,Explicitly wrapped test operation only,False,1.4.8,2026-09-22T16:11:41.847943+00:00
-AU2-11-01-S,Print to device,success,False,OWNER_EXCLUDED,See prior native evidence; not presumed absent,False,1.4.8,2026-09-22T16:11:41.847943+00:00
-AU2-11-01-F,Print to device,failure,False,OWNER_EXCLUDED,See prior native evidence; not presumed absent,False,1.4.8,2026-09-22T16:11:41.847943+00:00
-AU2-12-01-S,Print to file,success,True,CONTROLLED_OPERATION_VERIFIED,Explicitly wrapped test operation only,False,1.4.8,2026-09-22T16:11:41.847943+00:00
-AU2-12-01-F,Print to file,failure,True,CONTROLLED_OPERATION_VERIFIED,Explicitly wrapped test operation only,False,1.4.8,2026-09-22T16:11:41.847943+00:00
-AU2-13-01-S,Start application,success,True,CONTROLLED_OPERATION_VERIFIED,Explicitly wrapped test operation only,False,1.4.8,2026-09-22T16:11:41.847943+00:00
-AU2-13-01-F,Start application,failure,True,CONTROLLED_OPERATION_VERIFIED,Explicitly wrapped test operation only,False,1.4.8,2026-09-22T16:11:41.847943+00:00
-USB-ATTACH,USB attachment,success,True,CAPTURE_VERIFIED_CONTENT_GAP,Physical USB capture matched; actor and full content not recorded; session context is not attribution,False,1.4.8,2026-09-22T16:11:41.847943+00:00
-USB-DETACH,USB disconnection,success,True,CAPTURE_VERIFIED_CONTENT_GAP,Physical USB capture matched; actor and full content not recorded; session context is not attribution,False,1.4.8,2026-09-22T16:11:41.847943+00:00
+AU2-01-01-S,Sign-in,success,True,NATIVE_EVENT_VERIFIED,Exact native RHEL login/logout event only,False,1.5.0,2026-09-22T16:11:41.847943+00:00
+AU2-01-01-F,Sign-in,failure,True,CONTROLLED_OPERATION_VERIFIED,Explicitly wrapped test operation only,False,1.5.0,2026-09-22T16:11:41.847943+00:00
+AU2-01-02-S,Sign-out,success,True,NATIVE_EVENT_VERIFIED,Exact native RHEL login/logout event only,False,1.5.0,2026-09-22T16:11:41.847943+00:00
+AU2-02-01-S,Create,success,True,CONTROLLED_OPERATION_VERIFIED,Explicitly wrapped test operation only,False,1.5.0,2026-09-22T16:11:41.847943+00:00
+AU2-02-01-F,Create,failure,True,CONTROLLED_OPERATION_VERIFIED,Explicitly wrapped test operation only,False,1.5.0,2026-09-22T16:11:41.847943+00:00
+AU2-02-02-S,Read/access,success,True,CONTROLLED_OPERATION_VERIFIED,Explicitly wrapped test operation only,False,1.5.0,2026-09-22T16:11:41.847943+00:00
+AU2-02-02-F,Read/access,failure,True,CONTROLLED_OPERATION_VERIFIED,Explicitly wrapped test operation only,False,1.5.0,2026-09-22T16:11:41.847943+00:00
+AU2-02-03-S,Delete,success,True,CONTROLLED_OPERATION_VERIFIED,Explicitly wrapped test operation only,False,1.5.0,2026-09-22T16:11:41.847943+00:00
+AU2-02-03-F,Delete,failure,True,CONTROLLED_OPERATION_VERIFIED,Explicitly wrapped test operation only,False,1.5.0,2026-09-22T16:11:41.847943+00:00
+AU2-02-04-S,Modify,success,True,CONTROLLED_OPERATION_VERIFIED,Explicitly wrapped test operation only,False,1.5.0,2026-09-22T16:11:41.847943+00:00
+AU2-02-04-F,Modify,failure,True,CONTROLLED_OPERATION_VERIFIED,Explicitly wrapped test operation only,False,1.5.0,2026-09-22T16:11:41.847943+00:00
+AU2-02-05-S,Change permission,success,True,CONTROLLED_OPERATION_VERIFIED,Explicitly wrapped test operation only,False,1.5.0,2026-09-22T16:11:41.847943+00:00
+AU2-02-05-F,Change permission,failure,True,CONTROLLED_OPERATION_VERIFIED,Explicitly wrapped test operation only,False,1.5.0,2026-09-22T16:11:41.847943+00:00
+AU2-02-06-S,Change ownership,success,True,CONTROLLED_OPERATION_VERIFIED,Explicitly wrapped test operation only,False,1.5.0,2026-09-22T16:11:41.847943+00:00
+AU2-02-06-F,Change ownership,failure,True,CONTROLLED_OPERATION_VERIFIED,Explicitly wrapped test operation only,False,1.5.0,2026-09-22T16:11:41.847943+00:00
+AU2-03-01-S,Export/write/download to media,success,True,CONTROLLED_OPERATION_VERIFIED,Explicitly wrapped test operation only,False,1.5.0,2026-09-22T16:11:41.847943+00:00
+AU2-03-01-F,Export/write/download to media,failure,True,CONTROLLED_OPERATION_VERIFIED,Explicitly wrapped test operation only,False,1.5.0,2026-09-22T16:11:41.847943+00:00
+AU2-04-01-S,Import/upload from media,success,True,CONTROLLED_OPERATION_VERIFIED,Explicitly wrapped test operation only,False,1.5.0,2026-09-22T16:11:41.847943+00:00
+AU2-04-01-F,Import/upload from media,failure,True,CONTROLLED_OPERATION_VERIFIED,Explicitly wrapped test operation only,False,1.5.0,2026-09-22T16:11:41.847943+00:00
+AU2-05-01-S,Add user,success,True,CONTROLLED_OPERATION_VERIFIED,Explicitly wrapped test operation only,False,1.5.0,2026-09-22T16:11:41.847943+00:00
+AU2-05-01-F,Add user,failure,True,CONTROLLED_OPERATION_VERIFIED,Explicitly wrapped test operation only,False,1.5.0,2026-09-22T16:11:41.847943+00:00
+AU2-05-02-S,Delete user,success,True,CONTROLLED_OPERATION_VERIFIED,Explicitly wrapped test operation only,False,1.5.0,2026-09-22T16:11:41.847943+00:00
+AU2-05-02-F,Delete user,failure,True,CONTROLLED_OPERATION_VERIFIED,Explicitly wrapped test operation only,False,1.5.0,2026-09-22T16:11:41.847943+00:00
+AU2-05-03-S,Modify user,success,True,CONTROLLED_OPERATION_VERIFIED,Explicitly wrapped test operation only,False,1.5.0,2026-09-22T16:11:41.847943+00:00
+AU2-05-03-F,Modify user,failure,True,CONTROLLED_OPERATION_VERIFIED,Explicitly wrapped test operation only,False,1.5.0,2026-09-22T16:11:41.847943+00:00
+AU2-05-04-S,Disable user,success,True,CONTROLLED_OPERATION_VERIFIED,Explicitly wrapped test operation only,False,1.5.0,2026-09-22T16:11:41.847943+00:00
+AU2-05-04-F,Disable user,failure,True,CONTROLLED_OPERATION_VERIFIED,Explicitly wrapped test operation only,False,1.5.0,2026-09-22T16:11:41.847943+00:00
+AU2-05-05-S,Lock user,success,True,CONTROLLED_OPERATION_VERIFIED,Explicitly wrapped test operation only,False,1.5.0,2026-09-22T16:11:41.847943+00:00
+AU2-05-05-F,Lock user,failure,True,CONTROLLED_OPERATION_VERIFIED,Explicitly wrapped test operation only,False,1.5.0,2026-09-22T16:11:41.847943+00:00
+AU2-05-06-S,Add group/role,success,True,CONTROLLED_OPERATION_VERIFIED,Explicitly wrapped test operation only,False,1.5.0,2026-09-22T16:11:41.847943+00:00
+AU2-05-06-F,Add group/role,failure,True,CONTROLLED_OPERATION_VERIFIED,Explicitly wrapped test operation only,False,1.5.0,2026-09-22T16:11:41.847943+00:00
+AU2-05-07-S,Delete group/role,success,True,CONTROLLED_OPERATION_VERIFIED,Explicitly wrapped test operation only,False,1.5.0,2026-09-22T16:11:41.847943+00:00
+AU2-05-07-F,Delete group/role,failure,True,CONTROLLED_OPERATION_VERIFIED,Explicitly wrapped test operation only,False,1.5.0,2026-09-22T16:11:41.847943+00:00
+AU2-05-08-S,Modify group/role,success,True,CONTROLLED_OPERATION_VERIFIED,Explicitly wrapped test operation only,False,1.5.0,2026-09-22T16:11:41.847943+00:00
+AU2-05-08-F,Modify group/role,failure,True,CONTROLLED_OPERATION_VERIFIED,Explicitly wrapped test operation only,False,1.5.0,2026-09-22T16:11:41.847943+00:00
+AU2-06-01-S,Change security/audit policy,success,True,CONTROLLED_OPERATION_VERIFIED,Explicitly wrapped test operation only,False,1.5.0,2026-09-22T16:11:41.847943+00:00
+AU2-06-01-F,Change security/audit policy,failure,True,CONTROLLED_OPERATION_VERIFIED,Explicitly wrapped test operation only,False,1.5.0,2026-09-22T16:11:41.847943+00:00
+AU2-06-02-S,Change configuration,success,True,CONTROLLED_OPERATION_VERIFIED,Explicitly wrapped test operation only,False,1.5.0,2026-09-22T16:11:41.847943+00:00
+AU2-06-02-F,Change configuration,failure,True,CONTROLLED_OPERATION_VERIFIED,Explicitly wrapped test operation only,False,1.5.0,2026-09-22T16:11:41.847943+00:00
+AU2-07-01-S,Administrative/root access,success,True,CONTROLLED_OPERATION_VERIFIED,Explicitly wrapped test operation only,False,1.5.0,2026-09-22T16:11:41.847943+00:00
+AU2-07-01-F,Administrative/root access,failure,True,CONTROLLED_OPERATION_VERIFIED,Explicitly wrapped test operation only,False,1.5.0,2026-09-22T16:11:41.847943+00:00
+AU2-08-01-S,Elevate privilege/role,success,True,CONTROLLED_OPERATION_VERIFIED,Explicitly wrapped test operation only,False,1.5.0,2026-09-22T16:11:41.847943+00:00
+AU2-08-01-F,Elevate privilege/role,failure,True,CONTROLLED_OPERATION_VERIFIED,Explicitly wrapped test operation only,False,1.5.0,2026-09-22T16:11:41.847943+00:00
+AU2-09-01-S,Access audit/security logs,success,True,CONTROLLED_OPERATION_VERIFIED,Explicitly wrapped test operation only,False,1.5.0,2026-09-22T16:11:41.847943+00:00
+AU2-09-01-F,Access audit/security logs,failure,True,CONTROLLED_OPERATION_VERIFIED,Explicitly wrapped test operation only,False,1.5.0,2026-09-22T16:11:41.847943+00:00
+AU2-10-01-S,Reboot,success,True,CONTROLLED_OPERATION_VERIFIED,Explicit two-phase lifecycle test with native corroboration,False,1.5.0,2026-09-22T16:11:41.847943+00:00
+AU2-10-01-F,Reboot,failure,True,CONTROLLED_OPERATION_VERIFIED,Explicitly wrapped test operation only,False,1.5.0,2026-09-22T16:11:41.847943+00:00
+AU2-10-02-S,Restart,success,True,OS_RESTART_ALIAS_VERIFIED,"OS Restart alias of verified Reboot; same event identity, not an additional operation",False,1.5.0,2026-09-22T16:11:41.847943+00:00
+AU2-10-02-F,Restart,failure,True,OS_RESTART_ALIAS_VERIFIED,"OS Restart alias of verified Reboot; same event identity, not an additional operation",False,1.5.0,2026-09-22T16:11:41.847943+00:00
+AU2-10-03-S,Shutdown,success,True,CONTROLLED_OPERATION_VERIFIED,Explicit two-phase lifecycle test with native corroboration,False,1.5.0,2026-09-22T16:11:41.847943+00:00
+AU2-10-03-F,Shutdown,failure,True,CONTROLLED_OPERATION_VERIFIED,Explicitly wrapped test operation only,False,1.5.0,2026-09-22T16:11:41.847943+00:00
+AU2-11-01-S,Print to device,success,False,OWNER_EXCLUDED,See prior native evidence; not presumed absent,False,1.5.0,2026-09-22T16:11:41.847943+00:00
+AU2-11-01-F,Print to device,failure,False,OWNER_EXCLUDED,See prior native evidence; not presumed absent,False,1.5.0,2026-09-22T16:11:41.847943+00:00
+AU2-12-01-S,Print to file,success,True,CONTROLLED_OPERATION_VERIFIED,Explicitly wrapped test operation only,False,1.5.0,2026-09-22T16:11:41.847943+00:00
+AU2-12-01-F,Print to file,failure,True,CONTROLLED_OPERATION_VERIFIED,Explicitly wrapped test operation only,False,1.5.0,2026-09-22T16:11:41.847943+00:00
+AU2-13-01-S,Start application,success,True,CONTROLLED_OPERATION_VERIFIED,Explicitly wrapped test operation only,False,1.5.0,2026-09-22T16:11:41.847943+00:00
+AU2-13-01-F,Start application,failure,True,CONTROLLED_OPERATION_VERIFIED,Explicitly wrapped test operation only,False,1.5.0,2026-09-22T16:11:41.847943+00:00
+USB-ATTACH,USB attachment,success,True,CAPTURE_VERIFIED_CONTENT_GAP,Physical USB capture matched; actor and full content not recorded; session context is not attribution,False,1.5.0,2026-09-22T16:11:41.847943+00:00
+USB-DETACH,USB disconnection,success,True,CAPTURE_VERIFIED_CONTENT_GAP,Physical USB capture matched; actor and full content not recorded; session context is not attribution,False,1.5.0,2026-09-22T16:11:41.847943+00:00

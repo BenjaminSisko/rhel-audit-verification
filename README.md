@@ -1,7 +1,7 @@
 ---
 type: documentation
 status: release-candidate
-last_verified: 2026-09-22
+last_verified: 2026-09-23
 ---
 
 # RHEL Audit Verification
@@ -11,7 +11,8 @@ by existing Universal Forwarders. It organizes supported records into event
 categories, displays source-reported identities and application context, and
 helps an analyst identify missing evidence before completing a weekly review.
 
-**Release status: validation in progress.** Version 1.4.8 is a tested software
+**Release status: validation in progress.** Version 1.5.0 adds guided setup to the
+tested software
 build, not a fully accepted end-to-end audit solution. A reference source had
 historical loss; later controlled RHEL 10 windows reconciled source to index.
 Those bounded checks do not establish lossless operation or full event coverage.
@@ -26,6 +27,9 @@ but full weekly, fleet-wide and per-control acceptance is not yet established.
 
 ## What you get
 
+- A first-run [setup wizard](SETUP-WIZARD.md): bounded discovery, editable/imported
+  expected feeds, explicit preview, app-only save with backup/restore, and setup
+  checks. Existing source logging is not changed and controls are not accepted.
 - Separate action/outcome tiles, including successful and failed authentication.
 - Full-window candidate counts and up to five newest samples per tile.
 - Recorded user, process user, host and application, with detailed login and
@@ -101,10 +105,11 @@ With Python 3 and Bash available, run from its root:
 
 ```sh
 bash tools/build_app.sh
-python3 tools/validate_app.py package/TA_au2_linux --archive dist/TA_au2_linux-1.4.8.spl
+python3 tools/validate_app.py package/TA_au2_linux --archive dist/TA_au2_linux-1.5.0.spl
 python3 tools/test_review.py
 python3 tools/test_operation_audit.py
 python3 tools/test_usb_provenance.py
+node --test tools/test_setup.js
 ```
 
 These are software checks, not controlled source-event tests. This bundle

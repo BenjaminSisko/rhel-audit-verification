@@ -24,7 +24,7 @@ import urllib.request
 from aulx_provenance import verify_session_provenance, verify_usb_session_provenance
 
 APP = "TA_au2_linux"
-VERSION = "1.4.8"
+VERSION = "1.5.0"
 RAW_FIELDS = "_time _indextime event_time ingest_time host index source sourcetype _raw _bkt _cd splunk_server record_fingerprint event_key"
 EVENT_FIELDS = "event_key event_fingerprint record_fingerprint event_time ingest_time event_host application case_id event_action outcome actor login_user login_uid process_user process_uid effective_user effective_uid target_account identity_basis initiator completer object source_ip terminal privilege process_id correlation_id reason raw_records native_kind index source sourcetype missing_fields au3_complete au3_1_complete app_context_complete field_check_complete verification_status receipt_id source_evidence_ref correlation_state clock_status protection_status audit_session remote_access session_remote_access session_source_ip session_context_status session_context_basis session_context_fingerprints session_context_record_fingerprints"
 

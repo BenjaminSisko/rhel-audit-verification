@@ -1,5 +1,6 @@
 <nav search_view="search">
-  <view name="rhel_audit_verification" default="true" />
+  <view name="setup" default="true" />
+  <view name="rhel_audit_verification" />
   <view name="rhel_review_readiness" />
   <view name="au2_linux_overview" />
   <view name="search" />

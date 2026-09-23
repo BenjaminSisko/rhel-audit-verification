@@ -1,13 +1,40 @@
 ---
 type: documentation
 status: release-candidate-known-content-gaps
-last_verified: 2026-09-22
+last_verified: 2026-09-23
 ---
 
-# Validation status — 1.4.8 release candidate
+# Validation status — 1.5.0 release candidate
 
 This is a tested installation and review toolkit, not a compliance attestation
 or a promise that default forwarded logs cover every required event.
+
+## New in 1.5.0: guided setup
+
+The app now opens its setup page by default, with direct links for already
+configured users. The wizard provides bounded index discovery, editable/imported
+expected feeds, explicit preview/approval, app-only persistence, server-side
+backup and restore, effective-scope checks, and sampled feed/content checks.
+See [SETUP-WIZARD.md](SETUP-WIZARD.md) for limits and recovery behavior.
+
+The real Splunk Enterprise10.4.3 browser workflow was exercised in an isolated
+app namespace: discovery, quoted CSV import, preview, save/read-back, a deliberately
+absent feed, sampled content checks, and restore/read-back. Desktop and narrow
+viewport screenshots were inspected. No source records were created by the test.
+The normal app was upgraded without restart and its setup page loaded under the
+existing administrator.28packaged files matched;11protected files remained byte
+identical. Metadata differed only in Splunk's installer checksum modification
+time; access permissions were unchanged. Old inventory and verification receipts
+were preserved. No production wizard scope replacement was performed.
+
+21offline setup tests cover input safety, limits, CSV quoting, duplicate feeds,
+stale previews, permission errors, uncertain writes, rollback/restore and user
+overrides. The existing51offline review/recorder/USB tests also passed. These do
+not replace controlled source tests or independently verify analyst-role access.
+The installed1.5.0 app also passed all111search-only semantic regressions, with
+no synthetic events indexed and no acceptance receipts created.
+The event parser and classification macros are unchanged from1.4.8; the historical
+source-event evidence below is explicitly retained, not relabeled as new testing.
 
 ## Case results
 
@@ -73,10 +100,11 @@ kernel-record field. Adding such collection needs site design/authorization.
 
 ## Remaining deployment and acceptance boundaries
 
-Other-role execution and final browser rendering are not independently
-verified. Tests use authenticated administrator API access, including shared
-app namespace checks; shared definitions do not themselves prove analyst
-permissions. No account, role or index permission was changed for these tests.
+Other-role execution and independent assessment remain unverified. The setup
+page was visually and interactively checked under the administrator; this does
+not certify every event-dashboard panel or analyst-role combination. Shared
+definitions do not themselves prove analyst permissions. No account, role or
+index permission was changed for these tests.
 
 Automatic arbitrary-application coverage, full RHEL 9/10 coverage, other
 architectures, distributed deployments and production scale are unvalidated.

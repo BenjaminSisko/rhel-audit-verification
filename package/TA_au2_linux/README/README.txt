@@ -1,4 +1,31 @@
-RHEL Audit Verification 1.4.8
+RHEL Audit Verification 1.5.0
+
+Version1.5.0 adds Set up RHEL Audit Verification, the app's default landing
+page and first-run setup view. Use existing Splunk login: select up to5indexes,
+find candidate feeds, confirm/import up to200exact expected feeds, preview,
+explicitly approve Save, then Check saved setup. No configuration-file edits
+are needed for this supported standalone path. Admin object-write access is
+required to save; no new permissions are granted. Existing custom scope is
+not automatically replaced. Already configured? Use Open event dashboard.
+
+CSV header: event_host,index,sourcetype,owner,max_silence_seconds,enabled
+The owner and threshold require your confirmation. Discovery covers a bounded
+24-hour/10,001-record sample, not a complete inventory. Import silent systems.
+Source identities and supported sourcetypes must be reviewed, not inferred as
+Red Hat solely from log syntax. Read-only setup checks include a bounded content
+sample and never create acceptance receipts. Source rules, UFs and indexed
+records are unchanged. Other-role, clustered/Cloud and production-scale
+deployments require separate validation.
+
+Save retains a backup in local/aulx_setup.conf and creates a unique inventory
+CSV without overwriting the previous file. Retain the displayed backup ID.
+Restore previous wizard configuration rebinds the prior scope/inventory and
+configured flag, refusing later changes. Multi-object saves are not atomic;
+use one administrator/window at a time and keep the page open. Interrupted
+saves attempt guarded rollback. If recovery is incomplete, stop and inspect
+the named backup rather than retrying blindly. Preserve local configuration,
+metadata and operational lookups during upgrades. Legacy overview scope is
+not modified. Full standalone source bundle includes SETUP-WIZARD.md.
 
 Version1.4.8 adds USB overlapping closed-SSH-session context with preserved
 supporting references. It never replaces the physical actor or satisfies

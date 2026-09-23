@@ -3,7 +3,7 @@ set -euo pipefail
 
 project_dir=$(CDPATH= cd -- "$(dirname "$0")/.." && pwd)
 app_name=TA_au2_linux
-version=1.4.8
+version=1.5.0
 package_dir="$project_dir/package"
 dist_dir="$project_dir/dist"
 artifact="$dist_dir/$app_name-$version.spl"
